@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx" 
+		xmlns:busqueda="widgets.Interrupciones.busqueda.*" 
+		xmlns:resultado="widgets.Interrupciones.busqueda.resultado.*" 
+		xmlns:wizard="widgets.Interrupciones.wizard.*" 
+		xmlns:pasos="widgets.Interrupciones.wizard.pasos.*" 
+		xmlns:busqueda1="widgets.InterrupcionesClientesSED2.busqueda.*">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("widgets.Interrupciones.principal.Principal")]
+	</fx:Metadata>
+	
+	<s:VGroup verticalAlign="top"  width="100%" height="95%">
+		
+		<wizard:SelectorEtapa height="10%" id="selectorEtapa" principal="{hostComponent}" >
+		</wizard:SelectorEtapa>
+		
+		<mx:ViewStack id="stackPrincipal" creationPolicy="all" width="100%" height="95%" selectedIndex="1" resizeToContent="true"  >
+			<!--0--> 
+			<s:NavigatorContent >
+				<pasos:PasoFiltrosBasicosInterrupciones id="pasoFiltrosBasicosInterrupciones" selectorEtapa="{selectorEtapa}">
+				</pasos:PasoFiltrosBasicosInterrupciones>
+			</s:NavigatorContent>
+			
+			<!--1--> 
+			<s:NavigatorContent width="100%">
+				<pasos:PasoTablaInterrupciones id="pasoTablaInterrupciones"  principal="{hostComponent}" width="100%" height="95%" >
+				</pasos:PasoTablaInterrupciones>
+			</s:NavigatorContent>
+			
+			<!--2--> 
+			<s:NavigatorContent width="100%">
+				<pasos:PasoResultadoInterrupciones width="100%" id="pasoResultadoInterrupciones"  principal="{hostComponent}" >
+				</pasos:PasoResultadoInterrupciones>
+			</s:NavigatorContent>
+			
+			<!--3--> 
+			<s:NavigatorContent width="100%" height="100%" >
+				<s:VGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+					<mx:ProgressBar indeterminate="true" width="30%"  height="100%" label="" >
+					</mx:ProgressBar>	
+				</s:VGroup>
+			</s:NavigatorContent>
+		
+		</mx:ViewStack>
+		
+	</s:VGroup>
+</s:Skin>

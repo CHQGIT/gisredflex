@@ -1,0 +1,242 @@
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"                                                       
+				   xmlns:components="com.esri.viewer.components.*"
+				   xmlns:esri="http://www.esri.com/2008/ags" 
+				   initialize="startTimer()"
+				   >          
+	
+	<fx:Declarations>
+	
+		
+		<s:DateTimeFormatter id="dateFormatter" dateTimePattern="dd/MM/yyyy hh:mm"/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.symbols.SimpleMarkerSymbol;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			import com.google.analytics.core.EventTracker;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.rpc.AsyncResponder;
+			import mx.utils.StringUtil;
+			
+			import widgets.MantenimientoPodas.URLS;
+			import widgets.PO.Class.queries;
+			import widgets.PO.urls.Urls;
+			
+			public var qry:widgets.PO.Class.queries = new queries;
+			private var timer:Timer = new Timer(30000 , n_seconds_left);
+			
+			public var graphicLayer:GraphicsLayer = new GraphicsLayer;
+			public var layer:ArcGISDynamicMapServiceLayer = new ArcGISDynamicMapServiceLayer(widgets.PO.urls.Urls.PO_ORDENES);
+			
+			public var graphic:Graphic = new Graphic;
+			
+			
+			[Bindable]private var n_seconds_left:int=29;
+			private var timer2:Timer;
+			/**/
+			
+					
+			/**
+			 * Decrements the number of seconds left if it still is
+			 * bigger than 0. Otherwise stop the timer.
+			 * 
+			 */
+			private function decrementSeconds(event:TimerEvent):void {
+				if (this.n_seconds_left>0) {
+					n_seconds_left--;
+				}
+				else {
+					n_seconds_left = 29;
+				}
+			}
+			
+			
+			private function startTimer():void
+			{
+				timer.addEventListener(TimerEvent.TIMER, timerHandler);
+	
+				
+				
+				this.timer2= new Timer(1000);
+				timer2.addEventListener(TimerEvent.TIMER, decrementSeconds); 
+				
+				timer.start();
+				timer2.start();
+				
+			
+			}
+			
+			private function timerHandler(event:TimerEvent):void
+			{
+				qry.arrayClientesOrdenes.removeAll();	
+				qry.consultaClientesyOrdenes();
+				qry.consultaSED();
+				DataOrdenes.dataProvider = qry.arrayClientesOrdenes;
+				layer.refresh();
+			
+			}
+
+			
+			protected function wTemplate_initializeHandler(event:FlexEvent):void
+			{				
+			
+				
+				layer.name = "ORDENES PO";				
+				layer.visible = true;
+				layer.imageFormat = "png32";
+				
+				map.addLayer(layer);
+				
+				txtFilterOrdenes.addEventListener(Event.CHANGE,filterGrid);
+				
+				qry.consultaClientesyOrdenes();
+				qry.consultaSED();
+				DataOrdenes.dataProvider = qry.arrayClientesOrdenes;
+				
+				qry.cantClientes();
+			
+				
+			}
+			
+			protected function filterGrid(event:Event):void
+			{
+				
+				/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
+				Everything else is dynamic. Do not edit variable names. */
+				var filterText:String = StringUtil.trim(txtFilterOrdenes.text.toLowerCase()); //Trimmed text String to filter by
+				var columnArray:Array = ['ID_ORDEN','TIPO','NIS','ID_INCIDENCIA','ESTADO_ORDEN','F_CREACION']; //Datagrid column names to filter on
+				var gridDataProvider:ArrayCollection = qry.arrayClientesOrdenes as ArrayCollection; //Name of datagrid's dataprovider. In this case e.g. databases
+				var dataGridName:String = 'DataOrdenes'; //Name of the datagrid you are filtering by
+				
+				//Do not edit code past this point
+				var filteredData:Array = [];
+				var added:Boolean=false;
+				var i:int;
+				var j:int;
+				
+				// Loop Through Grid
+				for(i=0; i < gridDataProvider.length; i++){    
+					added = false;
+					
+					//Loop through grid column
+					for(j=0; j<columnArray.length; j++){            
+						if(gridDataProvider[i][columnArray[j]]!=null){
+							
+							//Grab datagrid cell contents, trim it, and convert to lowercase for comparison.
+							var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
+							
+							//Compare the datagrid string(filterString) to the user typed string(filterText).  
+							if(!added){      
+								//If the datagrid string matches the users string, put it into the array.
+								if(filterString.indexOf(filterText) != -1){
+									filteredData.push(gridDataProvider[i]);
+									added = true;
+								} 
+							}else{
+								//Do nothing, break out.
+								break;
+							}
+						}    
+					}
+				}
+				
+				//Set datagrid dataprovider
+				if(filterText.length == 0){
+					this[dataGridName].dataProvider = gridDataProvider; //Display the original unfiltered data
+				}else{
+					this[dataGridName].dataProvider = filteredData; //Pusht he filtered data into the datagrid
+				}
+			}
+			
+			
+			
+			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				map.removeLayer(layer);
+			}
+			
+			protected function wTemplate_openHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				layer.refresh();
+				map.addLayer(layer);
+				
+				
+			}
+			
+			protected function DataOrdenes_clickHandler(event:MouseEvent):void
+			{
+				//declaracion de featureset de respuesta
+				var feature:FeatureSet;
+				if (DataOrdenes.selectedItem['TIPO'] == 'CLIENTE')
+				{
+					feature = qry.ConsultaClientes(DataOrdenes.selectedItem['NIS']); 
+					//	ConsultaTrafo();qry.ConsultaClientes(DataOrdenes.selectedItem['NIS']);
+					map.zoomTo(feature.features[0].geometry);
+					map.level = 16;	
+				}
+				else
+				{				
+					feature = qry.ConsultaTrafo(DataOrdenes.selectedItem['CODIGO']); 
+					//	ConsultaTrafo();qry.ConsultaClientes(DataOrdenes.selectedItem['NIS']);
+					map.zoomTo(feature.features[0].geometry);
+					
+					map.level = 16;	
+				}
+			}		
+			
+		]]>
+	</fx:Script>
+	<viewer:WidgetTemplate id="wTemplate"                      
+						   width="800" height="500"
+						   visible="true" initialize="wTemplate_initializeHandler(event)"  closed="wTemplate_closedHandler(event)" open="wTemplate_openHandler(event)">
+		
+		<mx:Canvas id="Clientes"   label="Clientes" width="100%" height="100%" >
+			<s:VGroup width="100%" top="5" bottom="5" height="100%">
+				<mx:Label id="lblClientes" text="Listado de Ordenes" fontSize="18"/>
+				<mx:Label id="lblTiming" text="Faltan: {n_seconds_left} segundos para la próxima actualización" fontSize="10" right="3"/>
+				<s:HGroup width="100%" verticalAlign="middle">
+					<mx:TextInput x="10" id="txtFilterOrdenes" width="100%" height="30" fontSize="14" fontWeight="bold" />
+					<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png"/>
+					<mx:Label id="label1"/>
+				</s:HGroup>
+				<mx:DataGrid id="DataOrdenes" resizableColumns="true" sortableColumns="true" editable="false"  
+							 width="100%" height="100%" visible="true" selectable="true" click="DataOrdenes_clickHandler(event)">
+					<mx:columns>        
+						<mx:DataGridColumn dataField="OBJECTID" headerText="OBJECTID" visible="false" width="50" />                                                        
+						<mx:DataGridColumn dataField="TIPO" headerText="TIPO" width="50"/>
+						<mx:DataGridColumn dataField="ID_ORDEN" headerText="ID ORDEN" visible="true" width="50" />
+						<mx:DataGridColumn dataField="NIS" headerText="NIS" width="50" />   
+						<mx:DataGridColumn dataField="ID_INCIDENCIA" headerText="ID INCIDENCIA" width="50" /> 
+						<mx:DataGridColumn dataField="TIPO_EQUIPO" headerText="TIPO EQUIPO" visible="true" width="50" />
+						<mx:DataGridColumn dataField="ESTADO_ORDEN" headerText="ESTADO ORDEN" visible="true" width="50" />  
+						<mx:DataGridColumn dataField="F_CREACION" headerText="F. CREACION" visible="true" width="50"  />
+						<mx:DataGridColumn dataField="F_MODIFICACION" headerText="F. MODIFICACION" visible="true" width="50" />
+						<mx:DataGridColumn dataField="F_CIERRE" headerText="F.CIERRE" visible="true" width="50" />
+						<mx:DataGridColumn dataField="CODIGO" headerText="CODIGO" visible="true" width="50" />
+						
+						
+					</mx:columns>
+				</mx:DataGrid>
+				<s:Label id="CantCli" text="{qry.CantClientes}" >
+					
+				</s:Label>
+			</s:VGroup>
+		</mx:Canvas>
+		
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2010-2011 Esri. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+///////////////////////////////////////////////////////////////////////////
+-->
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   xmlns:viewer="com.esri.viewer.*"
+                   xmlns:toc="widgets.eLayerList.toc.*"
+                   mouseDown="wTemplate_clickHandler(event)"
+                   initialize="basewidget_initializeHandler()"
+                   widgetConfigLoaded="basewidget_widgetConfigLoaded()">
+    <fx:Script>
+        <![CDATA[
+            import com.esri.viewer.AppEvent;
+            
+            import mx.collections.ArrayCollection;
+            import mx.controls.Alert;
+
+            [Bindable]
+            private var title:String;
+            private var includeLegendItems:Boolean = true; // include legend items in the TOC
+            
+            [Embed(source="widgets/eLayerList/assets/images/plus.png")]
+            public var plus:Class;
+            
+            [Embed(source="widgets/eLayerList/assets/images/minus.png")]
+            public var minus:Class;
+            
+            [Bindable] private var expanded:Boolean = false;
+            
+            [Bindable] private var fullexpand:Boolean;
+            
+            [Bindable] private var legendCollapsed:Boolean = false;
+            
+            [Bindable] private var UseNewEsriDescrption:Boolean = false;
+            
+            [Bindable] private var ZoomToExtent:String;
+            
+            [Bindable] private var ZoomToMakeVisible:String;
+            
+            [Bindable] private var ExpandAll:String;
+            
+            [Bindable] private var CollapseAll:String;
+            
+            [Bindable] private var disableZoomTo:Boolean;
+            
+            [bindable] private var layerVisibilityLbl:String;
+            
+            private var excludeGraphicsLayers:Boolean = false;
+            
+            //Build Constants
+            protected const VERSION:String = "3.6";
+            protected const BUILDDATE:String = "12/18/2013";
+            
+            //Resources
+            [Embed(source="assets/images/i_about.png")]
+            private var iconClass:Class;
+
+            private function basewidget_initializeHandler():void
+            {
+                wTemplate.width = wTemplate.height = 300;
+            }
+
+            private function basewidget_widgetConfigLoaded():void
+            {
+                var expandLayerItems:Boolean = false;
+
+                if (configXML)
+                {
+                    ZoomToExtent = configXML.labels.zoomtoextent || "Zoom To Layer Extent";
+                    ZoomToMakeVisible = configXML.labels.zoomtomakevisible || "Zoom To Make Visible";
+                    ExpandAll = configXML.labels.expandall || "Expand All Layers";
+                    CollapseAll = configXML.labels.collapseall || "Collapse All Layers";
+                    disableZoomTo = configXML.tocsettings.disablezoomtomenuoption && configXML.tocsettings.disablezoomtomenuoption == "true";
+                    expanded = configXML.tocsettings.expanded && configXML.tocsettings.expanded == "true";
+                    if(expanded){
+                        fullexpand = configXML.tocsettings.expanded.@everything[0] && configXML.tocsettings.expanded.@everything[0] == "true";
+                    }
+                    legendCollapsed = configXML.tocsettings.collapselegends && configXML.tocsettings.collapselegends == "true";
+                    UseNewEsriDescrption = configXML.usenewesridescription && configXML.usenewesridescription == "true";
+                    title = configXML.labels.visibilitylabel || getDefaultString("layerListTitle");
+
+                    if (configXML.includelegenditems.length())
+                    {
+                        includeLegendItems = configXML.includelegenditems == "true";
+                    }
+                }
+
+                initTOC(expandLayerItems);
+                wTemplate.header.addEventListener(MouseEvent.CLICK, DisplayVersion);
+            }
+
+            private function initTOC(expandLayerItems:Boolean = false):void
+            {
+                if (isPartOfPanel) // if widget is part of "left", "right" or "bottom" panel
+                {
+                    this.percentWidth = this.percentHeight = 100;
+                    wTemplate.percentWidth = wTemplate.percentHeight = 100;
+                }
+                else
+                {
+                    wTemplate.width = wTemplate.height = 300;
+                }
+                
+                toc.map = map;
+                toc.isMapServiceOnly = false; //gotta get this from the config file
+                toc.excludeLayers = getExcludeLayers();
+                toc.basemapLayers = getBasemapLayers();
+                toc.excludeGraphicsLayers = true;
+                toc.excludeBasemapLayers = (configXML.excludebasemaplayers && configXML.excludebasemaplayers == "true");
+                toc.includeLegendItems = includeLegendItems;
+                toc.setStyle("disclosureOpenIcon", minus);
+                toc.setStyle("disclosureClosedIcon", plus);
+            }
+
+            private function getExcludeLayers():ArrayCollection
+            {
+                var result:ArrayCollection = new ArrayCollection();
+
+                if (configXML)
+                {
+                    excludeGraphicsLayers = configXML.excludegraphiclayers && configXML.excludegraphiclayers == "true";
+                    if (configData && configData.basemaps){
+                        if(configXML.excludebasemaplayers && configXML.excludebasemaplayers == "true"){
+                            var bname:String;
+                            // exclude basemaps
+                            for (var b:int = 0; b < configData.basemaps.length; b++){
+                                bname = configData.basemaps[b].label;
+                                var excludesb:Object ={
+                                    name: bname,
+                                    ids: null,
+                                    isbasemap: true
+                                }
+                                result.addItem(excludesb);
+                            }
+                        }
+                    }
+                    
+                    var excludeList:XMLList = configXML..excludelayer;
+                    for (var i:Number = 0; i < excludeList.length(); i++){
+                        var name:String = excludeList[i].@mapservice;
+                        var ids:String = excludeList[i];
+                        var idsArray:Array = ids.split(",");
+                        if(idsArray[0] == ""){
+                            idsArray = null;
+                        }
+                        var excludes:Object ={
+                            name: name,
+                            ids: idsArray,
+                            isbasemap: false
+                        }
+                        result.addItem(excludes);
+                    }
+                }
+
+                return result;
+            }
+
+            private function getBasemapLayers():ArrayCollection
+            {
+                var result:ArrayCollection = new ArrayCollection();
+
+                if (configData && configData.basemaps)
+                {
+                    for (var i:int = 0; i < configData.basemaps.length; i++)
+                    {
+                        result.addItem(configData.basemaps[i].label);
+                    }
+                }
+
+                return result;
+            }
+            
+            protected function wTemplate_clickHandler(event:MouseEvent):void
+            {
+                AppEvent.dispatch(AppEvent.TOC_HIDDEN); // always hide the layer options popup
+            }
+            
+            private function DisplayVersion(evt:MouseEvent):void
+            {
+                if(evt.altKey){
+                    Alert.show("Enhanced Layer List Widget Version: " + VERSION + "\nBuild Date: " + BUILDDATE,
+                        wTemplate.widgetTitle, 4, null, null, iconClass);
+                }
+            }
+        ]]>
+    </fx:Script>
+    <viewer:WidgetTemplate id="wTemplate"
+                           closed="AppEvent.dispatch(AppEvent.TOC_HIDDEN)"
+                           minimized="AppEvent.dispatch(AppEvent.TOC_HIDDEN)">
+        <s:VGroup gap="8" paddingTop="4" paddingLeft="6" paddingRight="6" paddingBottom="4" height="100%" width="100%">
+            <s:Label text="{title}"/>
+            <toc:TOC id="toc"
+                     labels="{[ZoomToMakeVisible,ExpandAll,CollapseAll]}"
+                     useesridescription="{UseNewEsriDescrption}"
+                     expanded="{expanded}"
+                     disableZoomTo="{disableZoomTo}"
+                     fullexpanded="{fullexpand}"
+                     legendCollapsed="{legendCollapsed}"
+                     width="100%" height="100%"/>
+        </s:VGroup>
+    </viewer:WidgetTemplate>
+</viewer:BaseWidget>

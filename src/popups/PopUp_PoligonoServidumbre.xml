@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>ID: {ID_POLIGON}</title>
+    <fields>
+        <field name="NOM_LINEA" alias="Nombre:" visible="true"/>
+        <field name="TIPO_SERVI" alias="Tipo servidumbre:" visible="true"/>
+        <field name="TIPO_PROPA" alias="Tipo:" visible="true"/>
+        
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

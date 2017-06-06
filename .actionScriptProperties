@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<actionScriptProperties analytics="false" mainApplicationPath="index.mxml" projectUUID="034d1e94-f1a9-4d3b-a1f5-4df718f153ab" version="11">
+  <compiler additionalCompilerArguments="-locale=en_US -source-path=locale/{locale} -keep-all-type-selectors=true" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="false" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="false" useFlashSDK="false" verifyDigests="true" warn="true">
+    <compilerSourcePath/>
+    <libraryPath defaultLinkType="0">
+      <libraryPathEntry kind="4" path="">
+        <excludedEntries>
+          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/flex.swc" useDefaultLinkType="false"/>
+          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/core.swc" useDefaultLinkType="false"/>
+        </excludedEntries>
+      </libraryPathEntry>
+      <libraryPathEntry kind="1" linkType="1" path="libs"/>
+      <libraryPathEntry kind="3" linkType="1" path="linked-swc/agslib-3.7-2014-11-06.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="linked-swc/papervision_phunky.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="linked-swc/tweener.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="linked-swc/analytics.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="linked-swc/as3xls-1.0.swc" useDefaultLinkType="false"/>
+    </libraryPath>
+    <sourceAttachmentPath/>
+  </compiler>
+  <applications>
+    <application path="index.mxml"/>
+  </applications>
+  <modules>
+    <module application="src/index.mxml" destPath="widgets/AttributeTable/AttributeTableWidget.swf" optimize="true" sourcePath="src/widgets/AttributeTable/AttributeTableWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Bookmark/BookmarkWidget.swf" optimize="true" sourcePath="src/widgets/Bookmark/BookmarkWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Coordinate/CoordinateWidget.swf" optimize="true" sourcePath="src/widgets/Coordinate/CoordinateWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Chart/ChartWidget.swf" optimize="true" sourcePath="src/widgets/Chart/ChartWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/DataExtract/DataExtractWidget.swf" optimize="true" sourcePath="src/widgets/DataExtract/DataExtractWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Draw/DrawWidget.swf" optimize="true" sourcePath="src/widgets/Draw/DrawWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Directions/DirectionsWidget.swf" optimize="true" sourcePath="src/widgets/Directions/DirectionsWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Edit/EditWidget.swf" optimize="true" sourcePath="src/widgets/Edit/EditWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Geoprocessing/GeoprocessingWidget.swf" optimize="true" sourcePath="src/widgets/Geoprocessing/GeoprocessingWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/GeoRSS/GeoRSSWidget.swf" optimize="true" sourcePath="src/widgets/GeoRSS/GeoRSSWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/HeaderController/HeaderControllerWidget.swf" optimize="true" sourcePath="src/widgets/HeaderController/HeaderControllerWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/LayerList/LayerListWidget.swf" optimize="true" sourcePath="src/widgets/LayerList/LayerListWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Locate/LocateWidget.swf" optimize="true" sourcePath="src/widgets/Locate/LocateWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Legend/LegendWidget.swf" optimize="true" sourcePath="src/widgets/Legend/LegendWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/MapSwitcher/MapSwitcherWidget.swf" optimize="true" sourcePath="src/widgets/MapSwitcher/MapSwitcherWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Navigation/NavigationWidget.swf" optimize="true" sourcePath="src/widgets/Navigation/NavigationWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/OverviewMap/OverviewMapWidget.swf" optimize="true" sourcePath="src/widgets/OverviewMap/OverviewMapWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Print/PrintWidget.swf" optimize="true" sourcePath="src/widgets/Print/PrintWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Query/QueryWidget.swf" optimize="true" sourcePath="src/widgets/Query/QueryWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Samples/HelloWorld/HelloWorldWidget.swf" optimize="true" sourcePath="src/widgets/Samples/HelloWorld/HelloWorldWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Samples/ThematicQuery/InfoColumnChartWidget.swf" optimize="true" sourcePath="src/widgets/Samples/ThematicQuery/InfoColumnChartWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Samples/ThematicQuery/ThematicQueryWidget.swf" optimize="true" sourcePath="src/widgets/Samples/ThematicQuery/ThematicQueryWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Search/SearchWidget.swf" optimize="true" sourcePath="src/widgets/Search/SearchWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Splash/SplashWidget.swf" optimize="true" sourcePath="src/widgets/Splash/SplashWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/StaticImage/StaticImageWidget.swf" optimize="true" sourcePath="src/widgets/StaticImage/StaticImageWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Time/TimeWidget.swf" optimize="true" sourcePath="src/widgets/Time/TimeWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/WidgetContainer/WidgetContainerWidget.swf" optimize="true" sourcePath="src/widgets/WidgetContainer/WidgetContainerWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/ConfigSelectSplash/ConfigSelectSplashWidget.swf" optimize="true" sourcePath="src/widgets/ConfigSelectSplash/ConfigSelectSplashWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/eMapSwitcher/eMapSwitcherWidget.swf" optimize="true" sourcePath="src/widgets/eMapSwitcher/eMapSwitcherWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/eSearch/eSearchWidget.swf" optimize="true" sourcePath="src/widgets/eSearch/eSearchWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/ExportMap/exportMap.swf" optimize="true" sourcePath="src/widgets/ExportMap/exportMap.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/CoordinateMenu/CoordinateMenuWidget.swf" optimize="true" sourcePath="src/widgets/CoordinateMenu/CoordinateMenuWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/CoordinateMenu/CoordinateMenuWidget_GUI.swf" optimize="true" sourcePath="src/widgets/CoordinateMenu/CoordinateMenuWidget_GUI.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/eSearch/SearchWidgetFixedDG.swf" optimize="true" sourcePath="src/widgets/eSearch/SearchWidgetFixedDG.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/eLayerList/eLayerListWidget.swf" optimize="true" sourcePath="src/widgets/eLayerList/eLayerListWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/StreetView/StreetViewWidget.swf" optimize="true" sourcePath="src/widgets/StreetView/StreetViewWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/GISRED360/GISRED360_Widget.swf" optimize="true" sourcePath="src/widgets/GISRED360/GISRED360_Widget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Measure/MeasureWidget.swf" optimize="true" sourcePath="src/widgets/Measure/MeasureWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/eDraw/eDrawWidget.swf" optimize="true" sourcePath="src/widgets/eDraw/eDrawWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Busqueda_Direcciones/Busqueda_Direcciones.swf" optimize="true" sourcePath="src/widgets/Busqueda_Direcciones/Busqueda_Direcciones.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Busqueda_Rutas/Busqueda_Rutas.swf" optimize="true" sourcePath="src/widgets/Busqueda_Rutas/Busqueda_Rutas.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/BusquedaExcel/BusquedaExcel.swf" optimize="true" sourcePath="src/widgets/BusquedaExcel/BusquedaExcel.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/TrazadoBT/TrazadoBT.swf" optimize="true" sourcePath="src/widgets/TrazadoBT/TrazadoBT.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/PlanificaExportCapex/PlanificaExportCapex.swf" optimize="true" sourcePath="src/widgets/PlanificaExportCapex/PlanificaExportCapex.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/PlanificaExportCapex2/PlanificaExportCapex2.swf" optimize="true" sourcePath="src/widgets/PlanificaExportCapex2/PlanificaExportCapex2.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/PMGDPlanificacion/PMGD_Planificacion.swf" optimize="true" sourcePath="src/widgets/PMGDPlanificacion/PMGD_Planificacion.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/TOC/TOCWidget.swf" optimize="true" sourcePath="src/widgets/TOC/TOCWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/FeatureTooltip/FeatureTooltipWidget.swf" optimize="true" sourcePath="src/widgets/FeatureTooltip/FeatureTooltipWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/GoogleAnalytics/GoogleAnalyticsWidget.swf" optimize="true" sourcePath="src/widgets/GoogleAnalytics/GoogleAnalyticsWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/IngresoClientes/IngresoClientes.swf" optimize="true" sourcePath="src/widgets/IngresoClientes/IngresoClientes.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Ingreso_clientes_estadisticas/Ingreso_clientes_estadisticas.swf" optimize="true" sourcePath="src/widgets/Ingreso_clientes_estadisticas/Ingreso_clientes_estadisticas.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Ingreso_clientes_estadisticas_cnr/Ingreso_clientes_estadisticas_cnr.swf" optimize="true" sourcePath="src/widgets/Ingreso_clientes_estadisticas_cnr/Ingreso_clientes_estadisticas_cnr.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/AdmIngresoClientes/AdmIngresoClientes.swf" optimize="true" sourcePath="src/widgets/AdmIngresoClientes/AdmIngresoClientes.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/AdmIngresoClientesCNR/AdmIngresoClientesCNR.swf" optimize="true" sourcePath="src/widgets/AdmIngresoClientesCNR/AdmIngresoClientesCNR.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/MantenimientoPodas/GestionActividades.swf" optimize="true" sourcePath="src/widgets/MantenimientoPodas/GestionActividades.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/MantenimientoPodas/GestionContratos.swf" optimize="true" sourcePath="src/widgets/MantenimientoPodas/GestionContratos.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/MantenimientoPodas/gestionCierreSolicitud.swf" optimize="true" sourcePath="src/widgets/MantenimientoPodas/gestionCierreSolicitud.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/MantenimientoPodas/GestionSolicitudes.swf" optimize="true" sourcePath="src/widgets/MantenimientoPodas/GestionSolicitudes.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Interrupciones/InterrupcionesWidget.swf" optimize="true" sourcePath="src/widgets/Interrupciones/InterrupcionesWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/InterrupcionesClientesSED2/InterrupcionesClientesSED2Widget.swf" optimize="true" sourcePath="src/widgets/InterrupcionesClientesSED2/InterrupcionesClientesSED2Widget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/PO/PO.swf" optimize="true" sourcePath="src/widgets/PO/PO.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/PowerOn/PowerOnWidget.swf" optimize="true" sourcePath="src/widgets/PowerOn/PowerOnWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Buscador/BuscadorWidget.swf" optimize="true" sourcePath="src/widgets/Buscador/BuscadorWidget.mxml"/>
+  </modules>
+  <workers/>
+  <buildCSSFiles/>
+  <flashCatalyst validateFlashCatalystCompatibility="false"/>
+</actionScriptProperties>

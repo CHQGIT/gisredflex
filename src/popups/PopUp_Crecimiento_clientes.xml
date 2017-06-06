@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>ID_Poligono: {ARCGIS.dbo.PLAN_POLIGONO_CRECIMIENTO_CLIENTES.id_poligono}</title>
+    <fields>
+        <field name="ARCGIS.DBO.PLAN_GEO_POLIGONOS_006.OBJECTID" alias="OBJECTID"/>
+        <field name="ARCGIS.DBO.PLAN_GEO_POLIGONOS_006.OBJECT_ID" alias="OBJECT_ID"/>
+        <field name="ARCGIS.DBO.PLAN_GEO_POLIGONOS_006.SHAPE" alias="SHAPE"/>
+        <field name="SHAPE.STArea()" alias="SHAPE.STArea()"/>
+        <field name="SHAPE.STLength()" alias="SHAPE.STLength()"/>
+        <field name="ARCGIS.dbo.PLAN_POLIGONO_CRECIMIENTO_CLIENTES.id_poligono" alias="id_poligono: "/>
+        <field name="ARCGIS.dbo.PLAN_POLIGONO_CRECIMIENTO_CLIENTES.clientes_inicial" alias="Clientes inicial: " visible="true"/>
+        <field name="ARCGIS.dbo.PLAN_POLIGONO_CRECIMIENTO_CLIENTES.clientes_final" alias="Clientes final: " visible="true"/>
+        <field name="ARCGIS.dbo.PLAN_POLIGONO_CRECIMIENTO_CLIENTES.clientes_normal" alias="Clientes normal: " visible="true"/>
+        <field name="ARCGIS.dbo.PLAN_POLIGONO_CRECIMIENTO_CLIENTES.clientes_crecimiento" alias="Clientes_crecimiento: " visible="true"/>
+        <field name="ARCGIS.dbo.PLAN_POLIGONO_CRECIMIENTO_CLIENTES.porcentaje" alias="Porcentaje: " visible="true"/>
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

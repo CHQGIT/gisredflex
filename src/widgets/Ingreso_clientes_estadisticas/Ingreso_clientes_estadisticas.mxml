@@ -1,0 +1,257 @@
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"				   
+				   xmlns:components="com.esri.viewer.components.*"
+				   xmlns:esri="http://www.esri.com/2008/ags" initialize="basewidget1_initializeHandler(event)">
+	
+	<viewer:states>
+		<s:State name="bkmInit"/>
+		<s:State name="bkmConsulta"/>
+	</viewer:states>
+	<viewer:transitions>
+		<s:Transition autoReverse="true" toState="*">
+			<s:Fade targets="{[bkmInit,bkmConsulta]}"/>
+		</s:Transition>
+	</viewer:transitions>
+	<fx:Declarations>
+		<s:GlowFilter id="glowFilter"
+					  alpha="1"
+					  color="{getStyle('focusColor')}"
+					  inner="true"
+					  strength="2"/>	
+		
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.as3xls.xls.ExcelFile;
+			import com.as3xls.xls.Sheet;
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			import com.esri.ags.tasks.supportClasses.StatisticDefinition;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.Image;
+			import mx.events.FlexEvent;
+			import mx.messaging.messages.ErrorMessage;
+			import mx.rpc.AsyncResponder;
+			
+			import comun.Planificacion.User;
+			import comun.url.URL;
+			
+			
+			
+			private var ColeccionUser:ArrayCollection = new ArrayCollection;
+			public var array1:Array = new Array;
+			private var frSave:FileReference;
+			
+			protected function basewidget1_initializeHandler(event:FlexEvent):void
+			{
+				ConsultarAcceso();		
+			}
+					
+			
+			protected function BtnConsultar_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				
+				var query:Query = new Query();
+				var queryTask:QueryTask = new QueryTask();
+				
+				var statsDef1:StatisticDefinition = new StatisticDefinition;
+				statsDef1.onStatisticField = "created_user";
+				statsDef1.outStatisticFieldName = "user_count";
+				statsDef1.statisticType =StatisticDefinition.TYPE_COUNT;
+				
+				query.groupByFieldsForStatistics = [ "created_user" ];
+				query.outStatistics = [ statsDef1 ];
+				query.where = "created_date >=" + "'" +  dateDesde.text + "'" + "and created_date <=" + "'" + dateHasta.text + "'" + " AND OS=999";
+				
+				queryTask.url = "http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/FeatureServer/0";
+				queryTask.execute(query,new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{ 
+					array1 = featureSet.attributes;
+					dg.dataProvider = new ArrayCollection(array1);
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					
+					Alert.show("No ha seleccionado la calle " + info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+				}
+			}
+			public function generateXLS(event:MouseEvent):void
+			{
+				
+				var s:Sheet = new Sheet();
+				s.resize(array1.length+1,2);
+				s.setCell(0,0,"User");
+				s.setCell(0,1,"Cantidad");				
+			
+				for(var j:int=0;j<array1.length;j++)
+				{
+					s.setCell(j+1,0,array1[j].created_user);
+					s.setCell(j+1,1,array1[j].user_count);
+				
+					
+				}
+				
+				try {					
+					var fileTosave:ExcelFile = new ExcelFile();
+					fileTosave.sheets.addItem(s);
+					var fileBytes:ByteArray = fileTosave.saveToByteArray();
+					frSave = new FileReference();
+					frSave.save(fileBytes, "Creacion_clientes.xls");
+					frSave.addEventListener(Event.COMPLETE,grabadoListo);
+					//	statuslbl2.text = "Archivo Guardado";
+					
+					
+					
+				}catch(e:ErrorMessage){
+					Alert.show("Error al guardar archivo" + e);
+					//statuslbl2.text = "Archivo no Guardado";
+				}
+				
+			}
+			public function grabadoListo(event:Event):void{
+				Alert.show("Archivo creado exitosamente");
+			}
+			
+			
+			protected function ConsultarAcceso():void
+			{
+				
+				var queryTaskUserSelected:QueryTask = new QueryTask();
+				queryTaskUserSelected.url = comun.url.URL.URL_ACCESO;
+				queryTaskUserSelected.useAMF = false;
+				var queryEquipoSelected:Query = new Query();
+				queryEquipoSelected.outFields = ["*"];
+				queryEquipoSelected.returnGeometry = true;     
+				queryEquipoSelected.orderByFields = ["usuario"];
+				queryEquipoSelected.where = "usuario = '" + User.Usuario + "' AND widget='ESTADISTICAS' AND select_='TRUE'" ;
+				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryEquipoSelected.outSpatialReference = map.spatialReference;
+				queryTaskUserSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					if(featureSet.features.length == 0 ){
+						//     Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
+						//currentState = "bkmInit"; 
+						currentState ="bkmInit";
+						lblwarning.visible = true;
+						lblwarning2.visible = true;
+						pbGisred.visible = true;
+						wTemplate.height = 500;
+						wTemplate.width = 800;
+					}
+						//si hay, cuales son los permisos
+					else{               
+						ColeccionUser.addAll(new ArrayCollection(featureSet.attributes));
+						
+						for(var i:int=0;i<=ColeccionUser.length-1;i++){
+							
+					
+							currentState ="bkmConsulta";
+							wTemplate.height = 300;
+							wTemplate.width = 350;
+							
+						}
+					}
+				}      
+				
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					//Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
+					currentState ="bkmInit";
+					lblwarning.visible = true;
+					lblwarning2.visible = true;
+					pbGisred.visible = true;
+					wTemplate.width = 800;
+					wTemplate.height = 500;
+				}
+				
+			}
+			
+			protected function bkmInit_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				var verImageGISRED:Image = new Image;
+				
+				//imagen configuraciones
+				verImageGISRED.scaleContent = true;
+				verImageGISRED.maintainAspectRatio =false;
+				verImageGISRED.percentWidth = 300;
+				verImageGISRED.percentHeight = 300;
+				verImageGISRED.source =  "assets/images/128x128.png";
+				pbGisred.addChild(verImageGISRED);
+				
+			}
+			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				//currentState= "bkmSoli";
+			
+			}
+			
+			protected function wTemplate_openHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				wTemplate.height =350;
+				wTemplate.width = 300;
+			}
+			
+		]]>
+		
+		
+	</fx:Script>
+	<viewer:WidgetTemplate id="wTemplate" width="350" height="300" visible="true"
+						   closed="wTemplate_closedHandler(event)" open="wTemplate_openHandler(event)">
+		<s:Group id="bkmInit" width="100%" height="100%" initialize="bkmInit_initializeHandler(event)"
+				 visible="false" visible.bkmInit="true">	
+			<s:VGroup horizontalAlign="center" height="100%" width="100%" verticalAlign="middle">
+				<mx:Canvas width="200" height="200" id="pbGisred" color="0x000000" horizontalScrollPolicy="off"
+						   verticalScrollPolicy="off" visible="false"/>                                           
+				<s:Label id="lblwarning" text="No tiene permisos para acceder a este módulo." 
+						 fontSize="16" visible="false" paddingTop="10"/>
+				<s:Label id="lblwarning2" text="Comuniquese con el administrador de GISRED" 
+						 fontSize="16" visible="false" paddingTop="10"/>
+			</s:VGroup>
+		</s:Group> 
+
+		<s:Group id="bkmConsulta"
+				 width="100%" height="100%"
+				 visible="false"
+				 visible.bkmConsulta="true">
+		<s:VGroup height="100%" width="100%">
+			<s:HGroup horizontalAlign="center">
+				<mx:DateField id="dateDesde" text="Desde" formatString="DD/MM/YYYY"/>
+				<mx:DateField id="dateHasta" text="Hasta" formatString="DD/MM/YYYY"/>
+			</s:HGroup>
+			<s:HGroup height="100%" width="100%" >
+				<s:DataGrid id="dg" height="100%" width="100%">
+					<s:columns>
+						<s:ArrayList>
+							<s:GridColumn width="150" dataField="created_user" headerText="USUARIO"/>
+							<s:GridColumn width="100" dataField="user_count" headerText="CANTIDAD"/>
+						</s:ArrayList>
+					</s:columns>
+				</s:DataGrid>	
+			</s:HGroup>	
+			
+			<s:HGroup width="100%" verticalAlign="middle" horizontalAlign="center">
+				<s:Button id="BtnConsultar" label="Consultar" click="BtnConsultar_clickHandler(event)"/>				
+				<s:Button id="Exportar" icon="assets/images/excel.png" skinClass="skins.TransparentButtonSkin" click="generateXLS(event)" />
+			</s:HGroup>
+			
+		</s:VGroup>	
+		</s:Group>
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

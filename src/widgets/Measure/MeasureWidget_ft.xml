@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<configuration>
+ 	<mapunits>esriFeet</mapunits>
+    <distanceunits>
+        <distanceunit abbr="ft" conversion="1" decimalplaces="0">Feet</distanceunit>
+        <distanceunit abbr="mi" conversion="0.000189393" decimalplaces="2">Miles</distanceunit>
+        <distanceunit abbr="m" conversion="0.3048" decimalplaces="0">Meters</distanceunit>
+        <distanceunit abbr="km" conversion="0.0003048" decimalplaces="2">Kilometers</distanceunit>
+        <distanceunit abbr="yd" conversion="0.3333" decimalplaces="0">Yards</distanceunit>
+    </distanceunits>
+    <areaunits>
+        <areaunit abbr="sq mi" conversion="0.00000003587006428" decimalplaces="2">Square Miles</areaunit>
+        <areaunit abbr="ac" conversion="0.000022956841139" decimalplaces="2">Acres</areaunit>
+        <areaunit abbr="sq ft" conversion="1" decimalplaces="0">Square Feet</areaunit>
+        <areaunit abbr="sq km" conversion="0.00000009290304" decimalplaces="2">Square Kilometers</areaunit>
+        <areaunit abbr="sq m" conversion="0.09290304" decimalplaces="0">Square Meters</areaunit>
+        <areaunit abbr="sq yd" conversion="0.11111111" decimalplaces="0">Square Yards</areaunit>
+    </areaunits>
+	<labels>
+	    <!-- Widget menu labels -->
+		<clearlabel>Clear Measurements</clearlabel>
+	</labels>
+</configuration>

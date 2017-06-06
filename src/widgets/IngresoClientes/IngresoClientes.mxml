@@ -1,0 +1,1364 @@
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"				   
+				   xmlns:components="com.esri.viewer.components.*"
+				   xmlns:esri="http://www.esri.com/2008/ags" 
+				   
+				   >	
+	<viewer:states>
+		<s:State name="bkmIngresoClientes"/>
+		<s:State name="bkmAddPoste"/>
+		<s:State name="bkmAddDireccion"/>
+	</viewer:states>
+	
+	<viewer:transitions>
+		<s:Transition autoReverse="true" toState="*">
+			<s:Fade targets="{[bkmIngresoClientes,bkmAddPoste,bkmAddDireccion]}"/>
+		</s:Transition>
+	</viewer:transitions>
+	
+	
+	
+	<fx:Declarations>
+		<esri:SimpleMarkerSymbol id="sms"
+								 alpha="0.5"
+								 color="0x00FFFF"
+								 size="20"
+								 style="circle"/>
+		
+		
+		<esri:SimpleLineSymbol id="slsDireccion"
+							   width="5"
+							   alpha="0.9"
+							   color="0xFF0033"
+							   style="solid"/>
+		
+		<esri:SimpleLineSymbol id="slsPoste"
+							   width="5"
+							   alpha="0.9"
+							   color="0x006600CC"
+							   style="solid"/>
+		
+		
+		<fx:Array id="validatorsArray">
+			
+			<mx:StringValidator id="txtNISValidator" source="{txtNIS}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>   
+			<mx:StringValidator id="txtNumeroMedidorValidator" source="{txtNumeroMedidor}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>   
+			<mx:NumberValidator id="ddlTipoMedidorValidator" source="{ddlTipoMedidor}" property="selectedIndex" minValue="0" lowerThanMinError="{ddlTipoMedidor.prompt}" trigger="{btnAgregarCliente}" triggerEvent="click"/>
+			<mx:NumberValidator id="ddlTipoTecnologiaMedidorValidator" source="{ddlTecnologiaMedidor}" property="selectedIndex" minValue="0" lowerThanMinError="{ddlTecnologiaMedidor.prompt}" trigger="{btnAgregarCliente}" triggerEvent="click"/>
+			<mx:StringValidator id="lblDireccionValidator" source="{lblDireccion}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>
+			<mx:StringValidator id="lblRotuloValidator" source="{lblRotulo}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>    
+			<mx:NumberValidator id="ddlTipoEmpalme1Validator" source="{ddlTipoEmpalme1}" property="selectedIndex" minValue="0" lowerThanMinError="{ddlTipoEmpalme1.prompt}" trigger="{btnAgregarCliente}" triggerEvent="click"/>
+			<mx:StringValidator id="txtOSValidator" source="{txtOS}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>    
+			
+			
+			<mx:StringValidator id="lblIDDireccionValidator" source="{lblIDDireccion}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>    
+			<mx:StringValidator id="estadoDireccionValidator" source="{estadoDireccion}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>
+			<mx:StringValidator id="lblIDRotuloValidator" source="{lblIDRotulo}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>
+			</fx:Array>	
+		
+		
+		<fx:Array id="validatorsAgregarDireccion">
+			
+			<mx:StringValidator id="txtCalleValidator" source="{txtCalle}" property="text" required="true" trigger="{btnAgregarNuevaDireccion}" triggerEvent="click"/>   
+			<mx:StringValidator id="txtNumeroDireccionValidator" source="{txtNumeroDireccion}" property="text" required="true" trigger="{btnAgregarNuevaDireccion}" triggerEvent="click"/>   
+			<mx:NumberValidator id="ddlTipoEdificacionValidator" source="{ddlTipoEdificacion}" property="selectedIndex" minValue="0" lowerThanMinError="{ddlTipoEdificacion.prompt}" trigger="{btnAgregarNuevaDireccion}" triggerEvent="click"/>
+				
+			
+		</fx:Array>	
+		<fx:Array id="validatorsAgregarPoste">
+			
+			<mx:StringValidator id="txtNuevoRotuloValidator" source="{txtNuevoRotulo}" property="text" required="true" trigger="{btnAgregarNuevoRotulo}" triggerEvent="click"/>   
+			<mx:NumberValidator id="ddlTipoPosteValidator" source="{ddlTipoPoste}" property="selectedIndex" minValue="0" lowerThanMinError="{ddlTipoPoste.prompt}" trigger="{btnAgregarNuevoRotulo}" triggerEvent="click"/>
+			<mx:NumberValidator id="ddlTensionValidator" source="{ddlTension}" property="selectedIndex" minValue="0" lowerThanMinError="{ddlTension.prompt}" trigger="{btnAgregarNuevoRotulo}" triggerEvent="click"/>
+			
+			
+		</fx:Array>	
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.SpatialReference;
+			import com.esri.ags.events.MapMouseEvent;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.geometry.Polygon;
+			import com.esri.ags.geometry.Polyline;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.symbols.SimpleMarkerSymbol;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.rpc.AsyncResponder;
+			import mx.validators.Validator;
+			
+			import widgets.IngresoClientes.utilidad.cargarCombos;
+			import widgets.IngresoClientes.utilidad.cliente;
+			import widgets.IngresoClientes.utilidad.direccion;
+			import widgets.IngresoClientes.utilidad.poste;
+			import widgets.IngresoClientes.utilidad.urls;
+			
+			
+			
+			//inicializa la clase cargarCombos
+			public var cargaCombo:cargarCombos = new cargarCombos;
+			public var customer:cliente = new cliente;
+			public var address:direccion = new direccion;
+			public var pipe:poste = new poste;
+		
+			//crea un graphiclayer
+			public var myGraphicsLayer:GraphicsLayer =  new GraphicsLayer;
+			
+			public var CalleEncontrada:ArrayList = new ArrayList;
+			public var CalleNuevaEncontrada:ArrayList = new ArrayList;
+			
+			public var RotuloEncontrado:ArrayList = new ArrayList;
+			public var RotuloNuevoEncontrado:ArrayList = new ArrayList;
+			
+			
+			public var graphicCliente:Graphic;
+			public var graphicDireccion:Graphic;
+			public var graphicPoste:Graphic;
+			
+			public var graphicNuevaDireccion:Graphic;
+			public var graphicNuevoPoste:Graphic;
+			[Bindable]private var errors:Array;
+			//functions
+			
+			public function funcionesBtn(event:MouseEvent):void{
+				switch(event.currentTarget.id)
+				{
+					case "btnIrAgregarPoste":
+					{
+						
+						limpiarCampos(2);
+						wTemplate.width = 500;
+						wTemplate.height = 270;
+						currentState ="bkmAddPoste";
+						break;
+					}
+					case "btnIrAgregarDireccion":
+					{
+						limpiarCampos(1);
+						tbtnDireccion.selected = false;
+						wTemplate.width = 500;
+						wTemplate.height = 510;
+						currentState ="bkmAddDireccion";
+						break;
+					}
+					case "btnAgregarCliente":
+					{
+						errors = new Array();
+						errors = Validator.validateAll(validatorsArray);
+						if (errors.length == 0)
+						{
+								try
+								{
+									//si se agrega el cliente, hacer las dos lineas
+									customer.addCliente(
+										int(txtNIS.text), //nis
+										int(txtNumeroMedidor.text),  //numero medidor
+										String(ddlTipoEmpalme1.selectedItem.descripcion), //tipo empalme
+										String(ddlTipoMedidor.selectedItem.descripcion), //tipo medidor
+										String(ddlTecnologiaMedidor.selectedItem.descripcion), //tipo tecnologia medidor
+										int(txtOS.text), //os
+										int(lblIDRotulo.text),  //id poste existente (nodo)
+										estadoPoste.text, //tipo poste o camara,validar si existe  o no
+										int(lblIDDireccion.text), //id direccion existente
+										estadoDireccion.text, //validar en caso de existir id direccion o no
+										graphicCliente, //envia el punto de ubicacion del cliente
+										graphicDireccion, //envia la linea cliente- direccion
+										graphicPoste) // envia la linea cliente - poste y abre if
+									
+										
+									
+										hayDireccion = 0;
+										hayCliente = 0;
+										
+										//Agregar lineas: 								
+											//Agregar linea c-p
+											customer.agregarLineaCP(int(lblIDRotulo.text),lblRotulo.text,int(txtNIS.text));
+											customer.agregarLineaCD(int(lblIDDireccion.text),int(txtNIS.text));
+											map.removeLayer(myGraphicsLayer);
+											customer.myCustomer.refresh();
+											customer.myLineCP.refresh();
+											limpiarIngresoCliente();
+									
+									
+									
+								} 
+								catch(error:Error) 
+								{
+									Alert.show("No se pudo ingresar el cliente o la union del cliente. Por favor contáctese con el Administrador de GISRED.");
+								}
+						}else
+						{                          
+							Alert.show('Por favor complete los campos requeridos.','Revise los campos requeridos.');                                       
+						}
+								
+						
+						break;
+					}
+					case "btnAgregarNuevaDireccion":
+					{
+						
+						var errors2:Array = new Array();
+						errors2 = Validator.validateAll(validatorsAgregarDireccion);
+						if (errors2.length == 0)
+						{
+								address.crearNuevaDireccion(
+									String(txtCalle.text),
+									String(txtNumeroDireccion.text),
+									String(txtAnexo1.text),
+									String(txtAnexo2.text),
+									String(ddlTipoEdificacion.selectedItem.descripcion), 
+									graphicNuevaDireccion);
+								
+								
+								//desabilitar boton y foco
+								tbtnNuevaDireccion.label = "On";
+								map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+								
+								map.removeLayer(myGraphicsLayer);
+								direccion.myDireccion.refresh();
+								hayCliente = 0;
+								tbtnNuevaDireccion.selected = false;
+								currentState ="bkmIngresoClientes";
+								wTemplate.width = 500;
+								wTemplate.height = 535;
+						}else
+							{                          
+							Alert.show('Por favor complete los campos requeridos.','Revise los campos requeridos.');                                       
+							}
+						break;
+					}
+					case "btnAgregarNuevoRotulo":
+					{
+						var errors3:Array = new Array();
+						errors3 = Validator.validateAll(validatorsAgregarPoste);
+						if (errors3.length == 0)
+						{
+							pipe.crearNuevoPoste(txtNuevoRotulo.text,ddlTipoPoste.selectedItem.descripcion,ddlTension.selectedItem.descripcion,graphicNuevoPoste);
+							
+							
+							//desabilitar boton y foco
+							tbtnNuevoRotulo.label = "On";
+							tbtnNuevoRotulo.selected = false;
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+							
+							map.removeLayer(myGraphicsLayer);
+							poste.myPoste.refresh();
+							
+							hayCliente = 0;
+							hayDireccion = 0;
+							currentState ="bkmIngresoClientes";
+							wTemplate.width = 500;
+							wTemplate.height = 535;
+						}else
+						{                          
+							Alert.show('Por favor complete los campos requeridos.','Revise los campos requeridos.');                                       
+						}
+						break;
+					}
+						
+						
+										
+					case "btnVolverRotulo":
+					{
+						wTemplate.width = 500;
+						wTemplate.height = 535;
+						currentState ="bkmIngresoClientes";
+						//desabilitar boton y focos
+						tbtnNuevaDireccion.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+						tbtnCliente.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+						tbtnRotulo.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+						tbtnDireccion.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+						tbtnNuevoRotulo.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+						break;
+					}
+					case "btnVolverDireccion":
+					{
+						hayCliente = 0;
+						wTemplate.width = 500;
+						wTemplate.height = 535;
+						currentState ="bkmIngresoClientes";
+						//desabilitar boton y focos
+						tbtnNuevaDireccion.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+						tbtnCliente.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+						tbtnRotulo.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+						tbtnDireccion.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+						tbtnNuevoRotulo.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+						
+						break;
+					}
+							
+						
+					default:
+					{
+						break;
+					}
+				}
+			
+			}
+			
+		/*	//graba cliente en servicio
+			public function validaAddCliente():int {
+				var validacion:int = 0;
+				
+				
+				return validacion;
+			}
+		*/	
+			//carga todos los combos 
+			protected function bkmIngresoClientes_initializeHandler(event:FlexEvent):void
+			{
+				
+				// TODO Auto-generated method stub
+				ddlTipoMedidor.dataProvider = cargaCombo.cargaTipoMedidor();
+				ddlTecnologiaMedidor.dataProvider = cargaCombo.cargaTecnologiaMedidor();
+				ddlTipoEmpalme1.dataProvider = cargaCombo.cargaTipoEmpalme();
+				
+			}
+			
+			
+			
+			protected function bkmAddPoste_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				ddlTipoPoste.dataProvider = cargaCombo.cargaTipoPoste();
+				ddlTension.dataProvider = cargaCombo.cargaTipoTension();
+			}
+			
+			protected function bkmAddDireccion_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				ddlTipoEdificacion.dataProvider = cargaCombo.cargaTipoEdificacion();
+				
+			}
+			
+			
+			//TOGGLE BUTTONS
+			
+			
+			protected function tbFunction(event:MouseEvent):void
+			{
+				
+				// TODO Auto-generated method stub
+				switch(event.currentTarget.id)
+				{
+					//1
+					case "tbtnCliente":
+					{
+						
+						if (event.target.selected){		
+							//Apagar los dos anteriores.
+							
+							tbtnDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+							tbtnNuevaDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+							tbtnSeleccionarCalle.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+							tbtnRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+							tbtnNuevoRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+							
+							
+							tbtnDireccion.selected = false;
+							tbtnNuevaDireccion.selected = false;
+							tbtnSeleccionarCalle.selected = false;
+							tbtnRotulo.selected = false;
+							tbtnNuevoRotulo.selected = false;
+							
+							
+							//elegir ubicacion cliente
+							tbtnCliente.label = "Off";
+							map.addEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+						} else{
+							
+							tbtnCliente.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+						}
+						break;
+					} //2
+					case "tbtnDireccion":
+					{
+						if (event.target.selected){	
+							
+							//Apagar los dos anteriores.
+							tbtnCliente.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+							tbtnRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+							tbtnNuevoRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+							tbtnNuevaDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+							tbtnSeleccionarCalle.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+							
+							tbtnCliente.selected = false;
+							tbtnRotulo.selected = false;
+							tbtnNuevaDireccion.selected = false;
+							tbtnNuevoRotulo.selected = false;
+							tbtnSeleccionarCalle.selected = false;
+							
+							//elegir direccion
+							tbtnDireccion.label = "Off";
+							map.addEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+						} else{
+							
+							tbtnDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+						}
+						break;
+					}//3
+					case "tbtnRotulo":
+					{
+						if (event.target.selected){	
+							//Apagar los dos anteriores.
+							tbtnCliente.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+							tbtnNuevoRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+							tbtnDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+							tbtnNuevaDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+							tbtnSeleccionarCalle.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+							
+							
+							tbtnCliente.selected = false;
+							tbtnDireccion.selected = false;
+							tbtnNuevaDireccion.selected = false;
+							tbtnNuevoRotulo.selected = false;
+							tbtnSeleccionarCalle.selected = false;
+							
+							//elegir rotulo
+							tbtnRotulo.label = "Off";
+							map.addEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+						} else{
+							
+							tbtnRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+						}
+						break;
+						
+					}//4
+					case "ddlTipoEmpalme1":
+					{
+							//Apagar todos los  anteriores.
+							tbtnCliente.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+							tbtnRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+							tbtnDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+							tbtnSeleccionarCalle.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+							tbtnNuevaDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+							tbtnNuevoRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+							
+							tbtnCliente.selected = false;
+							tbtnRotulo.selected = false;
+							tbtnDireccion.selected = false;
+							tbtnNuevaDireccion.selected = false;
+							tbtnNuevoRotulo.selected = false;
+							tbtnSeleccionarCalle.selected = false;
+							break;
+					}//5
+						
+					case "tbtnNuevaDireccion":
+					{
+						myGraphicsLayer.clear();
+						if (event.target.selected){	
+							
+							//apagar los demas botones.
+							tbtnCliente.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+							tbtnRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+							tbtnDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+							tbtnNuevoRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+							tbtnSeleccionarCalle.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+							
+							
+							tbtnCliente.selected = false;
+							tbtnRotulo.selected = false;
+							tbtnDireccion.selected = false;
+							tbtnNuevoRotulo.selected = false;
+							tbtnSeleccionarCalle.selected = false;
+							
+							tbtnNuevaDireccion.label = "Off";
+							address.setSMS(sms);
+							map.addEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+						} else{
+							
+							tbtnNuevaDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+						}
+						break;
+					}
+						//6
+					case "tbtnNuevoRotulo":
+					{
+						
+						if (event.target.selected){	
+							
+							//apagar los demas botones.
+							tbtnCliente.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+							tbtnRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+							tbtnDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+							tbtnNuevaDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+							tbtnSeleccionarCalle.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+							
+							
+							tbtnCliente.selected = false;
+							tbtnRotulo.selected = false;
+							tbtnDireccion.selected = false;
+							tbtnNuevaDireccion.selected = false;
+							tbtnSeleccionarCalle.selected = false;
+							
+							tbtnNuevoRotulo.label = "Off";
+							map.addEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+						} else{
+							
+							tbtnNuevoRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+						}
+						break;
+					}//7
+						
+					case "tbtnSeleccionarCalle":
+					{
+						
+						if (event.target.selected){	
+							//apagar los demas botones.
+							tbtnCliente.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+							tbtnRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+							tbtnDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+							tbtnNuevaDireccion.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+							tbtnNuevoRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+							
+							tbtnCliente.selected = false;
+							tbtnRotulo.selected = false;
+							tbtnDireccion.selected = false;
+							tbtnNuevaDireccion.selected = false;
+							tbtnNuevoRotulo.selected = false;
+							
+							
+							
+							tbtnSeleccionarCalle.label = "Off";
+							map.addEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+							
+						} else{
+							
+							tbtnSeleccionarCalle.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+						}
+						break;
+					}//8
+					case "txtNumeroDireccion":
+					{
+						//Apagar todos los  anteriores.
+						tbtnCliente.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+						tbtnRotulo.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+						tbtnDireccion.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+						tbtnSeleccionarCalle.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+						tbtnNuevaDireccion.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+						tbtnNuevoRotulo.label = "On";
+						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+						
+						tbtnCliente.selected = false;
+						tbtnRotulo.selected = false;
+						tbtnDireccion.selected = false;
+						tbtnNuevaDireccion.selected = false;
+						tbtnNuevoRotulo.selected = false;
+						tbtnSeleccionarCalle.selected = false;
+						break;
+					}
+						
+					
+					default:
+					{
+						break;
+					}
+				}
+			}
+			
+			public function selectUbicacionNuevaDireccion(event:MapMouseEvent):void{
+				map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
+				myGraphicsLayer.remove(graphicNuevaDireccion);
+				direccion.geom_ubicacionNuevaDireccion = event.mapPoint;
+				graphicNuevaDireccion = new Graphic (event.mapPoint,sms);
+				myGraphicsLayer.add(graphicNuevaDireccion);
+				map.addLayer(myGraphicsLayer);
+				
+			}
+			
+			public function selectUbicacionNuevoPoste(event:MapMouseEvent):void{
+				myGraphicsLayer.clear();
+				map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
+				myGraphicsLayer.remove(graphicNuevoPoste);
+				poste.geom_ubicacionNuevoPoste = event.mapPoint;
+				graphicNuevoPoste = new Graphic (event.mapPoint,sms);
+				myGraphicsLayer.add(graphicNuevoPoste);
+				map.addLayer(myGraphicsLayer);
+				
+			}
+			
+			public function selectCalle(event:MapMouseEvent):void{
+				map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
+				//guarda la calle seleccionada para la nueva dirección
+				
+				//busqueda espacial
+				var query:Query = new Query();
+				query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+				var rectangulo:Polygon=new Polygon;
+				rectangulo.addRing(crearRectangulo(event.mapPoint,1));
+				query.geometry = rectangulo;
+				var parametros:ArrayList=new ArrayList;
+				parametros.addItem("id_segmento");
+				parametros.addItem("nombre");
+				
+				query.outFields=parametros.toArray();			
+				query.returnGeometry = true;
+				query.where ="1=1"; 
+				
+				var queryTask:QueryTask =  new QueryTask;
+				queryTask.url = urls.URL_CALLES;
+				queryTask.token = cargarCombos.token as String;
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					CalleEncontrada=new ArrayList;
+					
+					if (featureSet.features.length > 0)
+					{
+						for each (var encontrado:Graphic in featureSet.features)
+						{							
+							CalleEncontrada.addItem(encontrado);
+							
+						}
+					}else{
+						
+						Alert.show("Calle no encontrada. ¿Desea indicar el nombre de la calle? ","Agregar Direccion",mx.controls.Alert.YES | mx.controls.Alert.NO,null,alertClickHandler);
+						
+						function alertClickHandler(evt:CloseEvent):void 
+						{
+							if (evt.detail == Alert.YES)
+							{      
+								txtCalle.enabled = true;
+								tbtnSeleccionarCalle.label = "On";
+								map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+							}else{
+								txtCalle.enabled = false;
+							}
+						}
+						
+					}
+					
+					if (CalleEncontrada.length>0){
+						var calle:String= encontrado.attributes["nombre"];
+						
+						txtCalle.text = calle;
+						direccion.calleSelected = encontrado.attributes["nombre"];
+						
+						direccion.segmentoid =encontrado.attributes["id_segmento"]; 
+						
+						
+						
+					}
+					else{
+						txtCalle.text = "";
+					}
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					
+					Alert.show("No ha seleccionado la calle " + info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+				}
+				
+				
+			}
+			
+			
+			public var hayCliente:int = 0;
+			public var hayDireccion:int = 0;
+			public var hayPoste:int = 0;
+			
+			
+			//Agrega ubicacion de cliente 
+			protected function selectUbicacionCliente(event:MapMouseEvent):void{
+				map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
+				myGraphicsLayer.clear();
+				//borra todas las lineas guardadas.
+				
+				
+				//guarda geometria cliente
+				cliente.geom_ubicacionCliente =event.mapPoint;
+				hayCliente = 1;
+				
+				//guarda el punto de la ubicacion del cliente en el mapa
+				graphicCliente = new Graphic(event.mapPoint, sms);
+				
+				if (hayDireccion){
+					myGraphicsLayer.add(graphicCliente);
+					var pLineClienteDireccion:Polyline = new Polyline([[cliente.geom_ubicacionCliente,cliente.geom_ubicacionDireccion]],new SpatialReference(102100));
+					graphicDireccion = new Graphic(pLineClienteDireccion,slsDireccion);
+					myGraphicsLayer.add(graphicDireccion);
+					map.addLayer(myGraphicsLayer);
+				}
+				else {
+					myGraphicsLayer.add(graphicCliente);
+					map.addLayer(myGraphicsLayer);
+				}
+				
+			}
+			
+			public function selectDireccion(event:MapMouseEvent):void{
+				map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
+				//guarda geometria direccion
+				//valida que la ubicacion del cliente esté
+					if (hayCliente){
+					cliente.geom_ubicacionDireccion =event.mapPoint;	
+					hayDireccion = 1;	
+					//limpia geometria anterior
+					myGraphicsLayer.remove(graphicDireccion);
+					var pLineClienteDireccion:Polyline = new Polyline([[cliente.geom_ubicacionCliente,cliente.geom_ubicacionDireccion]],new SpatialReference(102100));
+					
+					//guarda la linea que une al cliente con la direccion
+					graphicDireccion = new Graphic(pLineClienteDireccion,slsDireccion);
+					myGraphicsLayer.add(graphicDireccion);
+					map.addLayer(myGraphicsLayer);
+					
+					//busqueda espacial
+					var query:Query = new Query();
+					query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+					var rectangulo:Polygon=new Polygon;
+					rectangulo.addRing(crearRectangulo(event.mapPoint,5));
+					query.geometry = rectangulo;
+					var parametros:ArrayList=new ArrayList;
+					
+					parametros.addItem("id_direccion");
+					parametros.addItem("nombre_calle");	
+					parametros.addItem("numero");
+					parametros.addItem("tipo_edificacion");	
+					query.outFields=parametros.toArray();			
+					query.returnGeometry = true;
+					query.where ="1=1"; 
+					
+					var queryTask:QueryTask =  new QueryTask;
+					queryTask.url = urls.URL_DIRECCIONES;
+					queryTask.token = cargarCombos.token as String;
+					queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+				
+						function onResult(featureSet:FeatureSet, token:Object = null):void
+						{
+							Alert.show("no hay antiguas");
+							CalleEncontrada=new ArrayList;
+							if (featureSet.features.length > 0)
+							{
+								for each (var encontrado:Graphic in featureSet.features)
+								{							
+									CalleEncontrada.addItem(encontrado);
+									
+								}
+							}else{
+								
+								//Buscar en las direcciones nuevas.
+								buscarEnDireccionNueva(event.mapPoint);
+								
+							}
+							
+							if (CalleEncontrada.length>0){
+								cliente.id_direccionCliente= encontrado.attributes["id_direccion"];
+								cliente.nombre_direccionCliente = encontrado.attributes["nombre_calle"];
+								cliente.numero_direccionCliente =  encontrado.attributes["numero"];
+								cliente.tipo_direccionCliente =  encontrado.attributes["tipo_edificacion"];
+								lblIDDireccion.text = String(cliente.id_direccionCliente);
+								lblDireccion.text = String(cliente.nombre_direccionCliente) + " " +String(cliente.numero_direccionCliente);
+								estadoDireccion.text = "existente";
+							}
+							else{
+								lblIDDireccion.text = "";
+								lblDireccion.text = "";
+								estadoDireccion.text = "";
+							}
+							
+						}
+						function onFault(info:Object, token:Object = null):void
+						{					
+							Alert.show("No se pudo encontrar la dirección. Selecciónela nuevamente");
+						}
+				
+					}else{
+						Alert.show("Seleccione la ubicacion del cliente");
+					}
+			}
+			
+			public function buscarEnDireccionNueva(event:MapPoint):void {
+				//busqueda espacial
+				var query:Query = new Query();
+				query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+				var rectangulo:Polygon=new Polygon;
+				rectangulo.addRing(crearRectangulo(event,1));
+				query.geometry = rectangulo;
+				var parametros:ArrayList=new ArrayList;
+				
+				parametros.addItem("CALLE");
+				parametros.addItem("NUMERO");	
+				parametros.addItem("TIPO_EDIFICACION");
+				parametros.addItem("OBJECTID");	
+				query.outFields=parametros.toArray();			
+				query.returnGeometry = true;
+				query.where ="1=1"; 
+				
+				var queryTask:QueryTask =  new QueryTask;
+				queryTask.url = urls.URL_CREAR_DIRECCION;
+				queryTask.token = cargarCombos.token as String;
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+				//16/01/2017: Login of getting results changed. (Eve)	
+					if(!featureSet.features.length){
+						Alert.show("Direccion nueva o existente no encontrada");
+						lblIDDireccion.text = "";
+						lblDireccion.text = "";
+						estadoDireccion.text = "nueva/existente";
+						return;
+					}
+					
+					cliente.id_direccionCliente= featureSet.features[0].attributes["OBJECTID"];
+					cliente.nombre_direccionCliente = featureSet.features[0].attributes["CALLE"];
+					cliente.numero_direccionCliente =  featureSet.features[0].attributes["NUMERO"];
+					cliente.tipo_direccionCliente =  featureSet.features[0].attributes["TIPO_EDIFICACION"];
+					lblIDDireccion.text = String(cliente.id_direccionCliente);
+					lblDireccion.text = String(featureSet.features[0].attributes["CALLE"] + " " +featureSet.features[0].attributes["NUMERO"]);
+					estadoDireccion.text = "nueva";
+					
+					/*CalleNuevaEncontrada=new ArrayList;
+					if (featureSet.features.length > 0)
+					{
+						for each (var encontrado:Graphic in featureSet.features)
+						{							
+							CalleNuevaEncontrada.addItem(encontrado);
+						}
+					}else{
+						Alert.show("Direccion nueva o existente no encontrada");
+						
+						
+						
+					}
+					
+					if (CalleNuevaEncontrada.length>0){
+						cliente.id_direccionCliente= encontrado.attributes["OBJECTID"];
+						cliente.nombre_direccionCliente = encontrado.attributes["CALLE"];
+						cliente.numero_direccionCliente =  encontrado.attributes["NUMERO"];
+						cliente.tipo_direccionCliente =  encontrado.attributes["TIPO_EDIFICACION"];
+						lblIDDireccion.text = String(cliente.id_direccionCliente);
+						lblDireccion.text = String(cliente.nombre_direccionCliente) + " " +String(cliente.numero_direccionCliente);
+						estadoDireccion.text = "nueva";
+					}
+					else{
+						lblIDDireccion.text = "";
+						lblDireccion.text = "";
+						estadoDireccion.text = "nueva/existente";
+					}
+					*/
+				}
+				function onFault(info:Object, token:Object = null):void
+				{					
+					Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+				}
+				
+			}
+			
+			public function selectRotulo(event:MapMouseEvent):void{
+				
+				map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
+				//guarda geometria rotulo
+				if (hayCliente){
+					cliente.geom_ubicacionPoste =event.mapPoint;
+					hayPoste = 1;
+					//borra la anterior para crear una  nueva
+					myGraphicsLayer.remove(graphicPoste);
+					var pLinePosteCliente:Polyline = new Polyline([[cliente.geom_ubicacionCliente,cliente.geom_ubicacionPoste]],new SpatialReference(102100));
+					//guarda la linea que une al cliente con la direccion
+					graphicPoste = new Graphic(pLinePosteCliente,slsPoste);
+					myGraphicsLayer.add(graphicPoste);
+					map.addLayer(myGraphicsLayer);
+					
+					var query:Query = new Query();
+					query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+					var rectangulo:Polygon=new Polygon;
+					rectangulo.addRing(crearRectangulo(event.mapPoint,10));
+					query.geometry = rectangulo;
+					var parametros:ArrayList=new ArrayList;
+					
+					parametros.addItem("id_nodo");
+					parametros.addItem("rotulo");	
+					
+					query.outFields=parametros.toArray();			
+					query.returnGeometry = true;
+					query.where ="1=1"; 
+					
+					var queryTask:QueryTask =  new QueryTask;
+					queryTask.url = urls.URL_ROTULOS;
+					queryTask.token = cargarCombos.token as String;
+					queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+					
+					function onResult(featureSet:FeatureSet, token:Object = null):void
+					{
+						
+						RotuloEncontrado=new ArrayList;
+						if (featureSet.features.length > 0)
+						{
+							for each (var encontrado:Graphic in featureSet.features)
+							{							
+								RotuloEncontrado.addItem(encontrado);
+							}
+							
+							
+						}else{
+							//Alert.show("Rotulo no encontrado");
+							buscarEnRotuloNuevo(cliente.geom_ubicacionPoste);
+						}
+						
+						if (RotuloEncontrado.length>0){
+							cliente.id_rotulo= encontrado.attributes["id_nodo"];
+							cliente.numero_rotulo = encontrado.attributes["rotulo"];
+							
+							lblIDRotulo.text = String(cliente.id_rotulo);
+							lblRotulo.text = String(cliente.numero_rotulo);
+							estadoPoste.text = "existente";
+						}
+						else{
+							//Alert.show("Rotulo no ha sido encontrado");
+							lblIDRotulo.text = "";
+							lblRotulo.text = "";
+							estadoPoste.text = "";
+						}
+						
+					}
+					function onFault(info:Object, token:Object = null):void
+					{					
+						Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+					}
+				}else{
+					Alert.show("Seleccione la ubicacion del cliente");
+				}
+			}
+			
+			//busca en los rotulos nuevos.
+			public function buscarEnRotuloNuevo(event:MapPoint):void{
+				//busqueda espacial
+				var query:Query = new Query();
+				query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+				var rectangulo:Polygon=new Polygon;
+				rectangulo.addRing(crearRectangulo(event,5));
+				query.geometry = rectangulo;
+				var parametros:ArrayList=new ArrayList;
+				parametros.addItem("OBJECTID");
+				parametros.addItem("ROTULO");
+				parametros.addItem("TIPO_POSTE");	
+				parametros.addItem("TIPO_TENSION");
+				parametros.addItem("X");
+				parametros.addItem("Y");
+				query.outFields=parametros.toArray();			
+				query.returnGeometry = true;
+				query.where ="1=1"; 
+				
+				var queryTask:QueryTask =  new QueryTask;
+				queryTask.url = urls.URL_CREAR_POSTES;
+				queryTask.token = cargarCombos.token as String;
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					RotuloNuevoEncontrado=new ArrayList;
+					if (featureSet.features.length > 0)
+					{
+						for each (var encontrado:Graphic in featureSet.features)
+						{							
+							RotuloNuevoEncontrado.addItem(encontrado);
+						}
+					}else{
+						Alert.show("Rotulo nuevo no encontrado");
+					}
+					
+					if (RotuloNuevoEncontrado.length>0){
+						poste.rotulo = encontrado.attributes["ROTULO"];
+						poste.tipo_poste = encontrado.attributes["TIPO_POSTE"];
+						poste.tipo_tension =  encontrado.attributes["TIPO_TENSION"];
+						poste.x_poste =  encontrado.attributes["X"];
+						poste.y_poste =  encontrado.attributes["Y"];
+						
+						lblRotulo.text = poste.rotulo;
+						lblIDRotulo.text = encontrado.attributes["OBJECTID"];
+						estadoPoste.text = "nuevo";
+					}
+					else{
+						lblIDRotulo.text = "";
+						lblRotulo.text = "";
+						estadoPoste.text =  "nuevo/existente"
+					}
+				}
+				function onFault(info:Object, token:Object = null):void
+				{					
+					Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+				}
+			}
+			
+			//Crea poligono para la busqueda en el mapa
+			private function crearRectangulo(mapPoint:MapPoint,delta:Number):Array 
+			{ 
+				var arrayOfPoints:Array = new Array();
+				
+				arrayOfPoints[0] = new MapPoint(mapPoint.x-delta,mapPoint.y-delta,mapPoint.spatialReference);            	        
+				arrayOfPoints[1] = new MapPoint(mapPoint.x-delta,mapPoint.y+delta,mapPoint.spatialReference);
+				arrayOfPoints[2] = new MapPoint(mapPoint.x+delta,mapPoint.y+delta,mapPoint.spatialReference);
+				arrayOfPoints[3] = new MapPoint(mapPoint.x+delta,mapPoint.y-delta,mapPoint.spatialReference);
+				arrayOfPoints[4] = new MapPoint(mapPoint.x-delta,mapPoint.y-delta,mapPoint.spatialReference);
+				
+				return arrayOfPoints;
+			}
+			
+			public function limpiarIngresoCliente():void{
+				graphicCliente= new Graphic;
+				graphicDireccion= new Graphic;
+				graphicPoste= new Graphic;	
+				
+				txtNIS.text  = "";
+				txtNumeroMedidor.text  = "";
+				ddlTipoMedidor.selectedIndex = -1;
+				ddlTecnologiaMedidor.selectedIndex = -1;
+				lblIDDireccion.text  = "";
+				
+				lblRotulo.text  = "";
+				lblIDRotulo.text  = "";
+				ddlTipoEmpalme1.selectedIndex = -1;
+				txtOS.text  = "";
+				lblDireccion.text  = "";
+				estadoPoste.text =  "nuevo/existente"
+				estadoDireccion.text =  "nueva/existente"
+			}
+			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				graphicCliente= new Graphic;
+				graphicDireccion= new Graphic;
+				graphicPoste= new Graphic;				
+				myGraphicsLayer.clear();
+				txtNIS.text  = "";
+				txtNumeroMedidor.text  = "";
+				ddlTipoMedidor.selectedIndex = -1;
+				ddlTecnologiaMedidor.selectedIndex = -1;
+				lblIDDireccion.text  = "";
+				
+				lblRotulo.text  = "";
+				lblIDRotulo.text  = "";
+				ddlTipoEmpalme1.selectedIndex = -1;
+				txtOS.text  = "";
+				lblDireccion.text  = "";
+			}
+			
+			public function limpiarCampos(op:int):void{
+				
+				switch(op)
+				{
+					//limpia form nueva direccion
+					case 1:
+					{
+						txtCalle.text = "";
+						txtNumeroDireccion.text = "";
+						ddlTipoEdificacion.selectedIndex = -1;
+						txtAnexo1.text = "";
+						txtAnexo2.text = "";
+
+						break;
+					}
+						//limpia form nuevo poste
+					case 2:
+					{
+						
+						txtNuevoRotulo.text = "";
+						ddlTipoPoste.selectedIndex =-1;
+						ddlTension.selectedIndex =-1;
+
+						
+						break;
+					}
+						
+					default:
+					{
+						break;
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	<viewer:WidgetTemplate id="wTemplate"                      
+						   width="500" height="535"
+						   visible="true" closed="wTemplate_closedHandler(event)">
+		
+		
+		<!--Ventana nueva solicitud-->
+		<s:Group id="bkmIngresoClientes" width="100%" height="100%" visible="false"
+				 visible.bkmIngresoClientes="true" initialize="bkmIngresoClientes_initializeHandler(event)">
+			<s:VGroup width="100%" top="5" bottom="5" height="100%">
+				<mx:Label id="lblIngresoClientes" text="Ingreso de nuevo Cliente" fontSize="18"/>
+				<mx:Form id="formNuevoCliente" width="100%" height="100%">
+					<mx:FormHeading label="Complete Todos los campos del formulario."/>      
+					<mx:FormItem label="NIS">
+						<s:HGroup width="100%">
+							<mx:TextInput id="txtNIS" width="200" maxChars="50"/>                         
+							<s:ToggleButton id="tbtnCliente" label="On" width="20%" height="24" click="tbFunction(event)"/>
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:FormItem label="N° MEDIDOR">
+						<s:HGroup width="100%">
+							<mx:TextInput id="txtNumeroMedidor" width="200" maxChars="50" />
+							
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:FormItem label="TIPO MEDIDOR">
+						<s:HGroup width="100%">
+							<s:DropDownList id="ddlTipoMedidor"  width="200" 
+											 prompt="Seleccione Tipo"
+											labelField="descripcion"/>
+						
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:FormItem label="TECNOLOGIA MEDIDOR">
+						<s:HGroup width="100%">
+							<s:DropDownList id="ddlTecnologiaMedidor"  width="200" 
+											prompt="Seleccione Tipo"
+											labelField="descripcion"/>
+						</s:HGroup>
+					</mx:FormItem>
+					
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					<mx:FormItem label="DIRECCION">
+						<s:HGroup width="100%">
+							<mx:Label id="lblDireccion" width="200" text="Seleccione Direccion" />
+							<s:ToggleButton id="tbtnDireccion" label="On" width="20%" height="24" click="tbFunction(event)"/>
+						</s:HGroup>
+					</mx:FormItem> 
+					<mx:FormItem label="">
+						<s:HGroup width="100%">
+							<s:Button id="btnIrAgregarDireccion" height="30" label="+ Direccion" click="funcionesBtn(event)" />
+						</s:HGroup>
+					</mx:FormItem>
+					
+					<mx:FormItem label="ID DIRECCION" height="0" visible="false">
+						<s:HGroup width="100%">
+							<!-- <mx:Label id="lblIDDireccion"  width="200"  text="Seleccione Direccion"/> -->
+							<mx:TextInput id="lblIDDireccion" width="200" maxChars="50" enabled="false" />
+						</s:HGroup>
+					</mx:FormItem> 
+					<mx:FormItem label="ESTADO DIRECCION" height="0" visible="false">
+						<s:HGroup width="100%">
+							<mx:Label id="estadoDireccion"  width="200"  text="Nueva/Existente"/>
+						</s:HGroup>
+					</mx:FormItem> 
+					
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					<mx:FormItem label="ROTULO" >                              
+						<s:HGroup width="100%">
+							<!-- <mx:Label id="lblRotulo"  width="200" text="Seleccione Rotulo" /> -->
+							<mx:TextInput id="lblRotulo" width="200" maxChars="50" enabled="false" />
+							<s:ToggleButton id="tbtnRotulo" label="On"  width="20%" height="24" click="tbFunction(event)"/>
+							
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:FormItem label="" > 
+						<s:HGroup width="100%">
+							<s:Button id="btnIrAgregarPoste" height="30" label="+ Poste" click="funcionesBtn(event)" />
+						</s:HGroup>	
+					</mx:FormItem>	
+					<mx:FormItem label="ID ROTULO" height="0" visible="false" >                              
+						<s:HGroup width="100%" height="0">
+							<mx:Label id="lblIDRotulo"  width="200" text="Seleccione Rotulo" />
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:FormItem label="ESTADO POSTE" height="0"  visible="false">
+						<s:HGroup width="100%" height="0">
+							<mx:Label id="estadoPoste"  width="200"  text="Nuevo/Existente"/>
+						</s:HGroup>
+					</mx:FormItem> 
+					
+					<mx:FormItem label="TIPO EMPALME" >                              
+						<s:HGroup width="100%">
+							<s:DropDownList id="ddlTipoEmpalme1"  width="200" 
+											prompt="Seleccione Tipo"
+											labelField="descripcion" click="tbFunction(event)"/>
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					<mx:FormItem label="OS">
+						<s:HGroup width="100%">
+							<mx:TextInput id="txtOS" width="200" maxChars="50" />
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					<mx:FormItem>
+						<s:HGroup width="100%" horizontalAlign="center">
+							<s:Button id="btnAgregarCliente" height="30" label="Agregar Cliente" click="funcionesBtn(event)" />
+						</s:HGroup>
+					</mx:FormItem>
+				</mx:Form>
+			</s:VGroup>
+		</s:Group>  
+		
+		<!--Ventana nuevo poste-->
+		<s:Group id="bkmAddPoste" width="100%" height="100%" visible="false" initialize="bkmAddPoste_initializeHandler(event)"
+				 visible.bkmAddPoste="true">
+			<s:VGroup width="100%" top="5" bottom="5" height="100%">
+				<mx:Label id="lblIngresoPostes" text="Ingreso de nuevo Poste" fontSize="18"/>
+				<mx:Form id="formNuevoPoste" width="100%" height="100%">
+					<mx:FormHeading label="Complete Todos los campos del formulario."/>      
+					<mx:FormItem label="ROTULO">
+						<s:HGroup width="100%">
+							<mx:TextInput id="txtNuevoRotulo" width="200" maxChars="50"/>                         
+							<s:ToggleButton id="tbtnNuevoRotulo" label="On" width="20%" height="24" click="tbFunction(event)"/>
+						</s:HGroup>
+					</mx:FormItem>
+					
+					<mx:FormItem label="TIPO POSTE">
+						<s:HGroup width="100%">
+							<s:DropDownList id="ddlTipoPoste"  width="200" 
+											 prompt="Seleccione Tipo"
+											labelField="descripcion"/>
+							
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:FormItem label="TENSION">
+						<s:HGroup width="100%">
+							<s:DropDownList id="ddlTension"  width="200" 
+											 prompt="Seleccione Tipo"
+											labelField="descripcion"/>
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					
+					<mx:FormItem>
+						<s:HGroup width="100%" horizontalAlign="center">
+							<s:Button id="btnVolverRotulo" height="30" label="Volver" click="funcionesBtn(event)" />
+							<s:Button id="btnAgregarNuevoRotulo" height="30" label="Agregar Poste" click="funcionesBtn(event)" />
+						</s:HGroup>
+					</mx:FormItem>
+				</mx:Form>
+			</s:VGroup>
+		</s:Group> 
+		<!--Ventana nueva direccion-->
+		<s:Group id="bkmAddDireccion" width="100%" height="100%" visible="false"
+				 visible.bkmAddDireccion="true" initialize="bkmAddDireccion_initializeHandler(event)">
+			<s:VGroup width="100%" top="5" bottom="5" height="100%">
+				<mx:Label id="lblIngresoDireccion" text="Ingreso de nueva Direccion" fontSize="18"/>
+				<mx:Form id="formNuevaDireccion" width="100%" height="100%">
+					<mx:FormHeading label="Complete Todos los campos del formulario."/>      
+					<mx:FormItem label="GUARDAR UBICACION">
+						<s:HGroup width="100%">
+							                       
+							<s:ToggleButton id="tbtnNuevaDireccion" label="On" height="24" click="tbFunction(event)"/>
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:FormItem label="SELECCIONAR CALLE">
+						<s:HGroup width="100%">
+							<mx:TextInput id="txtCalle" width="200" maxChars="50" enabled="false" />  
+							<s:ToggleButton id="tbtnSeleccionarCalle" label="On" width="20%" height="24" click="tbFunction(event)"/>
+						</s:HGroup>
+					</mx:FormItem>
+				
+					
+					<mx:FormItem label="NUMERO">
+						<s:HGroup width="100%">
+							<mx:TextInput id="txtNumeroDireccion" width="200" maxChars="50" click="tbFunction(event)"/>  
+							
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:FormItem label="ANEXO 1">
+						<s:HGroup width="100%">
+							<s:TextArea id="txtAnexo1" width="200" height="100"/>
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:FormItem label="ANEXO 2">
+						<s:HGroup width="100%">
+							<s:TextArea id="txtAnexo2" width="200" height="100"/>
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					<mx:FormItem label="TIPO EDIFICACION">
+						<s:HGroup width="100%">
+							<s:DropDownList id="ddlTipoEdificacion"  width="200" 
+											 prompt="Seleccione Tipo"
+											labelField="descripcion"/>
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:FormItem>
+						<s:HGroup width="100%" horizontalAlign="center">
+							<s:Button id="btnVolverDireccion" height="30" label="Volver" click="funcionesBtn(event)" />
+							<s:Button id="btnAgregarNuevaDireccion" height="30" label="Agregar Direccion" click="funcionesBtn(event)" />
+						</s:HGroup>
+					</mx:FormItem>
+				</mx:Form>
+			</s:VGroup>
+		</s:Group> 
+		
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

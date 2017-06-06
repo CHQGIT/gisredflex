@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("widgets.Interrupciones.wizard.filtros.FiltroPasoTablaInterrupciones")]
+	</fx:Metadata>
+	
+	<s:HGroup horizontalAlign="left">
+		
+		<s:VGroup>
+			<mx:DataGrid id="listaAlimentador" width="200" y="130" horizontalScrollPolicy="on" rowCount="5" height="150"> 					 					 					 
+				<mx:columns>
+					<mx:DataGridColumn id="columnaAlimentador" headerText="Alimentador" textAlign="left"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:CheckBox label="Seleccionar todo" selected="true" id="todoAlimentador"/>
+		</s:VGroup>
+		
+		<s:VGroup>
+			<mx:DataGrid id="listaSSEE" width="125" y="130" horizontalScrollPolicy="on" rowCount="5" height="150"> 					 					 					 
+				<mx:columns>
+					<mx:DataGridColumn id="columnaSSEE" headerText="SSEE" textAlign="left"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:CheckBox label="Seleccionar todo" selected="true" id="todoSSEE"/>
+		</s:VGroup>
+		
+		<s:VGroup>
+			<mx:DataGrid id="listaClasificacion1" width="200" y="130" horizontalScrollPolicy="on" rowCount="5" height="150"> 					 					 					 
+				<mx:columns>
+					<mx:DataGridColumn id="columnaClasif1" headerText="Clasificación 1" textAlign="left"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:CheckBox label="Seleccionar todo" selected="true" id="todoClasificacion1"/>
+		</s:VGroup>
+		
+		<s:VGroup>
+			<mx:DataGrid id="listaClasificacion2" width="200" y="130" horizontalScrollPolicy="on" rowCount="5" height="150"> 					 					 					 
+				<mx:columns>
+					<mx:DataGridColumn id="columnaClasif2" headerText="Clasificación 2" textAlign="left"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:CheckBox label="Seleccionar todo" selected="true" id="todoClasificacion2"/>
+		</s:VGroup>
+		
+		<s:VGroup>
+			<mx:DataGrid id="listaClasificacion3" width="200" y="130" horizontalScrollPolicy="on" rowCount="5" height="150"> 					 					 					 
+				<mx:columns>
+					<mx:DataGridColumn id="columnaClasif3" headerText="Clasificación 3" textAlign="left"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:CheckBox label="Seleccionar todo" selected="true" id="todoClasificacion3"/>
+		</s:VGroup>
+		
+	</s:HGroup>
+	
+</s:Skin>

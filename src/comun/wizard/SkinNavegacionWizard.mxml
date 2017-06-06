@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("comun.wizard.NavegacionWizard")]
+	</fx:Metadata>
+	<s:HGroup>
+		<s:Button id="botonAnterior" label="Anterior" enabled="false">
+		</s:Button>
+		
+		<s:Button id="botonCalcular" label="Calcular" enabled="false">
+		</s:Button>
+		
+		<s:Button id="botonSiguiente" label="Siguiente" enabled="false">
+		</s:Button>
+	</s:HGroup>
+</s:Skin>

@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>ROL: {POLIGONO_PREDIO_LINEA.ROL}</title>
+    <fields>
+        <field name="POLIGONO_PREDIO_LINEA.NOM_LINEA" alias="Nombre:" visible="true"/>
+        <field name="POLIGONO_PREDIO_LINEA.COMUNA" alias="Comuna:" visible="true"/>
+        <field name="GIS_SERVIDUMBRE_DATOS_PROPIETARIO.PARCELA" alias="Parcela:" visible="true"/>
+        <field name="GIS_SERVIDUMBRE_DATOS_PROPIETARIO.LINEA" alias="Linea:" visible="true"/>
+        <field name="GIS_SERVIDUMBRE_DATOS_PROPIETARIO.NOM_PREDIO" alias="Nombre Predio:" visible="true"/>
+        <field name="GIS_SERVIDUMBRE_DATOS_PROPIETARIO.DOMINIO_VIGENTE" alias="Dominio Vigente:" visible="true"/>
+        <field name="GIS_SERVIDUMBRE_DATOS_PROPIETARIO.FOJAS" alias="Fojas:" visible="true"/>
+        <field name="GIS_SERVIDUMBRE_DATOS_PROPIETARIO.NUM_FOJAS" alias="N° Fojas:" visible="true"/>
+        <field name="GIS_SERVIDUMBRE_DATOS_PROPIETARIO.ANO_FOJAS" alias="Año Fojas:" visible="true"/>
+        <field name="GIS_SERVIDUMBRE_DATOS_PROPIETARIO.CBR" alias="CBR:" visible="true"/>
+        <field name="GIS_SERVIDUMBRE_DATOS_PROPIETARIO.NOTA_FOJAS" alias="Nota Fojas:" visible="true"/>
+      
+    </fields>
+    <showattachments>true</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

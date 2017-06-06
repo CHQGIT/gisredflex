@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2010-2011 Esri. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+///////////////////////////////////////////////////////////////////////////
+-->
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx" 
+				   xmlns:viewer="com.esri.viewer.*"
+				   widgetConfigLoaded="init()" xmlns:principal="widgets.InterrupcionesClientesSED2.principal.*"  >
+	
+	<fx:Style source="Style.css" />
+	
+	<fx:Script>
+		<![CDATA[
+			import com.esri.ags.layers.FeatureLayer;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.viewer.AppEvent;
+			import com.esri.viewer.ViewerContainer;
+			import com.esri.viewer.WidgetStates;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			
+			import comun.util.zalerta.ZAlerta;
+			
+			import widgets.Interrupciones.global.Global;
+			import widgets.Interrupciones.principal.Principal;
+			
+			private var graphicsLayer:GraphicsLayer;
+			private var graphicsLayer2:GraphicsLayer;
+			
+			private function init():void
+			{	
+				Global.baseWidget=this;
+				Global.principalClienteSED= principal;
+				
+				try{
+					
+					if (configXML) // checking for valid content in the configuration file
+					{
+						//     lbl.text = configXML.content || getDefaultString("helloContent");
+						
+						var puntos:String="";
+						
+						puntos+="1";
+						//	interrupciones.addElement(principal);
+						puntos+="2";
+					//	Global.principal=principal;
+						
+						graphicsLayer = new GraphicsLayer();
+						graphicsLayer.name = "CapaInterrupciones";
+						//graphicsLayer.symbol = resultMarkerSymbol;
+						graphicsLayer.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+						graphicsLayer.visible=true;
+						Global.map=map;
+						map.addLayer(graphicsLayer);
+						Global.graphicsLayer=graphicsLayer;
+						
+						graphicsLayer2 = new GraphicsLayer();
+						graphicsLayer2.name = "CapaInterrupciones2";
+						//graphicsLayer.symbol = resultMarkerSymbol;
+						graphicsLayer2.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+						graphicsLayer2.visible=true;
+						
+						map.addLayer(graphicsLayer2);
+						Global.capaSeleccionado=graphicsLayer2;
+						
+						var gl:GraphicsLayer = new GraphicsLayer;
+						////////////////////
+						 gl= new GraphicsLayer();
+						gl.name = "Rango1";
+						//graphicsLayer.symbol = resultMarkerSymbol;
+						gl.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+						gl.visible=true;
+						Global.map=map;
+						map.addLayer(gl);
+						Global.graphicsLayerRango1=gl;
+						
+						gl= new GraphicsLayer();
+						gl.name = "Rango2";
+						//graphicsLayer.symbol = resultMarkerSymbol;
+						gl.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+						gl.visible=true;
+						Global.map=map;
+						map.addLayer(gl);
+						Global.graphicsLayerRango2=gl;
+						
+						gl= new GraphicsLayer();
+						gl.name = "Rango3";
+						//graphicsLayer.symbol = resultMarkerSymbol;
+						gl.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+						gl.visible=true;
+						Global.map=map;
+						map.addLayer(gl);
+						Global.graphicsLayerRango3=gl;
+						
+						
+					}
+				}
+				catch (e:Error){
+					
+					ZAlerta.show("error al iniciar ");
+				}
+			}
+			 
+			private function graphicsLayer_hideHandler(event:FlexEvent):void
+			{
+			}
+			
+			private function widgetClosedHandler(event:Event):void
+			{
+				Global.limpiarYOcultarCapas();
+				principal.reiniciarWidget();
+			}
+			
+			private function widgetOpenedHandler(event:Event):void
+			{
+				Global.mostrarCapas();
+			}
+			
+			public function getWidgetId(widgetLabel:String):Number  
+			{  
+				var id:Number;  
+				for (var i:Number = 0; i < configData.widgets.length; i++)  
+				{  
+					if (configData.widgets[i].label == widgetLabel)  
+						id = configData.widgets[i].id;  
+				}  
+				return id;  
+			}  
+			
+			public function iniciarWidgetInterrupciones(query:String):void{
+				var idWidget:Number=getWidgetId("Interrupciones");
+				ViewerContainer.dispatchEvent(new AppEvent(AppEvent.WIDGET_RUN,idWidget));
+				setTimeout(buscarInterrupcion, 1000, query);
+			}
+			
+			public function buscarInterrupcion(query:String):void{ 
+				ViewerContainer.dispatchEvent(new AppEvent("INTERRUPCION",query));
+				this.setState(WidgetStates.WIDGET_MINIMIZED);
+			}
+			
+			protected function interrupciones2_minimizedHandler(event:Event):void
+			{
+				Global.ocultarCapas();	
+			}
+			
+		]]>
+	</fx:Script>
+	<viewer:WidgetTemplate id="interrupciones2"
+						   width="550" height="400"
+						   minimized="interrupciones2_minimizedHandler(event)"
+						   closed="widgetClosedHandler(event)"
+						   open="widgetOpenedHandler(event)">
+		<viewer:layout>
+			<s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>
+		</viewer:layout>
+		
+		<principal:PrincipalClienteSED id="principal">
+		</principal:PrincipalClienteSED>
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

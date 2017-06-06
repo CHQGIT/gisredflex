@@ -1,0 +1,484 @@
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"
+				   xmlns:Locate="widgets.MantenimientoPodas.*"
+				   xmlns:components="com.esri.viewer.components.*"
+				   xmlns:esri="http://www.esri.com/2008/ags" 
+				   initialize="basewidget1_initializeHandler(event)"
+				   
+				   >
+	<viewer:states>
+		<s:State name="bkmInit"/>
+		<s:State name="bkmListContratos"/>
+		<s:State name="bkmAddContrato"/>
+		
+	</viewer:states>
+	
+	<viewer:transitions>
+		<s:Transition autoReverse="true" toState="*">
+			<s:Fade targets="{[bkmInit,bkmListContratos,bkmAddContrato]}"/>
+		</s:Transition>
+	</viewer:transitions>
+	
+	<fx:Declarations>
+		<s:DateTimeFormatter id="dateFormatter" dateTimePattern="dd/MM/yyyy"/>    
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.layers.FeatureLayer;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			import mx.rpc.AsyncResponder;
+			
+			import comun.Planificacion.User;
+			
+			import widgets.MantenimientoPodas.URLS;
+			//Setea el ancho de las columnas por defecto.
+			[Bindable] private var anchoColumna:int =30;
+			// guarda en una coleccion la resultante de la query de contratos
+			public var coleccionContratos:ArrayCollection = new ArrayCollection;
+			//Setea el ancho de los txt y ddl  por defecto.
+			[Bindable] private var anchoObj:int =200;
+			//guarda en una coleccion la resultante de la query de administradores de usuario
+			[Bindable]public var ArrayAdmUsuario:ArrayList =  new ArrayList;
+			//guarda en una coleccion la resultante de la query de administradores de usuario
+			//[Bindable]public var ArrayAdmContratista:ArrayList =  new ArrayList;
+			//setea el estado vigente.
+			[Bindable]public var estadoVigente:String="SI";
+			
+			private var ColeccionUser:ArrayCollection = new ArrayCollection;
+			
+			
+			
+			
+			//Cambia el tamaño de las columnas de la grilla.
+			protected function DataSolicitudes_resizeHandler(event:ResizeEvent):void
+			{
+				// TODO Auto-generated method stub
+				anchoColumna = event.currentTarget.width / event.currentTarget.rowCount;
+			}
+			
+			
+			
+			public function listarContratos():void{
+				coleccionContratos.removeAll();
+				var queryTask:QueryTask = new QueryTask(widgets.MantenimientoPodas.URLS.URL_CONTRATOS);
+				var query:Query = new Query();
+				query.where ="1=1";
+				query.outFields = ['*'];
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{
+					var k:int;
+					coleccionContratos.removeAll();
+					for(k=0;k<featureSet.features.length;k++)
+					{
+						var recordGraphic:Graphic = featureSet.features[k];
+						coleccionContratos.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+							RAZON_SOCIAL:recordGraphic.attributes["RAZON_SOCIAL"], 
+							ADMINISTRADOR_USUARIO:recordGraphic.attributes["ADMINISTRADOR_USUARIO"], 
+							ADMINISTRADOR_CONTRATISTA:recordGraphic.attributes["ADMINISTRADOR_CONTRATISTA"],
+							NUM_CONTRATO:recordGraphic.attributes["NUM_CONTRATO"],
+							VIGENCIA_DESDE:dateFormatter.format(new Date(recordGraphic.attributes["VIGENCIA_DESDE"])),
+							VIGENCIA_HASTA:dateFormatter.format(new Date(recordGraphic.attributes["VIGENCIA_HASTA"])),
+							VIGENTE:recordGraphic.attributes["VIGENTE"],
+							gra:recordGraphic });
+					}
+					DataContratos.dataProvider = coleccionContratos;
+					DataContratos.selectedIndex = 0;
+					
+					
+					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consultar los contratos.  Contáctese con el administrador de GISRED.","Listado de Contratos");
+				}
+			}
+			
+			public function listarAdmUsuario():void {
+				
+				ArrayAdmUsuario.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = widgets.MantenimientoPodas.URLS.URL_USUARIOS;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["*"];
+				query.returnGeometry = false;
+				query.where = "empresa='006' and PERMISO='JEFE_ZONA'" ;
+				query.orderByFields=["NOMBRE_COMPLETO"];
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					for each (var myGraphic:Graphic in featureSet.features)
+					{
+						ArrayAdmUsuario.addItem({descripcion:myGraphic.attributes['NOMBRE_COMPLETO']}); 
+						
+					}
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("No se pueden obtener los adm. usuario.  Contáctese con el administrador de GISRED."+ info.toString());
+				}
+			}
+			
+			public function cambiarEstadoVigente():void{
+				var ModificarEstadoVigente:* = new Object;
+				
+				ModificarEstadoVigente["OBJECTID"]= DataContratos.selectedItem['OBJECTID'];
+				ModificarEstadoVigente["VIGENTE"]= "NO";
+				
+				var graficoEditadoActual:Graphic = new Graphic;
+				
+				graficoEditadoActual = new Graphic(null,null,ModificarEstadoVigente);
+				var mySolicitud:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_CONTRATOS);
+				mySolicitud.applyEdits(null,[graficoEditadoActual],null, false,new AsyncResponder(onResult, onFault));
+				
+				
+				function onResult():void
+				{      
+					Alert.show("Estado de Vigencia Modificado");
+					listarContratos();
+				}
+				
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("Error al modificar el estado de vigencia. Por favor contáctese con el administrador de GISRED "+info.toString());
+				}
+			}
+			
+			public function agregarNuevoContrato():void {
+				
+				var adds:Array=new Array;                      
+				var Actividad:* = new Object;
+				
+				
+				Actividad["RAZON_SOCIAL"]= String(txtRazonContratista.text);
+				Actividad["ADMINISTRADOR_USUARIO"]= String(DDLAdmUsuario.selectedItem.descripcion);
+				Actividad["ADMINISTRADOR_CONTRATISTA"]= txtAdmContratista.text;
+				Actividad["NUM_CONTRATO"]= String(txtNumContrato.text);
+				Actividad["VIGENCIA_DESDE"]= dfFechaVigenciaDesde.selectedDate;
+				Actividad["VIGENCIA_HASTA"]=  dfFechaVigenciaHasta.selectedDate;
+				Actividad["VIGENTE"]=  "SI";
+				
+				
+				//Guarda la url del servicio de las actividades en tiempo de ejecución
+				var myActividadLayer:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_CONTRATOS);
+				var newgrap:Graphic = new Graphic(null,null,Actividad);
+				adds[0]=newgrap;    
+				myActividadLayer.applyEdits(adds,null,null,false,new AsyncResponder(onResult1,onFault1));
+				
+				function onResult1():void
+				{
+					
+					Alert.show("Contrato Agregado Exitosamente");
+					listarContratos();
+					
+					
+				}
+				
+				function onFault1(info:Object, token:Object = null):void
+				{
+					Alert.show("Error al agregar nuevo contrato.  Contáctese con el administrador de GISRED. "+info.toString());
+				}      
+			}
+			
+			
+			//MENU DE BOTONES ---------------------------------------------------------------------------------------------------------
+			public function funcionesBtn(event:MouseEvent):void{
+				
+				switch(event.currentTarget.id)
+				{
+					//Cambia el estado de poda de una solicitud.
+					case "btnAddContrato":
+					{
+						listarAdmUsuario();
+						wTemplate.width = 550;
+						wTemplate.height = 330;
+						currentState = "bkmAddContrato";
+						break;
+					}
+						//Cambia el estado de poda de una solicitud.
+					case "btnVolverAListadoContratos":
+					{
+						currentState = "bkmListContratos";
+						wTemplate.width = 1040;
+						wTemplate.height = 500;
+						break;
+					}
+						
+						//Cambia el estado vigente de una solicitud
+					case "BtnCambiarEstadoVigente":
+					{
+						//pregunta si cambia el estado de vigencia del contrato.
+						Alert.show("¿Desea cambiar a NO VIGENTE?. Luego este cambio no podrá ser modificado. ","Cambiar Estado Vigencia",mx.controls.Alert.YES | mx.controls.Alert.NO,null,alertClickHandler2);
+						
+						function alertClickHandler2(evt:CloseEvent):void 
+						{
+							if (evt.detail == Alert.YES)
+							{      
+								cambiarEstadoVigente();
+							}                                
+						}
+						break;
+						
+						break;
+					}
+					case "btnAgregarContrato":
+					{
+						agregarNuevoContrato();
+						currentState = "bkmListContratos";
+						break;
+					}
+						
+						
+					default:
+					{
+						break;
+					}
+				}
+			}
+			
+			protected function bkmInit_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				var verImageGISRED:Image = new Image;
+				
+				//imagen configuraciones
+				verImageGISRED.scaleContent = true;
+				verImageGISRED.maintainAspectRatio =false;
+				verImageGISRED.percentWidth = 300;
+				verImageGISRED.percentHeight = 300;
+				verImageGISRED.source =  "assets/images/128x128.png";
+				pbGisred.addChild(verImageGISRED);
+			}
+			
+			protected function basewidget1_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				ConsultarAcceso();
+			}
+			
+			protected function ConsultarAcceso():void
+			{
+				
+				var permiso:String="NO";
+				var registro:int=0;
+				
+				var queryTaskUserSelected:QueryTask = new QueryTask();
+				queryTaskUserSelected.url = widgets.MantenimientoPodas.URLS.URL_USUARIOS;
+				queryTaskUserSelected.useAMF = false;
+				var queryEquipoSelected:Query = new Query();
+				queryEquipoSelected.outFields = ["PERMISO","NOMBRE_COMPLETO"];
+				queryEquipoSelected.returnGeometry = true;     
+				queryEquipoSelected.orderByFields = ["PERMISO"];
+				queryEquipoSelected.where = "CUENTA_VIALACTEA = '" + User.Usuario + "' AND MODULO='CONTRATOS'" ;
+				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryEquipoSelected.outSpatialReference = map.spatialReference;
+				queryTaskUserSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					if(featureSet.features.length == 0 ){
+						//     Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
+						//currentState = "bkmInit"; 
+						currentState ="bkmInit";
+						lblwarning.visible = true;
+						lblwarning2.visible = true;
+						pbGisred.visible = true;
+					}
+						//si hay, cuales son los permisos
+					else{               
+						ColeccionUser.addAll(new ArrayCollection(featureSet.attributes));
+						
+						Generica.NombreUsuario = ColeccionUser[i].NOMBRE_COMPLETO;
+						for(var i:int=0;i<=ColeccionUser.length-1;i++){
+							
+							if (ColeccionUser[i].PERMISO == 'AGREGAR')
+							{
+								
+								Generica.Insert = true;
+								
+								
+							}
+							else if(ColeccionUser[i].PERMISO == 'BORRAR')
+							{
+								
+								Generica.Delete = true;
+
+							}
+							else if(ColeccionUser[i].PERMISO == 'EDITAR')
+							{
+								
+								Generica.Modify = true;
+
+								
+							}
+							else if(ColeccionUser[i].PERMISO == 'FULL')
+							{
+								Generica.Modify = true;
+							//	BtnModSolicitud.visible = true;
+								Generica.Insert = true;
+							//	BtnNewSolicitud.visible=true;
+								Generica.Delete = true;
+							//	BtnDeleteSolicitud.visible=true;
+							}
+							else
+							{
+								Generica.Insert = false;
+								Generica.Delete = false;
+								Generica.Modify = false;
+							}
+							listarContratos();
+							currentState ="bkmListContratos";
+							
+						}
+					}
+				}      
+				
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
+				}
+				
+			}
+
+		]]>
+	</fx:Script>
+	<viewer:WidgetTemplate id="wTemplate"                                       
+						   width="1040" height="500"
+						   visible="true" >
+		<!-- Grupo Incio -->
+		<s:Group id="bkmInit" width="100%" height="100%" initialize="bkmInit_initializeHandler(event)"
+				 visible="false" visible.bkmInit="true">	
+			<s:VGroup horizontalAlign="center" height="100%" width="100%" verticalAlign="middle">
+				<mx:Canvas width="200" height="200" id="pbGisred" color="0x000000" horizontalScrollPolicy="off"
+						   verticalScrollPolicy="off" visible="false"/>                                           
+				<s:Label id="lblwarning" text="No tiene permisos para acceder a este módulo." 
+						 fontSize="16" visible="false" paddingTop="10"/>
+				<s:Label id="lblwarning2" text="Comuniquese con el administrador de GISRED" 
+						 fontSize="16" visible="false" paddingTop="10"/>
+			</s:VGroup>
+		</s:Group> 
+		
+		<!-- Grupo listado de Contratos-->
+		<s:Group id="bkmListContratos"
+				 width="100%" height="100%"
+				 visible="false"
+				 visible.bkmListContratos="true">
+			<s:VGroup width="100%" top="5" bottom="5" height="100%">
+				<mx:Label id="lblContratos" text="Listado de Contratos" fontSize="18"/>
+				<s:HGroup width="100%" verticalAlign="middle">
+					<mx:TextInput x="10" id="txtFilterpoligonos" width="100%" height="30" fontSize="14" fontWeight="bold" />
+					<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png"/>
+					
+				</s:HGroup>
+				<mx:DataGrid id="DataContratos" resizableColumns="true" sortableColumns="true" editable="false" 
+							 width="100%" height="100%" visible="true" selectable="true" resize="DataSolicitudes_resizeHandler(event)" horizontalScrollPolicy="on">
+					<mx:columns>        
+						<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID"  visible="false"/>
+						<mx:DataGridColumn  dataField="RAZON_SOCIAL" headerText="RAZON SOCIAL" width="{anchoColumna}"/>
+						<mx:DataGridColumn  dataField="ADMINISTRADOR_USUARIO" headerText="ADMINISTRADOR USUARIO"  width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="ADMINISTRADOR_CONTRATISTA" headerText="ADMINISTRADOR CONTRATISTA"  width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="NUM_CONTRATO" headerText="NUM. CONTRATO" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="VIGENCIA_DESDE" headerText="VIGENCIA DESDE" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="VIGENCIA_HASTA" headerText="VIGENCIA HASTA"  width="{anchoColumna}"/>
+						<mx:DataGridColumn  dataField="VIGENTE" headerText="VIGENTE"  width="{anchoColumna}" />
+					</mx:columns>
+				</mx:DataGrid>
+				<s:HGroup width="100%">
+					<s:Button id="btnAddContrato" label="Agregar Contrato" click="funcionesBtn(event)" height="30"/>
+					
+					
+					<s:Button id="BtnCambiarEstadoVigente" label="Cambiar Estado Vigencia" click="funcionesBtn(event)" height="30"/>
+				</s:HGroup>
+			</s:VGroup>                
+		</s:Group>   
+		
+		<!-- Grupo Agregar contrato -->   
+		<s:Group id="bkmAddContrato" width="100%" height="100%"
+				 visible="false" visible.bkmAddContrato="true">
+			<s:layout>
+				<s:VerticalLayout gap="10"
+								  horizontalAlign="center"
+								  paddingTop="10"/>
+			</s:layout>
+			<s:VGroup width="100%">
+				<mx:Form id="FormAddContrato" width="100%" height="100%">
+					<mx:FormItem label="RAZÓN SOCIAL CONTRATISTA:" fontWeight="bold">
+						<mx:HBox>
+							<mx:TextInput id="txtRazonContratista" width="{anchoObj}" maxChars="50" />
+							<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/images/informacion.png" toolTip="Debe ingresar la razón social del contratista." />
+						</mx:HBox>
+					</mx:FormItem>
+					<mx:FormItem label="ADM. USUARIO:" fontWeight="bold" >
+						<mx:HBox>    
+							<s:DropDownList id="DDLAdmUsuario" width="{anchoObj}" prompt="Seleccione Adm. Usuario" dataProvider="{ArrayAdmUsuario}" labelField="descripcion" />
+							<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/images/informacion.png" toolTip="Debe seleccionar el Administrador Usuario del contrato.." />
+						</mx:HBox>
+					</mx:FormItem>
+					<mx:FormItem label="ADM. CONTRATISTA:" fontWeight="bold" >
+						<mx:HBox>    
+							<mx:TextInput id="txtAdmContratista" width="{anchoObj}" maxChars="50" />
+							<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/images/informacion.png" toolTip="Debe indicar el Administrador contratista del contrato." />
+						</mx:HBox>
+					</mx:FormItem>
+					
+					<mx:FormItem label="NUM. CONTRATO:" fontWeight="bold">
+						<mx:HBox>
+							<mx:TextInput id="txtNumContrato" width="{anchoObj}" maxChars="50" />
+							<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/images/informacion.png" toolTip="Debe ingresar el número del contrato asociado." />
+						</mx:HBox>
+					</mx:FormItem>
+					
+					<mx:FormItem label="VIGENCIA DESDE:" fontWeight="bold">
+						<mx:HBox>
+							<mx:DateField id="dfFechaVigenciaDesde" width="{anchoObj}" yearNavigationEnabled="true" formatString="DD-MM-YYYY" />
+							<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/images/informacion.png" toolTip="Debe seleccionar la fecha desde cuando comienza la vigencia del contrato." />
+						</mx:HBox>
+					</mx:FormItem>
+					<mx:FormItem label="VIGENCIA DESDE:" fontWeight="bold">
+						<mx:HBox>
+							<mx:DateField id="dfFechaVigenciaHasta" width="{anchoObj}" yearNavigationEnabled="true" formatString="DD-MM-YYYY" />
+							<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/images/informacion.png" toolTip="Debe seleccionar la fecha hasta cuando termina la vigencia del contrato." />
+						</mx:HBox>
+					</mx:FormItem>
+					<mx:FormItem label="VIGENTE:" fontWeight="bold">
+						<mx:HBox>
+							<s:Label text="{estadoVigente}"></s:Label>
+							
+						</mx:HBox>
+					</mx:FormItem>
+					
+					
+					
+				</mx:Form>
+				
+				<s:HGroup width="100%" horizontalAlign="center">
+					<s:Button id="btnAgregarContrato" label="Guardar Nuevo Contrato" click="funcionesBtn(event)" height="30"/>
+					<s:Button id="btnVolverAListadoContratos" label="Volver" click="funcionesBtn(event)" height="30"/>
+				</s:HGroup>
+			</s:VGroup>  
+		</s:Group>          
+		
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

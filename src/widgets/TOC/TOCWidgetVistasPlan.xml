@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<!--
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2010 ESRI
+//
+// All rights reserved under the copyright laws of the United States.
+// You may freely redistribute and use this software, with or
+// without modification, provided you include the original copyright
+// and use restrictions.  See use restrictions in the file:
+// <install location>/FlexViewer/License.txt
+//
+////////////////////////////////////////////////////////////////////////////////
+-->
+<configuration>
+	<labels>
+		<visibilitylabel>Visibilidad</visibilitylabel>
+		<expandall>Expand All Layers</expandall>
+		<collapseall>Collapse All Layers</collapseall>
+		<zoomtomakevisible>Zoom To Make Visible</zoomtomakevisible>
+		<generatinglegendmsg>Generating TOC Legend</generatinglegendmsg>
+	</labels>
+	<tocsettings>
+		<expanded everything="false">true</expanded>
+		<collapselegends>false</collapselegends>
+		<disablezoomtomenuoption>false</disablezoomtomenuoption>
+	</tocsettings>
+	<excludelayers>
+	<excludelayer mapservice="Electricidad"></excludelayer>
+	<excludelayer mapservice="Concesiones"></excludelayer>
+	<excludelayer mapservice="Cartografia"></excludelayer>
+	<excludelayer mapservice="Direcciones"></excludelayer>
+	<excludelayer mapservice="Clientes1"></excludelayer>
+	<excludelayer mapservice="Clientes"></excludelayer>
+	<excludelayer mapservice="Linea Gas"></excludelayer>
+	<excludelayer mapservice="Luminarias"></excludelayer>
+	<excludelayer mapservice="STx"></excludelayer>
+	<excludelayer mapservice="Vialidad"></excludelayer>
+	<excludelayer mapservice="ECSE"></excludelayer>
+	<excludelayer mapservice="Equipos linea"></excludelayer>
+	<excludelayer mapservice="Equipos Pto"></excludelayer>
+	<excludelayer mapservice="Nodos"></excludelayer>
+	<excludelayer mapservice="Tramos"></excludelayer>
+	<excludelayer mapservice="Reportes Planificacion"></excludelayer>
+	<excludelayer mapservice="Poligonos SSEE"></excludelayer>
+	<excludelayer mapservice="Poligonos Podas"></excludelayer>
+	 <excludelayer mapservice="Unidad vecinal"></excludelayer>
+	 <excludelayer mapservice="PMGD"></excludelayer>
+		<!-- <excludelayer mapservice="Symbols"></excludelayer>
+		<excludelayer mapservice="Utilities"></excludelayer> -->
+		<!-- <excludelayer mapservice="Earthquakes"></excludelayer>
+		<excludelayer mapservice="Fires"></excludelayer> -->
+	</excludelayers>
+	<excludegraphiclayers>true</excludegraphiclayers>
+	<excludebasemaplayers>true</excludebasemaplayers>
+	<usenewesridescription>false</usenewesridescription>
+</configuration>

@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<configuration>
+    <!--
+     ############################################################################
+     ## Created By: Andrew Timmins
+     ## Date: Jan 30 , 2011
+     ## Location: Ontario Canada
+     ## For: Flex-A-Widget Challenge
+     ## ****************************************************************************
+     ## References:
+     ## ESRI: Flex API, Flex Viewer - Source
+     ## Images courtesy of FAMFAMFAM - Silk Icon Set - http://www.famfamfam.com/lab/icons/silk/
+     ############################################################################
+	-->
+	
+   <!-- 
+   ####################################################
+   # REQUIRED
+   #################################################### 
+   -->
+	
+   <!-- Geometry Service URL --> 
+ 
+   <geometryServiceURL>http://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer</geometryServiceURL>
+   <!--    <geometryServiceURL>http://maps.simcoe.ca/arcgis/rest/services/Utilities/Geometry/GeometryServer</geometryServiceURL>  -->
+   
+   <!-- 
+   ####################################################
+   # OPTIONAL
+   #################################################### 
+   -->
+   
+   <!-- GLOBAL DECIMAL PRECISION -->
+   <precision>4</precision>
+   
+      <!--
+   	Custom coordinate systems used to display in the drop downs.- comment/delete XML to remove functionality
+   	Get the WKID (Well Known ID) needed from the below sites.	
+   
+    Projected Coordinate Systems 
+    http://help.arcgis.com/en/arcgisserver/10.0/apis/rest/index.html?pcs.html
+	
+	Geographic Coordinate Systems 
+	http://help.arcgis.com/en/arcgisserver/10.0/apis/rest/index.html?gcs.html
+    -->
+   <coordinateSystems>
+		<coordinateSystem name="PSAD_1956_UTM_Zone_19S" wkid="24879" decimals="4"/>
+		<coordinateSystem name="PSAD_1956_UTM_Zone_18S" wkid="24878" decimals="4"/>
+		<coordinateSystem name="WGS_1984_UTM_Zone_19S" wkid="32719" decimals="4"/>
+		<coordinateSystem name="WGS_1984_UTM_Zone_18S" wkid="32718" decimals="4"/>		
+		<coordinateSystem name="World Mercator" wkid="54004" decimals="4"/>
+		<coordinateSystem name="GCS WGS 1984 (Decimal Degrees)" wkid="4326" decimals=""/>
+	<!-- <coordinateSystem name="GCS WGS 1984 (Decimal Degrees)" wkid="4326" decimals="2"/> -->
+   </coordinateSystems>
+   
+	<!-- Zoom To Coordinate Scale -->
+	<zoomScale>5000</zoomScale>
+
+   <!-- 
+   The string format you would like to copy to the clipboard. 
+   Use the formmaters {X} {Y} to replace where X and Y values will be placed in the string: SAMPLE: X:{X} Y:{Y} 
+   -->
+   <copyFormat>X: {X} Y: {Y}</copyFormat>
+   
+   <!-- Hide the ESRI context menu items -->
+   <hideESRIAboutItems>false</hideESRIAboutItems>
+   
+   <!-- How long until the animated markers are removed from the stage - in milliseconds. 1000 ms = 1 sec. -->
+   <markerRemoveDelay>4000</markerRemoveDelay>
+   
+</configuration>

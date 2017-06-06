@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<configuration>
+	<!-- Google Analytics Account String -->
+	<account>UA-18974753-1</account>
+	
+	<!-- Initial page label to show in Google Analytics -->
+	<!-- This is logged whenever flexviewer is first opened -->
+	<flexviewer>FlexViewer</flexviewer>
+	
+	<!-- Record a log of widgets as they are opened -->
+	<logwidgets>true</logwidgets>
+	
+	<!-- Record a log of each basemap if it is switched on. -->
+	<logbasemaps>true</logbasemaps>
+	
+	<!-- Record a log of map's interactive mode, such as Draw point, line, etc. -->
+	<logdrawtools>false</logdrawtools>
+</configuration>

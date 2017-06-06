@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Id Tramo BT: {id_tramo}</title>
+    <fields>
+        <field name="alimentador" alias="Alimentador:" visible="true"/>
+        <field name="comuna" alias="Comuna:" visible="true"/>
+        <field name="tipo" alias="Tipo:" visible="true"/>
+        <field name="propiedad" alias="Propiedad:" visible="true"/>
+        <field name="sed" alias="SED:" visible="true"/>       
+        <field name="catalogo" alias="Catalogo:" visible="true"/>
+        <field name="descripcion" alias="Descripcion:" visible="true"/>
+        <field name="fecha" alias="Fecha:" visible="true"/>
+       
+        
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

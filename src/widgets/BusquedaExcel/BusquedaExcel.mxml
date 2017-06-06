@@ -1,0 +1,786 @@
+<?xml version="1.0" encoding="utf-8"?>
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"
+				   xmlns:esri="http://www.esri.com/2008/ags"				   
+				   layout="vertical" initialize="basewidget1_initializeHandler(event)">
+
+	<fx:Script>
+		<![CDATA[
+			import com.as3xls.xls.ExcelFile;
+			import com.as3xls.xls.Sheet;
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.geometry.Polyline;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.symbols.SimpleLineSymbol;
+			import com.esri.ags.symbols.SimpleMarkerSymbol;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import flash.net.FileReference;
+			import flash.utils.ByteArray;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.rpc.AsyncResponder;
+			
+			import comun.Planificacion.User;
+			
+			import widgets.PMGDPlanificacion.URL;
+			
+			private var ef:ExcelFile;
+			private var ba:ByteArray;
+			private var fr:FileReference;
+			private var frSave:FileReference;
+			public var valor:String;
+			private var graphicsLayer1:GraphicsLayer  = null;
+			private var g:Graphic;
+			private var ac:ArrayCollection = new ArrayCollection();
+			
+			
+			[Bindable]
+			private var markerStyleLabel:String;
+			[Bindable]
+			private var markerColorLabel:String;
+			[Bindable]
+			private var defaultDrawColor:uint;
+			[Bindable]
+			private var markerAlphaLabel:String;
+			[Bindable]
+			private var markerOutlineColorLabel:String;
+			[Bindable]
+			private var markerOutlineWidthLabel:String;
+			[Bindable]
+			private var markerSizeLabel:String;
+			[Bindable]
+				
+			[Bindable]private var statCollection:ArrayCollection;
+	
+			[Bindable]
+			public var seleccion:int = new int();
+			
+			[Bindable]
+			public var myDP:ArrayCollection = new ArrayCollection
+			
+			//inicializa las variables para usar a lo largo de la aplicacion
+			private function onCreation():void
+			{
+				ef= new ExcelFile();
+				ba= new ByteArray();
+				fr= new FileReference();
+				frSave= new FileReference();				
+				statCollection = new ArrayCollection();
+				
+			}
+			// funcion que importa los datos extraidos de una hoja de excel
+			private function importData(event:MouseEvent):void
+			{
+				
+				ac.removeAll()
+				fr= new FileReference();
+				var fileFilter:FileFilter = new FileFilter("Excel (.xls)","*.xls");
+				fr.addEventListener(Event.SELECT,selectXLS);
+				fr.browse([fileFilter]);
+			}
+			// funcion que selecciona el XLS a usar y lo carga
+			private function selectXLS(event:Event):void
+			{			
+			
+				fr.removeEventListener(Event.SELECT,importData);
+				fr = FileReference(event.target);			
+				//fr.addEventListener(Event.COMPLETE,fileIn);
+				fr.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+				fr.load();
+				txtdireccion.visible =  true;
+				txtdireccion.text = "Archivo Seleccionado: " + fr.name;
+			}
+			private function onLoadError(error:IOErrorEvent):void
+			{
+				Alert.show("Error al cargar el archivo: " + error.text);                
+			}
+
+			// Funcion que permite recuperar los datos de la hoja y los almacena en un ByteArray			
+			private function cargaxls(event:MouseEvent):void
+			{
+			
+				
+				fr= new FileReference();
+				var fileFilter:FileFilter = new FileFilter("Excel (.xls)","*.xls");
+				fr.addEventListener(Event.SELECT,selectXLS);
+				fr.browse([fileFilter]);
+				fr = FileReference(event.target);				
+			}
+							
+			
+		 
+			
+			public function fileIn():void
+			{   
+		
+				graphicsLayer1 = null;
+				//Crear objeto graphiclayer 1 
+				graphicsLayer1 = new GraphicsLayer();	
+				ba = new ByteArray();
+				ba.clear()
+				ba = fr.data as ByteArray;
+				ef = new ExcelFile();
+				ef.loadFromByteArray(ba);
+				var sheet:Sheet =ef.sheets[0];
+				var tCols:int = sheet.cols;
+				var tRows:int = sheet.rows;
+				statuslbl.text = "Filas leidas: "+ tRows;
+				statCollection = new ArrayCollection();
+						
+				if(tRows.valueOf()>500)
+				{
+					
+					Alert.show("Demasiados datos a consultar \n             (maximo 3000)");
+					return;
+				}			
+			
+				
+				switch(seleccion)
+				{
+					case 0:
+					{
+						//Alert.show("SED");
+						for(var i:int=0;i<=tRows-1;i++)
+						{
+							valor = '0';
+							var statsEnry:Object = new Object();
+							statsEnry.eventLabel = sheet.getCell(i,0).value;
+							statsEnry.totalEvent = sheet.getCell(i,1).value;
+							if(statsEnry.EntryLabel !=""){
+								statCollection.addItem(statsEnry);
+								valor = sheet.getCell(i,0).value;
+								//Obtener ids del servicio
+								var qtID:QueryTask = new QueryTask();
+								qtID.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/1/query";
+								qtID.useAMF = false;
+								var queryID:Query = new Query();
+								queryID.where = "codigo=" + valor;
+								
+								queryID.outFields=["codigo"]
+								queryID.returnGeometry=true;
+								queryID.spatialRelationship ="esriSpatialRelIntersects";
+								queryID.outSpatialReference = map.spatialReference;
+								qtID.execute(queryID, new AsyncResponder(onResult, onFault));
+								
+								function onResult(featureSet:FeatureSet, token:Object = null):void
+								{
+									try{
+										var myGraphicMarker:Graphic = featureSet.features[0] as Graphic;
+										myGraphicMarker.symbol = new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value);
+										graphicsLayer1.add(myGraphicMarker);
+										ac.addItem(graphicsLayer1);
+										
+									}catch(err:Error){
+										//Alert.show(err.message+ "id no encontrada");
+									}
+								}
+								
+								function onFault(info:Object, token:Object = null):void
+								{   
+									//Alert.show("id no encontrada"+ valor);
+								}
+								seleccion = 0;
+								
+								
+							}else {     
+								Alert.show("espacios");
+							}
+						}
+						map.addLayer(graphicsLayer1);
+						break;
+					}
+					case 4:
+					{
+					//	Alert.show("Postes");
+						for(var i2:int=0;i2<=tRows-1;i2++)
+						{
+							valor = '0';
+							var statsEnry2:Object = new Object();
+							statsEnry2.eventLabel = sheet.getCell(i2,0).value;
+							statsEnry2.totalEvent = sheet.getCell(i2,1).value;
+							if(statsEnry2.EntryLabel !=""){
+								statCollection.addItem(statsEnry2);
+								valor = sheet.getCell(i2,0).value;
+								//Alert.show(valor);
+								
+								//  Alert.show("Clientes");
+								//Obtener ids del servicio
+								var qtID2:QueryTask = new QueryTask();
+								qtID2.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0/query";
+								qtID2.useAMF = false;
+								var queryID2:Query = new Query();
+								queryID2.where = "rotulo='" + valor + "'";
+								
+								queryID2.outFields=["rotulo"]
+								queryID2.returnGeometry=true;
+								queryID2.spatialRelationship ="esriSpatialRelIntersects";
+								queryID2.outSpatialReference = map.spatialReference;
+								qtID2.execute(queryID2, new AsyncResponder(onResult1, onFault1));
+								
+								function onResult1(featureSet:FeatureSet, token:Object = null):void
+								{
+									try{
+										var myGraphicMarker:Graphic = featureSet.features[0] as Graphic;
+										myGraphicMarker.symbol = new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value);
+										graphicsLayer1.add(myGraphicMarker);
+										ac.addItem(graphicsLayer1);
+									}catch(err:Error){
+										//Alert.show(err.message+ "id no encontrada");
+									}
+								}
+								
+								function onFault1(info:Object, token:Object = null):void
+								{   
+									//Alert.show("id no encontrada"+ valor);
+								}
+								seleccion = 0;
+								
+								
+							}else {     
+								Alert.show("espacios");
+							}
+						}					
+					 	
+						map.addLayer(graphicsLayer1);
+						break;
+					}
+					case 9:
+					{
+					//	Alert.show("Camaras");
+						for(var i3:int=0;i3<=tRows-1;i3++)
+						{
+							valor = '0';
+							var statsEnry3:Object = new Object();
+							statsEnry3.eventLabel = sheet.getCell(i3,0).value;
+							statsEnry3.totalEvent = sheet.getCell(i3,1).value;
+							if(statsEnry3.EntryLabel !=""){
+								statCollection.addItem(statsEnry3);
+								valor = sheet.getCell(i3,0).value;						
+								//Obtener ids del servicio
+								var qtID3:QueryTask = new QueryTask();
+								qtID3.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0/query";
+								qtID3.useAMF = false;
+								var queryID3:Query = new Query();
+								queryID3.where = "rotulo='" + valor + "'";								
+								queryID3.outFields=["rotulo"]
+								queryID3.returnGeometry=true;
+								queryID3.spatialRelationship ="esriSpatialRelIntersects";
+								queryID3.outSpatialReference = map.spatialReference;
+								qtID3.execute(queryID3, new AsyncResponder(onResult2, onFault2));
+								
+								function onResult2(featureSet:FeatureSet, token:Object = null):void
+								{
+									try{
+										var myGraphicMarker:Graphic = featureSet.features[0] as Graphic;
+										myGraphicMarker.symbol = new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value);
+										graphicsLayer1.add(myGraphicMarker);
+										ac.addItem(graphicsLayer1);
+									}catch(err:Error){
+										//Alert.show(err.message+ "id no encontrada");
+									}
+								}
+								
+								function onFault2(info:Object, token:Object = null):void
+								{   
+									//Alert.show("id no encontrada"+ valor);
+								}
+								seleccion = 0;
+								
+								
+							}else {     
+								Alert.show("espacios");
+							}
+						}
+						map.addLayer(graphicsLayer1);
+						break;
+					}
+						
+						
+					
+						
+					case 1:
+					{
+						//Alert.show("Clientes");
+						for(var i4:int=0;i4<=tRows-1;i4++)
+						{   
+							valor = '0';
+							var statsEnry4:Object = new Object();
+							statsEnry4.eventLabel = sheet.getCell(i4,0).value;
+							statsEnry4.totalEvent = sheet.getCell(i4,1).value;
+							if(statsEnry4.EntryLabel !=""){
+								statCollection.addItem(statsEnry4);
+								valor = sheet.getCell(i4,0).value;								
+								//Obtener ids del servicio
+								var qtID4:QueryTask = new QueryTask();
+								qtID4.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0/query";								
+								qtID4.useAMF = false;
+								var queryID4:Query = new Query();
+								queryID4.where = "ARCGIS.DBO.CLIENTES_XY_006.nis=" + valor;								
+								queryID4.outFields=["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis"]
+								queryID4.returnGeometry=true;
+								queryID4.spatialRelationship ="esriSpatialRelIntersects";
+								queryID4.outSpatialReference = map.spatialReference;
+								qtID4.execute(queryID4, new AsyncResponder(onResult4, onFault4));
+								
+								function onResult4(featureSet:FeatureSet, token:Object = null):void
+								{
+									try{
+										
+										
+										var mp:MapPoint=featureSet.features[0].geometry as MapPoint;  
+										var myGraphic:Graphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value), featureSet.features[0].attributes);
+										
+										
+								
+										myGraphic.toolTip = "NIS: " + String(featureSet.features[0].attributes["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis"]); 
+										graphicsLayer1.add(myGraphic);
+										graphicsLayer1.moveToTop(myGraphic);
+										ac.addItem(graphicsLayer1);
+										map.addLayer(graphicsLayer1);
+									}catch(err:Error){
+										//Alert.show(err.message+ "id no encontrada");
+									}
+								}
+								
+								function onFault4(info:Object, token:Object = null):void
+								{   
+									//Alert.show("id no encontrada"+ valor);
+								}
+								seleccion = 0;
+								
+								
+							}else {     
+								Alert.show("espacios");
+							}
+						}
+						map.addLayer(graphicsLayer1);
+						break;
+						
+					}
+					case 2:
+					{
+						//Alert.show("TramoMT");
+						for(var i6:int=0;i6<=tRows-1;i6++)
+						{   
+							valor = '0';
+							var statsEnry6:Object = new Object();
+							statsEnry6.eventLabel = sheet.getCell(i6,0).value;
+							statsEnry6.totalEvent = sheet.getCell(i6,1).value;
+							if(statsEnry6.EntryLabel !=""){
+								statCollection.addItem(statsEnry6);
+								valor = sheet.getCell(i6,0).value;								
+								//Obtener ids del servicio
+								var queryTaskEquipoSelected:QueryTask = new QueryTask();
+								queryTaskEquipoSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Tramos_006/MapServer/0";
+								queryTaskEquipoSelected.useAMF = false;
+								var queryEquipoSelected:Query = new Query();
+								queryEquipoSelected.outFields = ["*"];
+								queryEquipoSelected.returnGeometry = true;
+								
+								queryEquipoSelected.where = "ARCGIS.DBO.Tramos_MT_006.id=" + valor;
+								queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+								queryEquipoSelected.outSpatialReference = map.spatialReference;
+								queryTaskEquipoSelected.execute(queryEquipoSelected, new AsyncResponder(onResult6, onFault6));
+								
+								function onResult6(featureSet:FeatureSet, token:Object = null):void
+								{ 
+								
+									try{
+										
+										for each (var myGraphic:Graphic in featureSet.features)
+										{
+											
+											myGraphic.symbol=new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,cpMarker.selectedColor,numMarkerAlpha.value,5);
+											graphicsLayer1.add(myGraphic);
+								
+											
+										}
+										map.addLayer(graphicsLayer1);
+									}catch(err:Error){
+										Alert.show("no se pudo hacer zoom al equipo seleccionado");
+									}
+									
+									
+								}
+								
+								function onFault6(info:Object, token:Object = null):void
+								{   
+									Alert.show("id de equipo no encontrada");
+								}
+								
+								seleccion = 0;
+								
+								
+							}else {     
+								Alert.show("espacios");
+							}
+							
+						}
+						map.addLayer(graphicsLayer1);
+						break;
+						
+					}
+					case 3:
+					{
+						//     Alert.show("Torres");
+						for(var i5:int=0;i5<=tRows-1;i5++)
+						{   
+							valor = '0';
+							var statsEnry5:Object = new Object();
+							statsEnry5.eventLabel = sheet.getCell(i5,0).value;
+							statsEnry5.totalEvent = sheet.getCell(i5,1).value;
+							if(statsEnry5.EntryLabel !=""){
+								statCollection.addItem(statsEnry5);
+								valor = sheet.getCell(i5,0).value;                                                     
+								//Obtener ids del servicio
+								var qtID5:QueryTask = new QueryTask();
+								qtID5.url="http://gisred.chilquinta/arcgis/rest/services/STx/STx/MapServer/0/query";                                                  
+								qtID5.useAMF = false;
+								var queryID5:Query = new Query();
+								queryID5.where = "nombre_obj='" + valor + "'";                                                
+								queryID5.outFields=["nombre_obj"]
+								queryID5.returnGeometry=true;
+								queryID5.spatialRelationship ="esriSpatialRelIntersects";
+								queryID5.outSpatialReference = map.spatialReference;
+								qtID5.execute(queryID5, new AsyncResponder(onResult5, onFault5));
+								
+								function onResult5(featureSet:FeatureSet, token:Object = null):void
+								{
+									try{
+										
+										
+										var mp:MapPoint=featureSet.features[0].geometry as MapPoint;  
+										var myGraphic:Graphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value), featureSet.features[0].attributes);
+										
+										
+										
+										myGraphic.toolTip = "Torre: " + String(featureSet.features[0].attributes["nombre_obj"]); 
+										graphicsLayer1.add(myGraphic);
+										graphicsLayer1.moveToTop(myGraphic);
+										ac.addItem(graphicsLayer1);
+										map.addLayer(graphicsLayer1);
+									}catch(err:Error){
+										//Alert.show(err.message+ "id no encontrada");
+									}
+								}
+								
+								function onFault5(info:Object, token:Object = null):void
+								{   
+									Alert.show("id no encontrada"+ valor);
+								}
+								seleccion = 0;
+								
+								
+							}else {     
+								Alert.show("espacios");
+							}
+						}
+						map.addLayer(graphicsLayer1);
+						break;
+					}
+					default:
+					{
+						
+						
+					}      
+
+				}
+
+				}
+				
+			
+			
+		
+			// Funcion que permite generar un archivo XLS a partir de los datos cargados en un datagrid
+			private function generateXLS(event:MouseEvent):void
+			{
+				var s:Sheet = new Sheet();
+				s.resize(statCollection.length+1,2);
+				s.setCell(0,0,"Nis");
+				//s.setCell(0,1,"Total Events");
+				
+				for(var j:int=0;j<statCollection.length;j++)
+				{
+					s.setCell(j+1,0,statCollection[j].eventLabel);
+					s.setCell(j+1,1,statCollection[j].totalEvent);
+				}
+				var fileTosave:ExcelFile = new ExcelFile();
+				fileTosave.sheets.addItem(s);
+				var fileBytes:ByteArray = fileTosave.saveToByteArray();
+				frSave = new FileReference();
+				frSave.save(fileBytes,"New.xls");
+				statuslbl.text = "File Saved";
+			}
+			// Funcion que permite generar un archivo csv a partid e los datos de un datagrid
+			private function generateCSV(event:MouseEvent):void
+			{
+				
+				var csv:String="";
+				csv +="Nis,"
+				//csv +="Total Events\r";
+				
+				for(var j:int=0;j<statCollection.length;j++)
+				{
+					csv +=statCollection[j].eventLabel+",";
+					csv +=statCollection[j].totalEvent+"\r";
+				}
+				
+				frSave = new FileReference();
+				
+				frSave.save(csv,"NewCSV.csv");
+				
+				statuslbl.text = "File Saved";
+				
+			}			
+						
+														 
+			protected function graficar_clickHandler(event:MouseEvent):void
+			{			
+				
+				
+				if(dropTipoCapa.selectedIndex ==-1)
+				{
+					Alert.show("Seleccione un Objeto");
+					return;
+				}
+				if(txtdireccion.text == "")
+				{
+					Alert.show("Seleccione un archivo xls");
+					return;
+				}
+					
+				
+				map.removeLayer(graphicsLayer1);
+				fileIn();
+				statuslbl.visible =true;	
+				dropTipoCapa.selectedIndex = -1;
+			}
+			
+			//Funcion que permite borrar los graficos de un layer dentro de un mapa. Borra todos los graphiclayer1 del arreglo ac[num].
+			public function clearAllResults():void
+			{
+				map.removeLayer(graphicsLayer1);				
+				statuslbl.visible = false;
+				//statCollection.removeAll();
+				//fr.data.clear()
+				txtdireccion.text= "";
+				fr.removeEventListener(Event.COMPLETE,clearAllResults)
+				dropTipoCapa.selectedIndex = -1;				
+		
+			}
+			
+			private function wTemplate_closeHandler(event:Event):void
+			{
+				clearAllResults();			
+			}
+			
+			protected function wTemplate_openHandler(event:Event):void
+			{
+			
+				statuslbl.visible = false;
+			}
+			
+			protected function getLongestString(... rest):String
+			{
+				var longest:String = "";
+				for (var i:int = 0; i < rest.length; i++)
+				{
+					var n:String = getDefaultString(rest[i]);
+					longest = n.length > longest.length ? n : longest;
+				}
+				return longest;
+			}
+			
+			protected function basewidget1_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				GetUser();
+				
+			}
+			private function GetUser():void
+			{		
+				//graphicsLayer= null
+				var queryTaskCapexSelected:QueryTask = new QueryTask();
+				queryTaskCapexSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Admin/LogAccesos/MapServer/2";
+				queryTaskCapexSelected.useAMF = false;
+				var queryEquipoSelected:Query = new Query();
+				queryEquipoSelected.outFields = ["*"];
+				queryEquipoSelected.returnGeometry = true;				
+				queryEquipoSelected.where = "USUARIO = '" + User.Usuario + "'" + "AND modulo='BUSQUEDA_EXCEL' AND widget='POSTES'";
+				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryEquipoSelected.outSpatialReference = map.spatialReference;
+				queryTaskCapexSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));				
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{	
+					
+					if(featureSet.features.length == 0 ){
+						myDP.addItem({elemento:"Subestacion", id:0});
+						myDP.addItem({elemento:"Clientes", id:1});
+						myDP.addItem({elemento:"Tramos MT", id:2});
+						myDP.addItem({elemento:"Torres sTX", id:3});
+					}
+					else
+					{
+														
+						myDP.addItem({elemento:"Subestacion", id:0});
+						myDP.addItem({elemento:"Clientes", id:1});
+						myDP.addItem({elemento:"Tramos MT", id:2});
+						myDP.addItem({elemento:"Torres sTX", id:3});
+						myDP.addItem({elemento:"Postes", id:4});
+					}
+			
+				}		
+				
+				
+				function onFault(info:Object, token:Object = null):void
+				{   	
+					//Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
+					
+				}
+				
+			}
+		]]>
+		
+	
+		</fx:Script>
+	<fx:Declarations>
+		<mx:SeriesSlide id="seriesSlide" duration="1000" direction="up"/>
+		<!--<esri:GraphicsLayer id="graphicsLayer"/>-->
+	</fx:Declarations>
+	<viewer:WidgetTemplate id="wTemplate" width="420" height="280"
+						   closed="wTemplate_closeHandler(event)"
+						   open="wTemplate_openHandler(event)">
+	
+		<mx:Form>
+			<s:HGroup width="100%"
+					  gap="25"
+					  verticalAlign="middle">
+				<s:DropDownList id="dropTipoCapa"  prompt="Seleccione Objeto" height="26" width="60%" dataProvider="{myDP}" labelField="elemento"
+								toolTip="Seleccione atributo a graficar"  change="{seleccion=dropTipoCapa.selectedItem.id}">
+				</s:DropDownList>			
+			</s:HGroup>				
+				<s:HGroup width="100%"
+						  gap="10"
+						  verticalAlign="middle">
+					<s:Button height="26"  width="40%" label="Importar xls" id="importBtn" click="cargaxls(event)"/>
+								
+				</s:HGroup>				
+			
+			<mx:FormItem verticalCenter="middle" width="100%"					 
+						 label="Marker Color">		
+			
+			<s:HGroup width="100%"
+					  gap="55"
+					  verticalAlign="middle">
+				<mx:ColorPicker id="cpMarker" selectedColor="0xFF0000"/>
+				
+				<s:HGroup width="100%"
+						  gap="24"
+						  verticalAlign="middle">
+					<mx:Label text="Style"/>
+					
+					<s:DropDownList id="markerStyle"
+									width="100%"
+									labelField="name"
+									selectedIndex="0">
+						<s:typicalItem>
+							<fx:Object name="{getLongestString('markerStyleCircle',
+									   'markerStyleCross',
+									   'markerStyleDiamond',
+									   'markerStyleSquare',
+									   'markerStyleX')}"/>
+						</s:typicalItem>
+						<s:ArrayList>
+							<fx:Object name="{getDefaultString('markerStyleCircle')}" style="{SimpleMarkerSymbol.STYLE_CIRCLE}"/>
+							<fx:Object name="{getDefaultString('markerStyleCross')}" style="{SimpleMarkerSymbol.STYLE_CROSS}"/>
+							<fx:Object name="{getDefaultString('markerStyleDiamond')}" style="{SimpleMarkerSymbol.STYLE_DIAMOND}"/>
+							<fx:Object name="{getDefaultString('markerStyleSquare')}" style="{SimpleMarkerSymbol.STYLE_SQUARE}"/>
+							<!-- triangle style is not supported by the 10.1 print task -->
+							<!--<fx:Object name="{getDefaultString('markerStyleTriangle')}" style="{SimpleMarkerSymbol.STYLE_TRIANGLE}"/>-->
+							<fx:Object name="{getDefaultString('markerStyleX')}" style="{SimpleMarkerSymbol.STYLE_X}"/>
+						</s:ArrayList>
+					</s:DropDownList>
+				</s:HGroup>
+			</s:HGroup>
+			</mx:FormItem>
+			
+			<mx:FormItem verticalCenter="middle" width="100%"											   
+											   label="Size">
+				<s:HGroup width="100%"
+						  gap="24"
+						  verticalAlign="middle">
+					<!-- Change gap from 21 to 7 -->
+					<mx:NumericStepper id="numMarkerSize"
+									   maximum="50"
+									   minimum="0"
+									   value="15"/>
+					<s:HGroup width="100%"
+							  gap="20"
+							  verticalAlign="middle">
+					<s:Label text="Alpha"/>
+					
+					<mx:NumericStepper id="numMarkerAlpha"
+									   maximum="1"
+									   minimum="0"
+									   stepSize="0.1"
+									   value="1"/>
+					<!-- My Add -->			
+						
+					</s:HGroup>
+				</s:HGroup>
+			
+	 </mx:FormItem><!--
+		<mx:FormItem verticalCenter="middle" width="100%"					
+					label="Outline Color">
+			
+		
+			<s:HGroup width="100%"
+					  gap="55"
+					  verticalAlign="middle">
+				<mx:ColorPicker id="cpMarkerOutline" selectedColor="0xCCFF33"/>
+				
+				<s:HGroup width="100%"
+						  gap="26"
+						  verticalAlign="middle">
+					<s:Label text="width"/>
+					
+					<mx:NumericStepper id="numMarkerOutlineWidth"
+									   maximum="5"
+									   minimum="0"
+									   stepSize="1"
+									   value="1"/>
+				</s:HGroup>
+			</s:HGroup>
+	 </mx:FormItem>
+			-->
+			<mx:FormItem horizontalAlign="left">
+				<s:HGroup width="100%"
+						  gap="26"
+						  verticalAlign="middle">
+					
+					<s:Button  height="26" id="graficar" label="Graficar" click="graficar_clickHandler(event)"/>
+					
+					<s:Button  height="26" id="limpiarBtn" label="Limpiar" click="clearAllResults()"/>
+						
+					</s:HGroup>
+			</mx:FormItem>
+		
+				<s:VGroup width="100%" horizontalAlign="left">
+					<s:Label height="22" width="100%" id="txtdireccion" visible="false" text=""/>
+					<s:Label id="statuslbl"  height="22" color="red"/>
+					
+				</s:VGroup>
+	
+</mx:Form>
+	</viewer:WidgetTemplate>
+	
+</viewer:BaseWidget>

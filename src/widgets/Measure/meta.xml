@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<configuration>
+<openbydefault>true</openbydefault>
+<icon>assets/images/i_measure2.png</icon>
+<label>Measure</label>
+<description>Measure Tool</description>
+<helpurl>http://www.arcgis.com/home/item.html?id=43daf0ffb1d34e31ad752da1340aeb40</helpurl>
+</configuration>

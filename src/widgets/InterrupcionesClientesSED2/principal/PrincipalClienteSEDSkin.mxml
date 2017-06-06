@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx" 
+		xmlns:wizard="widgets.Interrupciones.wizard.*" 
+		xmlns:busqueda="widgets.InterrupcionesClientesSED2.busqueda.*" 
+		xmlns:resultado="widgets.Interrupciones.busqueda.resultado.*" 
+		xmlns:pasos="widgets.Interrupciones.wizard.pasos.*" 
+		xmlns:busqueda1="widgets.Interrupciones.busqueda.*">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("widgets.InterrupcionesClientesSED2.principal.PrincipalClienteSED")]
+	</fx:Metadata>
+	
+	<s:VGroup verticalAlign="top"  height="100%">
+		
+		<wizard:SelectorEtapa height="10%" id="selectorEtapa" principal="{hostComponent}" >
+		</wizard:SelectorEtapa>
+		
+		<!--
+		<s:HGroup paddingBottom="30">
+		<s:Button label="Clientes/SED" id="menuInterrupciones"   />
+		<s:Button label="Interrupciones" id="menuClientesSed"   />
+		<s:Button label="Log" id="menuLog" visible="true"/>
+		</s:HGroup>
+		-->
+		
+		<mx:ViewStack id="stackPrincipal" creationPolicy="all" width="550" height="250" selectedIndex="0"  >
+			<!--0--> 
+			<s:NavigatorContent>
+				<busqueda:FormularioBusquedaClienteSed id="formularioBusquedaClienteSed" selectorEtapa="{selectorEtapa}" principal="{hostComponent}" >
+				</busqueda:FormularioBusquedaClienteSed>		
+			</s:NavigatorContent>
+			
+			<!--8--> 
+			<s:NavigatorContent>
+				<pasos:FiltroAvanzadoClienteSed id="filtroAvanzadoClienteSed"  width="100%" principal="{hostComponent}" >
+				</pasos:FiltroAvanzadoClienteSed>	
+			</s:NavigatorContent>
+			
+			<!--3--> 
+			<s:NavigatorContent>
+				<resultado:TablaInterrupciones id="tablaInterrupcionesClienteSed" width="100%">
+				</resultado:TablaInterrupciones>		
+			</s:NavigatorContent>
+			
+			<!--7--> 
+			<s:NavigatorContent>
+				<resultado:TablaInterrupciones id="tablaInterrupciones" width="100%">
+				</resultado:TablaInterrupciones>		
+			</s:NavigatorContent>
+			
+			<!--5--> 
+			<s:NavigatorContent>
+				<busqueda1:FormularioBusquedaInterrupcion id="formularioBusquedaInterrupcion" width="100%">
+				</busqueda1:FormularioBusquedaInterrupcion>
+			</s:NavigatorContent>
+			
+			
+			
+			
+			<!--4--> 
+			<s:NavigatorContent>
+				<resultado:ProgresoCapa id="progresoBarra" width="100%">
+				</resultado:ProgresoCapa>
+			</s:NavigatorContent>
+			
+			
+			
+		</mx:ViewStack>
+		
+	</s:VGroup>
+</s:Skin>

@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Rotulo: {rotulo}</title>
+    <fields>
+        <field name="tipo_nodo" alias="Tipo nodo:" visible="true"/>
+        <field name="alimentador" alias="Alimentador:" visible="true"/>
+        <field name="comuna" alias="Comuna:" visible="true"/>
+        <field name="tipo" alias="Tipo:" visible="true"/>
+        <field name="propiedad" alias="Propiedad:" visible="true"/>
+        <field name="catalogo" alias="Catalogo:" visible="true"/>
+        <field name="cudn" alias="Cudn:" visible="true"/>
+        <field name="fecha" alias="Fecha:" visible="true"/>
+        <field name="fabricante" alias="Fabricante:" visible="true"/>
+        <field name="año_poste" alias="Año_poste:" visible="true"/>
+             
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

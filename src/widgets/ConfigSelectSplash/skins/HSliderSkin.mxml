@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ | Version 10.2
+ | Copyright 2010 Esri
+ |
+ | Licensed under the Apache License, Version 2.0 (the "License");
+ | you may not use this file except in compliance with the License.
+ | You may obtain a copy of the License at
+ |
+ |    http://www.apache.org/licenses/LICENSE-2.0
+ |
+ | Unless required by applicable law or agreed to in writing, software
+ | distributed under the License is distributed on an "AS IS" BASIS,
+ | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ | See the License for the specific language governing permissions and
+ | limitations under the License.
+-->
+<!---
+@private
+-->
+<s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
+			 xmlns:s="library://ns.adobe.com/flex/spark"
+			 alpha.disabled="0.5"
+			 alpha.inactive="0.5"
+			 minHeight="15"
+			 minWidth="35">
+
+	<fx:Metadata>
+		[HostComponent("spark.components.HScrollBar")]
+
+		[Event(name="incrementButtonClicked", type="flash.events.Event")]
+		[Event(name="decrementButtonClicked", type="flash.events.Event")]
+	</fx:Metadata>
+
+	<fx:Script>
+		<![CDATA[
+			protected function incrementButton_clickHandler(event:MouseEvent):void
+			{
+				dispatchEvent(new Event("incrementButtonClicked", true, true));
+
+			}
+
+			protected function decrementButton_clickHandler(event:MouseEvent):void
+			{
+				dispatchEvent(new Event("decrementButtonClicked", true, true));
+
+			}
+
+		]]>
+	</fx:Script>
+
+
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="disabled"/>
+		<s:State name="inactive"/>
+	</s:states>
+
+	<s:Button id="track"
+			  width="64"
+			  left="25" right="25"
+			  focusEnabled="false"
+			  skinClass="widgets.ConfigSelectSplash.skins.HScrollBarTrackSkin"/>
+
+	<s:Button id="thumb"
+			  focusEnabled="false"
+			  skinClass="widgets.ConfigSelectSplash.skins.HScrollBarThumbSkin"
+			  visible.inactive="false"/>
+
+	<s:Button id="decrementButton"
+			  left="0"
+			  enabled.inactive="false"
+			  click="decrementButton_clickHandler(event)"
+			  focusEnabled="false"
+			  skinClass="widgets.ConfigSelectSplash.skins.ScrollBarLeftButtonSkin"/>
+
+	<s:Button id="incrementButton"
+			  right="0"
+			  enabled.inactive="false"
+			  focusEnabled="false"
+			  click="incrementButton_clickHandler(event)"
+			  skinClass="widgets.ConfigSelectSplash.skins.ScrollBarRightButtonSkin"/>
+
+
+</s:SparkSkin>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+////////////////////////////////////////////////////////////////////////////////
+//
+// Delevoped by Robert Scheitlin
+//
+////////////////////////////////////////////////////////////////////////////////
+-->
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx" 
+				   xmlns:viewer="com.esri.viewer.*" 
+				   widgetConfigLoaded="init()">
+	<fx:Script>
+		<![CDATA[
+			import com.esri.ags.Graphic;
+			import com.esri.ags.events.LayerEvent;
+			import com.esri.ags.layers.FeatureLayer;
+			import com.esri.ags.layers.Layer;
+			import com.esri.ags.layers.supportClasses.Field;
+			
+			import mx.formatters.DateFormatter;
+			import mx.managers.ToolTipManager;
+			
+			private var configFeatureLayers:Array;
+			private var dateFormatter:DateFormatter = new DateFormatter();
+			private var showFldNames:Boolean;
+			
+			private function init():void
+			{
+				if (configXML){
+					configFeatureLayers = [];
+					var hDelay:Number = Number(configXML.hidedelay) || 3000;
+					showFldNames = configXML.showfieldnames && configXML.showfieldnames == "true";
+					ToolTipManager.hideDelay = hDelay;
+					var lyrList:XMLList = configXML..layer;
+					for (var i:int = 0; i < lyrList.length(); i++){
+						var lyrName:String = lyrList[i].name;
+						var lyrField:String = lyrList[i].fields;
+						var lyrDateFields:String = lyrList[i].datefields;
+						var lyrDateFormat:String = lyrList[i].dateformat;
+						
+						var tooltipLayer:Object ={
+							layer: lyrName,
+							fields: lyrField,
+							datefields: lyrDateFields,
+							dateformat: lyrDateFormat
+						};
+						configFeatureLayers.push(tooltipLayer);
+					}
+				}
+				for each (var layer:Layer in map.layers){
+					if (layer is FeatureLayer){
+						var fl:FeatureLayer = layer as FeatureLayer;
+						for(var l:int=0; l<configFeatureLayers.length; l++){
+							if(fl.id == configFeatureLayers[l].layer){
+								fl.addEventListener(LayerEvent.UPDATE_END, setTooltip);
+								fl.refresh();
+							}
+						}
+					}
+				}
+			}
+			
+			private function msToDate(ms:Number, dateFormat:String):String
+			{
+				var date:Date = new Date(ms);
+				if (date.milliseconds == 999) // workaround for REST bug
+					date.milliseconds++;
+				
+				if (dateFormat){
+					dateFormatter.formatString = dateFormat;
+					var result:String = dateFormatter.format(date);
+					if (result)
+						return result;
+					else
+						return dateFormatter.error;
+				}else{
+					return date.toLocaleString();
+				}
+			}
+			
+			private function setTooltip(event:Event):void
+			{
+				var fl:FeatureLayer = event.currentTarget as FeatureLayer;
+				for(var l:int=0; l<configFeatureLayers.length; l++){
+					if(fl.id == configFeatureLayers[l].layer){
+						
+						var flds:String = configFeatureLayers[l].fields;
+						var fldArr:Array = flds.split(",");
+						var dflds:String = configFeatureLayers[l].datefields;
+						var dfldArr:Array = dflds.split(",");
+						var dateFormat:String = configFeatureLayers[l].dateformat;
+						var fldAlias:String = "";
+						var field:Field;
+						for each (var gra:Graphic in fl.graphicProvider){
+							var toolTip:String = "";
+							for (var f:int=0; f<fldArr.length; f++){
+								if(showFldNames){
+									for each (field in fl.layerDetails.fields){
+										if(field.name == fldArr[f]){
+											fldAlias = field.alias + ": ";
+											break;
+										}
+									}
+								}
+								toolTip += gra.attributes[fldArr[f]] != null ? fldAlias + String(gra.attributes[fldArr[f]]) + "\n" : "";
+							}
+							
+							for (var df:int=0; df<dfldArr.length; df++){
+								if(gra.attributes[dfldArr[df]]){
+									if(showFldNames){
+										for each (field in fl.layerDetails.fields){
+											if(field.name == dfldArr[df]){
+												fldAlias = field.alias + ": ";
+												break;
+											}
+										}
+									}
+									var dateMS:Number = Number(gra.attributes[dfldArr[df]]);
+									if (!isNaN(dateMS))
+										toolTip += fldAlias + msToDate(dateMS, dateFormat);
+									else
+										toolTip += fldAlias + String(gra.attributes[dfldArr[df]]);
+								}
+							}
+							
+							if (toolTip != "")
+								gra.toolTip = toolTip;
+						}
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+</viewer:BaseWidget>

@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Alimentador: {nombre}</title>
+    <fields>
+        <field name="id_alimentador" alias="Id Alimentador:" visible="true"/>       
+        <field name="color" alias="Color:" visible="true"/>
+        <field name="tension" alias="Tensión" visible="true"/>
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

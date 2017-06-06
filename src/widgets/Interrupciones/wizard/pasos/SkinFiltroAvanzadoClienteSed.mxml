@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:filtros="widgets.Interrupciones.busqueda.filtros.*"
+		>
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("widgets.Interrupciones.wizard.pasos.FiltroAvanzadoClienteSed")]
+	</fx:Metadata>
+	
+	<s:VGroup>
+		<s:ButtonBar dataProvider="{stackFiltros}" >
+		</s:ButtonBar>
+		
+		<mx:ViewStack id="stackFiltros" creationPolicy="all" height="80%">
+			<s:NavigatorContent label="Alimentador" height="100%">
+				<filtros:FiltroAlimentador id="filtroAlimentador"  height="100%" />  
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent label="SSEE" height="100%">
+				<filtros:FiltroSSEE id="filtroSSEE"  height="100%" />  
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent label="Comuna" height="100%">
+				<filtros:FiltroComuna id="filtroComuna"  height="100%" />  
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent label="Zona" height="100%">
+				<filtros:FiltroZona id="filtroZona"  height="100%" />  
+			</s:NavigatorContent>
+			
+		</mx:ViewStack>
+		
+		<s:HGroup horizontalAlign="center" width="100%" paddingTop="20" >
+			<s:Button id="buscarInterrupcionButton" label="Buscar" fontSize="13" fontWeight="bold" width="170" height="30" />
+		</s:HGroup>
+		
+	</s:VGroup>
+	
+</s:Skin>

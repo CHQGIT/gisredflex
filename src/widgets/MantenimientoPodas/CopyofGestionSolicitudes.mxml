@@ -1,0 +1,1848 @@
+<?xml version="1.0" encoding="utf-8"?>
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"
+				   xmlns:MantenimientoPodas="widgets.MantenimientoPodas.*"
+				   xmlns:components="com.esri.viewer.components.*"
+				   xmlns:esri="http://www.esri.com/2008/ags">
+	
+	<viewer:states>
+		
+		<s:State name="StateList"/>
+		<s:State name="StateNewsol"/>
+		<s:State name="StateModsol"/>
+		<s:State name="bkmActividades"/>
+		<s:State name="bkmDetalleActividad"/>
+		<s:State name="bkmVerFotos"/>
+		<s:State name="StateCerrarSol"/>
+		
+		
+	</viewer:states>
+	
+	<viewer:transitions>
+		<s:Transition autoReverse="true" toState="*">
+			<s:Fade targets="{[StateList,StateNewsol,StateModsol,bkmActividades,bkmDetalleActividad,bkmVerFotos,StateCerrarSol]}"/>
+		</s:Transition>
+	</viewer:transitions>	
+	<fx:Declarations>
+		<s:GlowFilter id="glowFilter"
+					  alpha="1"
+					  color="{getStyle('focusColor')}"
+					  inner="true"
+					  strength="2"/>
+		
+		<s:DateTimeFormatter id="dateFormatter" dateTimePattern="dd/MM/yyyy"/>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.events.DrawEvent;
+			import com.esri.ags.events.MapMouseEvent;
+			import com.esri.ags.geometry.Geometry;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.geometry.Polygon;
+			import com.esri.ags.layers.FeatureLayer;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.layers.supportClasses.FeatureEditResults;
+			import com.esri.ags.symbols.SimpleFillSymbol;
+			import com.esri.ags.symbols.SimpleLineSymbol;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			import com.esri.ags.tools.DrawTool;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.controls.Image;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.events.ResizeEvent;
+			import mx.rpc.AsyncResponder;
+			import mx.rpc.Fault;
+			import mx.utils.StringUtil;
+			
+			import widgets.MantenimientoPodas.Generica;
+			import widgets.MantenimientoPodas.URLS;		
+			
+			private var clearFeatureLabel:String;
+			private var drawPolygonLabel:String;
+			private var lastDrawnGraphic:Graphic;
+			public var myGraphicsLayer:GraphicsLayer =  new GraphicsLayer;
+			public var mySolicitudLayer:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_SOLICITUD);		
+			public var featurePodas:FeatureSet;
+			//guarda featureset de query de solicitudes de poda
+			public var featureDetalle:FeatureSet;
+			public var coleccionSolicitud:ArrayCollection = new ArrayCollection;
+			//coleccion para actualizacion
+			public var coleccionActividadesUpd:ArrayCollection = new ArrayCollection;
+			[Bindable] private var anchoColumna:int = 75;	
+			[Bindable] private var ArrayEmergencia:ArrayList = new ArrayList;
+			[Bindable] private var ArraySolicitante:ArrayList =  new ArrayList;
+			[Bindable] private var drawingLine:Boolean;
+			[Bindable] private var drawLineLabel:String = "drawLineLabel";
+			import widgets.MantenimientoPodas.Generica;
+			
+			public var CalleEncontrada:ArrayList = new ArrayList;
+			public var NodosEncontrados:ArrayList = new ArrayList;
+			
+			private var graphicToMeasurementGraphic:Dictionary = new Dictionary(true);
+			public var sfs:SimpleFillSymbol = new SimpleFillSymbol;
+			public var sls:SimpleLineSymbol = new SimpleLineSymbol;
+			public var geom:Geometry=new Geometry;
+			private var selectedDrawingIcon:FocusableImage;
+			private var drawStatus:String;
+			public var arranque_id:int = new int;
+			public var segmento_id:int = new int;
+			public var codigoSAP:int = new int;
+			public var myPodaLayer:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_SOLICITUD);
+			
+			//ACTIVIDADES
+			//guarda en una coleccion la resultante de la query de actividades relacioandas a una solicitud de poda
+			[Bindable]public var coleccionActividades:ArrayCollection = new ArrayCollection;
+			//guarda en una coleccion la resultante de la query de supervisores de la tabla usuarios
+			[Bindable]public var ArraySupervisor:ArrayList =  new ArrayList;
+			[Bindable]public var descripcion:String;
+			[Bindable]public var fechacreacionSolicitud:String;
+			//Setea el ancho de los txt y ddl  por defecto.
+			[Bindable] private var anchoObj:int =200;
+			//Guarda el codigo sap de la solicitud
+			[Bindable]public var codigo_sap:int;
+			//Guarda el solicitante de la solicitud
+			[Bindable]public  var solicitante:String;
+			//Guarda la fecha de la solicitud
+			[Bindable]public  var fechasolicitud:String;
+			//Guarda la Comuna de la solicitud
+			[Bindable]public  var ComunaSolictud: String;
+			//Guarda el alimentador de la solicitud
+			[Bindable]public  var AlimentadorSolicitud: String;
+			//Guarda la sed de la solicitud
+			[Bindable]public  var SedSolicitud:String;
+			//Guarda el estado de la solicitud
+			[Bindable]public  var EstadoSolicitud:String;
+			//Guarda la descripcion de la solicitud
+			[Bindable]public  var tdescripcion:String;
+			//variables para modificar y extraer la hora y minutos
+			public var minuteIncrement:int = 5;
+			[Bindable] private var horaSolPP:String;
+			[Bindable] private var horaCanPP:String;
+			[Bindable] private var modhoraSolPP:String;
+			[Bindable] private var modhoraCanPP:String;
+			//Layer que se ocupa para las actividades
+			public var myActLayer:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_ACTIVIDADES);
+			//Layer que se ocupa para el detalle de actividades
+			public var myDetalleAct:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_DETALLE_ACTIVIDADES);
+			//Guarda la siguiente actividad en tiempo de ejecución
+			public var numSigteAct:int=0;
+			
+			//DETALLE ACTIVIDAD
+			//Guarda el numero de actividad seleccionado para su detalle
+			[Bindable]public  var numActividad:int;
+			//Guarda el valor del numero de obra para su detalle
+			[Bindable]public  var numLibroObra:int;
+			//Guarda el valor del supervisor a cargo para su detalle
+			[Bindable]public  var nomSupervisor:String;
+			//guarda en una coleccion la resultante de la query de detalle de actividades relacioandas a una actividad
+			[Bindable]public var coleccionDetalleActividades:ArrayCollection = new ArrayCollection;
+			//guarda el listado de arboles
+			[Bindable]public var ArrayArboles:ArrayList =  new ArrayList;
+			//guarda el listado del tipo de tension
+			[Bindable]public var ArrayTension:ArrayList =  new ArrayList;
+			//guarda el listado de tipo de poda
+			[Bindable]public var ArrayTipoPoda:ArrayList =  new ArrayList;
+			
+			//guarda un array con las fotos encontradas del objectid seleccionado
+			[Bindable]public var ArrayFotografias:Array = new Array;
+			[Bindable]public var  ArrayAreas:Array = new Array;
+			
+			//fotografia
+			//Guarda la foto antes en tiempo de ejecución
+			private var frAntes:FileReference;
+			//Guarda la foto despues en tiempo de ejecución
+			private var frDespues:FileReference;
+			//Guarda el bytearray de la foto antes en tiempo de ejecución
+			private var myByteArrayAntes:ByteArray;
+			//Guarda el bytearray de la foto despues en tiempo de ejecución
+			private var myByteArrayDespues:ByteArray;
+			//Verifica la existencia de fotografías adjuntas.
+			[Bindable]public var fotosAdjuntas:String;
+			
+			//imagenes para adjuntar.
+			public var imageAntes : Image = new Image();
+			public var imageDespues : Image = new Image();
+			
+			
+			
+			//Init de el estado de listado de solicitudes.
+			protected function StateList_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				txtFilterSolicitud.addEventListener(Event.CHANGE, filterGridSolicitud);
+				ConsultaSolicitudes();
+				DataSolicitud.selectedIndex = 0;
+				
+			}
+			
+			//Consulta las solicitudes existente en la base de datos
+			protected function ConsultaSolicitudes():void
+			{
+				var queryTask:QueryTask = new QueryTask(widgets.MantenimientoPodas.URLS.URL_SOLICITUD);
+				var query:Query = new Query();
+				query.where = "1=1";
+				query.outFields = ['*'];
+				query.returnGeometry = true;				
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				var arrPod:Array = new Array;
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{					
+					var k:int;
+					coleccionSolicitud.removeAll();
+					for(k=0;k<featureSet.features.length;k++)
+					{
+						
+						var recordGraphic:Graphic = featureSet.features[k];
+						coleccionSolicitud.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+							CODIGO_SAP:recordGraphic.attributes["CODIGO_SAP"], 
+							DESCRIPCION:recordGraphic.attributes["DESCRIPCION"], 
+							ALIMENTADOR:recordGraphic.attributes["ALIMENTADOR"],
+							SOLICITANTE:recordGraphic.attributes["SOLICITANTE"],
+							SED:recordGraphic.attributes["SED"],
+							FECHA_SOLICITUD_CREACION:dateFormatter.format(new Date(recordGraphic.attributes["FECHA_SOLICITUD_CREACION"])),
+							FECHA_SOLICITUD_CIERRE:recordGraphic.attributes["FECHA_SOLICITUD_CIERRE"],
+							NOMBRE_CALLE:recordGraphic.attributes["NOMBRE_CALLE"],
+							ID_SEGMENTO:recordGraphic.attributes["ID_SEGMENTO"],
+							COMUNA:recordGraphic.attributes["COMUNA"],
+							ARRANQUE:recordGraphic.attributes["ARRANQUE"],
+							ID_ARRANQUE:recordGraphic.attributes["ID_ARRANQUE"],
+							ESTADO_SOLICITUD:recordGraphic.attributes["ESTADO_SOLICITUD"],	
+							EMERGENCIA:recordGraphic.attributes["EMERGENCIA"],	
+							NUM_OC:recordGraphic.attributes["NUM_OC"],	
+							NUM_SOLPE:recordGraphic.attributes["NUM_SOLPE"],
+							NUM_OI:recordGraphic.attributes["NUNUM_OI"],
+							MONTO_PAGO:recordGraphic.attributes["MONTO_PAGO"],
+							NOMBRE_AREA :recordGraphic.attributes["NOMBRE_AREA"],
+							
+							
+							gra:recordGraphic });
+					}
+					DataSolicitud.dataProvider = coleccionSolicitud;
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					
+					Alert.show("Error en consulta","Carga solicitudes");
+				}
+			}
+			
+			//Filtra Listado de Solicitudes ingresadas en Textbox
+			protected function filterGridSolicitud(event:Event):void
+			{
+				/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
+				Everything else is dynamic. Do not edit variable names. */
+				var filterText:String = StringUtil.trim(txtFilterSolicitud.text.toLowerCase()); //Trimmed text String to filter by
+				var columnArray:Array = ['CODIGO_SAP','DESCRIPCION','ALIMENTADOR','SOLICITANTE','SED','FECHA_SOLICITUD_CREACION','FECHA_SOLICITUD_CIERRE','COMUNA','ESTADO']; //Datagrid column names to filter on
+				var gridDataProvider:ArrayCollection = this.coleccionSolicitud as ArrayCollection; //Name of datagrid's dataprovider. In this case e.g. databases
+				var dataGridName:String = 'DataSolicitud'; //Name of the datagrid you are filtering by
+				
+				//Do not edit code past this point
+				var filteredData:Array = [];
+				var added:Boolean=false;
+				var i:int;
+				var j:int;
+				
+				// Loop Through Grid
+				for(i=0; i < gridDataProvider.length; i++){    
+					added = false;
+					
+					//Loop through grid column
+					for(j=0; j<columnArray.length; j++){            
+						if(gridDataProvider[i][columnArray[j]]!=null){
+							
+							//Grab datagrid cell contents, trim it, and convert to lowercase for comparison.
+							var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
+							
+							//Compare the datagrid string(filterString) to the user typed string(filterText).  
+							if(!added){      
+								//If the datagrid string matches the users string, put it into the array.
+								if(filterString.indexOf(filterText) != -1){
+									filteredData.push(gridDataProvider[i]);
+									added = true;
+								} 
+							}else{
+								//Do nothing, break out.
+								break;
+							}
+						}    
+					}
+				}
+				
+				//Set datagrid dataprovider
+				if(filterText.length == 0){
+					this[dataGridName].dataProvider = gridDataProvider; //Display the original unfiltered data
+				}else{
+					this[dataGridName].dataProvider = filteredData; //Pusht he filtered data into the datagrid
+				}
+			}		
+			
+			//Autoajusta las columnas de la grilla de solicitudes.
+			protected function DataSolicitud_resizeHandler(event:ResizeEvent):void
+			{
+				// TODO Auto-generated method stub
+				anchoColumna = event.currentTarget.id / event.currentTarget.id.rowCount;
+			}
+			
+			//cambia a la ventana nueva solicitud
+			protected function BtnNewSolicitud_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				newsolicitud();
+			}
+			
+			//init neuvas solicitudes
+			protected function StateNewsol_initializeHandler(event:FlexEvent):void
+			{				
+				CargaDDlEmergencia();
+				Consulta_Solicitante();
+			}
+			
+			//Carga DDL Emergencia
+			protected function CargaDDlEmergencia():void
+			{
+				ArrayEmergencia.addItem("No");
+				ArrayEmergencia.addItem("Sí");			
+				
+			}
+			
+			//Consulta los solicitantes para cargarlos en DDL Solicitante.
+			protected function Consulta_Solicitante():void
+			{
+				
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = widgets.MantenimientoPodas.URLS.URL_USUARIOS;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["*"];
+				query.returnGeometry = false;
+				query.where = "1=1 and empresa='006'";
+				query.orderByFields=["NOMBRE_COMPLETO"];
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					for each (var myGraphic:Graphic in featureSet.features)
+					{
+						ArraySolicitante.addItem({descripcion:myGraphic.attributes['NOMBRE_COMPLETO']}); 
+						
+					}
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("no se pueden cargar los usuarios "+ info.toString());
+				}
+			}
+			
+			//controla el toggle del boton de seleccion de arranque
+			protected function togBtnArranque_clickHandler(event:MouseEvent):void
+			{
+				if (event.target.selected){						
+					togBtnArranque.label = "Off";
+					map.addEventListener(MapMouseEvent.MAP_CLICK,MaponClickArranque);
+				} else{
+					
+					togBtnArranque.label = "On";
+					map.removeEventListener(MapMouseEvent.MAP_CLICK,MaponClickArranque);
+				}
+			}	
+			
+			//Controla el clic en el mapa para la busqueda de elemento arranque
+			protected function MaponClickArranque(event:MapMouseEvent):void{
+				var query:Query = new Query();
+				
+				query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+				
+				var rectangulo:Polygon=new Polygon;
+				
+				rectangulo.addRing(crearRectangulo(event.mapPoint,5));
+				query.geometry = rectangulo;
+				var parametros:ArrayList=new ArrayList;
+				
+				parametros.addItem("id_equipo");
+				parametros.addItem("nombre");			
+				query.outFields=parametros.toArray();			
+				query.returnGeometry = true;
+				query.where ="1=1 and tipo='ele!desconectador_fusible_mt' or tipo='ele!desconectador_mt'"; 
+				
+				var queryTask:QueryTask =  new QueryTask;
+				queryTask.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_Linea_006/MapServer/0";
+				
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					CalleEncontrada=new ArrayList;
+					
+					if (featureSet.features.length > 0)
+					{
+						for each (var encontrado:Graphic in featureSet.features)
+						{							
+							CalleEncontrada.addItem(encontrado);
+							
+						}
+					}else{
+						Alert.show("Arranque no encontrado");
+						
+						
+					}
+					
+					if (CalleEncontrada.length>0){
+						var arranque:String= encontrado.attributes["nombre"];
+						
+						widgets.MantenimientoPodas.Generica.Nom_arranque = arranque;
+						arranque_id = encontrado.attributes["id_equipo"]
+					}
+					else{
+						TxtArranque.text = "";
+					}
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{					
+					Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+				}
+			}
+			
+			//Crea poligono para la busqueda en el mapa
+			private function crearRectangulo(mapPoint:MapPoint,delta:Number):Array 
+			{ 
+				var arrayOfPoints:Array = new Array();
+				
+				arrayOfPoints[0] = new MapPoint(mapPoint.x-delta,mapPoint.y-delta,mapPoint.spatialReference);            	        
+				arrayOfPoints[1] = new MapPoint(mapPoint.x-delta,mapPoint.y+delta,mapPoint.spatialReference);
+				arrayOfPoints[2] = new MapPoint(mapPoint.x+delta,mapPoint.y+delta,mapPoint.spatialReference);
+				arrayOfPoints[3] = new MapPoint(mapPoint.x+delta,mapPoint.y-delta,mapPoint.spatialReference);
+				arrayOfPoints[4] = new MapPoint(mapPoint.x-delta,mapPoint.y-delta,mapPoint.spatialReference);
+				
+				return arrayOfPoints;
+			}
+			//Habilita toggle direccion comuna
+			protected function togBtnCalle_clickHandler(event:MouseEvent):void
+			{			
+				
+				if (event.target.selected){
+					
+					togBtnCalle.label = "Off";
+					map.addEventListener(MapMouseEvent.MAP_CLICK,MaponClick);
+				} else{
+					
+					togBtnCalle.label = "On";
+					
+					
+					map.removeEventListener(MapMouseEvent.MAP_CLICK,MaponClick);
+				}
+			}
+			
+			//funcion ejecutora del evento clic
+			protected function MaponClick(event:MapMouseEvent):void{
+				var query:Query = new Query();
+				
+				query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+				
+				var rectangulo:Polygon=new Polygon;
+				
+				rectangulo.addRing(crearRectangulo(event.mapPoint,5));
+				query.geometry = rectangulo;
+				var parametros:ArrayList=new ArrayList;
+				
+				parametros.addItem("id_segmento");
+				parametros.addItem("nombre");	
+				parametros.addItem("comuna");	
+				query.outFields=parametros.toArray();			
+				query.returnGeometry = true;		
+				
+				var queryTask:QueryTask =  new QueryTask;
+				queryTask.url = "http://gisred.chilquinta/arcgis/rest/services/MapaBase/MapServer/2";
+				
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					CalleEncontrada=new ArrayList;
+					
+					if (featureSet.features.length > 0)
+					{
+						for each (var encontrado:Graphic in featureSet.features)
+						{							
+							CalleEncontrada.addItem(encontrado);
+							
+						}
+					}else{
+						Alert.show("Calle no encontrado");
+						
+						
+					}
+					
+					if (CalleEncontrada.length>0){
+						var calle:String= encontrado.attributes["nombre"];
+						var comuna:String = encontrado.attributes["comuna"]
+						TxtModNombreCalle.text = calle;
+						TxtModNombreCalle.text = calle;
+						TxtModComuna.text = comuna;
+						segmento_id =encontrado.attributes["id_segmento"]; 
+						
+						
+						
+					}
+					else{
+						TxtNombreCalle.text = "";
+						TxtComuna.text = "";
+					}
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					
+					Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+				}
+			}
+			
+			//Focus imagen poligono
+			protected function tbb_itemClickHandler(event:MouseEvent):void
+			{				
+				selectedDrawingIcon = FocusableImage(event.currentTarget);
+				clearSelectionFilter();
+				selectedDrawingIcon.filters = [ glowFilter ];
+				
+				drawingLine = true;				
+				drawStatus = drawLineLabel;
+				setMapAction(DrawTool.POLYGON, drawStatus, sls, map_drawEndHandler);
+				map.removeLayer(myGraphicsLayer);
+				myGraphicsLayer.clear();
+			}
+			
+			private function map_drawEndHandler(event:DrawEvent):void
+			{
+				
+				event.target.deactivate();
+				
+				lastDrawnGraphic = event.graphic;
+				
+				lastDrawnGraphic.addEventListener(MouseEvent.MOUSE_DOWN, graphic_mouseDownHandler, false, 0, true);
+				lastDrawnGraphic.checkForMouseListeners = false;
+				myGraphicsLayer.add(lastDrawnGraphic);
+				
+				
+				geom = lastDrawnGraphic.geometry;
+				
+				lastDrawnGraphic.symbol = new SimpleFillSymbol("solid", 0x00CCFF, 0.5, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,0x000000, 1, 1));
+				
+				moveMeasurementGraphicToTop(lastDrawnGraphic);
+				
+				map.addLayer(myGraphicsLayer);
+				
+				llenaCampos();
+				clearSelectionFilter();
+				
+			}
+			private function moveMeasurementGraphicToTop(drawnGraphic:Graphic):void
+			{
+				const measurementGraphic:Graphic = getMeasurementGraphic(drawnGraphic);
+				if (measurementGraphic)
+				{
+					measurementGraphic.graphicsLayer.moveToTop(measurementGraphic);
+				}
+			}
+			private function getMeasurementGraphic(graphic:Graphic):Graphic
+			{
+				return graphicToMeasurementGraphic[graphic];
+			}
+			
+			private function clearSelectionFilter():void
+			{
+				selectedDrawingIcon.filters = [];					
+			}
+			
+			
+			
+			protected function graphic_mouseDownHandler(event:MouseEvent):void
+			{
+				var graphic:Graphic = event.currentTarget as Graphic;
+				graphic.removeEventListener(MouseEvent.MOUSE_DOWN, graphic_mouseDownHandler);
+				graphic.addEventListener(MouseEvent.MOUSE_MOVE, graphic_mouseMoveHandler);
+				graphic.addEventListener(MouseEvent.MOUSE_UP, graphic_mouseUpHandler);
+			}
+			
+			protected function graphic_mouseUpHandler(event:MouseEvent):void
+			{
+				var graphic:Graphic = event.currentTarget as Graphic;
+				graphic.removeEventListener(MouseEvent.MOUSE_MOVE, graphic_mouseMoveHandler);
+				graphic.removeEventListener(MouseEvent.MOUSE_UP, graphic_mouseUpHandler);
+				graphic.addEventListener(MouseEvent.MOUSE_DOWN, graphic_mouseDownHandler);		
+			}
+			
+			protected function graphic_mouseMoveHandler(event:MouseEvent):void
+			{
+				var graphic:Graphic = event.currentTarget as Graphic;
+				graphic.removeEventListener(MouseEvent.MOUSE_MOVE, graphic_mouseMoveHandler);
+				graphic.removeEventListener(MouseEvent.MOUSE_UP, graphic_mouseUpHandler);
+				graphic.addEventListener(MouseEvent.MOUSE_DOWN, graphic_mouseDownHandler);
+			}
+			
+			protected function llenaCampos():void
+			{
+				var query:Query = new Query();				
+				query.spatialRelationship=Query.SPATIAL_REL_CONTAINS;
+				query.outSpatialReference = map.spatialReference;				
+				query.geometry = geom;
+				
+				var parametros:ArrayList=new ArrayList;
+				
+				parametros.addItem("rotulo");
+				parametros.addItem("alimentador");
+				parametros.addItem("comuna");
+				parametros.addItem("sed");
+				query.outFields=parametros.toArray();			
+				query.returnGeometry = true;		
+				
+				var queryTask:QueryTask =  new QueryTask;
+				queryTask.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0";
+				
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					NodosEncontrados=new ArrayList;					
+					if (featureSet.features.length > 0)
+					{
+						
+						for each (var encontrado:Graphic in featureSet.features)
+						{													
+							
+							//NodosEncontrados.addItem({descripcion:encontrado.attributes['comuna']});
+							NodosEncontrados.addItem(encontrado);						
+							
+						}
+						
+					}
+					else
+					{	
+						Alert.show("No encontrado");
+					}		
+					mostrarInformacionEnVentanaPodas(NodosEncontrados.getItemAt(0) as Graphic);
+				}
+				function onFault(info:Object, token:Object = null):void
+				{	
+					Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+				}
+			}
+			
+			public function mostrarInformacionEnVentanaPodas(  gr:Graphic ):void{
+				
+				var comuna:String= gr.attributes["comuna"];
+				var Alimentador:String= gr.attributes["alimentador"];
+				var sed:String= gr.attributes["sed"];
+				TxtComuna.text = comuna;
+				TxtAlimentador.text = Alimentador;
+				TxtSed.text = sed;
+				
+				TxtModComuna.text =comuna;
+				TxtModAlimentador.text= Alimentador;
+				TxtModSed.text=sed;
+				
+			}
+			
+			protected function BtnsolicitudVolver_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				statelist();
+				LimpiaForSolicitud();
+			}
+			
+			protected function statelist():void
+			{
+				ConsultaSolicitudes();
+				DataSolicitud.selectedIndex = 0;
+				wTemplate.width = 800;
+				this.currentState = "StateList";	
+			}
+			
+			protected function newsolicitud():void{
+				wTemplate.width = 500;
+				this.currentState = "StateNewsol";
+			}
+			
+			protected function modsolicitud():void{
+				
+				wTemplate.width = 500;
+				this.currentState = "StateModsol";
+				//QueryModSolicitud();
+				CargaModSolicitud();
+			}
+			
+			
+			protected function BtnGrabaSolicitud_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				Alert.show("¿Está seguro que desea guardar?", "Ingreso de solicitudes de poda",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler);
+				
+				function alertClickHandler(evt:CloseEvent):void 
+				{
+					if (evt.detail == Alert.YES)
+					{	
+						GrabaNuevaSolPoda();						
+					}					
+				}
+			}
+			
+			protected function GrabaNuevaSolPoda():void
+			{
+				var adds:Array=new Array;
+				var i:int = 0;
+				var nuevaPoligono:* = new Object;
+				
+				
+				//var fecha_hoy:String=CurrentDateTimeString();
+				var NomSolicitante:String = DDLSolicitante.selectedItem.descripcion;
+				var fecha_creacion:Date = DateFechaCreacionSol.selectedDate;
+				
+				nuevaPoligono["CODIGO_SAP"]= int(TxtCodigoSAPSolicitud.text);					
+				nuevaPoligono["DESCRIPCION"]= TxtDescripcionSolicitud.text;
+				nuevaPoligono["ALIMENTADOR"]= TxtAlimentador.text;
+				nuevaPoligono["SOLICITANTE"]= NomSolicitante;
+				nuevaPoligono["SED"]= TxtSed.text;
+				nuevaPoligono["FECHA_SOLICITUD_CREACION"]=fecha_creacion;					
+				nuevaPoligono["FECHA_SOLICITUD_CIERRE"]=null;
+				nuevaPoligono["NOMBRE_CALLE"]= TxtNombreCalle.text;
+				nuevaPoligono["ID_SEGMENTO"]= int(segmento_id);
+				nuevaPoligono["COMUNA"]= TxtComuna.text;
+				nuevaPoligono["ARRANQUE"]= TxtArranque.text;
+				nuevaPoligono["ID_ARRANQUE"]= int(arranque_id);
+				nuevaPoligono["ESTADO_SOLICITUD"]= "NUEVA";
+				nuevaPoligono["EMERGENCIA"]= "Si";
+				nuevaPoligono["NUM_OC"]= "";
+				nuevaPoligono["NUM_SOLPE"]= "";
+				nuevaPoligono["NUM_OI"]= "";
+				nuevaPoligono["MONTO_PAGO"]= 0;
+				nuevaPoligono["NOMBRE_AREA"]= "";
+				
+				//	var graficoEditadoActual:Graphic=new Graphic(new MapPoint(),null,nuevaCentral);102100
+				var graficoEditadoActual:Graphic=new Graphic(geom,null,nuevaPoligono);
+				adds[0]=graficoEditadoActual;    
+				
+				
+				
+				myPodaLayer.applyEdits(adds,null,null, false,new AsyncResponder(onResult, onFault));
+				
+				function onResult():void
+				{
+					Alert.show("Solicitud agregada");
+					map.removeLayer(myGraphicsLayer);
+					myPodaLayer.refresh();
+					statelist();
+					LimpiaForSolicitud();
+				}
+				
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("Error al agregar solicitud "+info.toString());
+				}
+				
+			}
+			
+			//Limpia Datos del Fromulario
+			protected function LimpiaForSolicitud():void
+			{
+				TxtCodigoSAPSolicitud.text = "";
+				TxtDescripcionSolicitud.text = "";
+				DDLSolicitante.selectedIndex = -1;				
+				DDLEmergencia.selectedIndex = -1;
+				widgets.MantenimientoPodas.Generica.Nom_arranque ="";
+				TxtNombreCalle.text = "";
+				TxtComuna.text = "";
+				TxtAlimentador.text = "";
+				TxtSed.text = "";
+				
+			}
+			
+			protected function CargaModSolicitud():void{
+				
+				
+				TxtModCodigoSAPSolicitud.text = DataSolicitud.selectedItem.CODIGO_SAP;
+				TxtModDescripcionSolicitud.text = DataSolicitud.selectedItem.DESCRIPCION;
+				TxtModComuna.text = DataSolicitud.selectedItem.COMUNA;
+				TxtModAlimentador.text = DataSolicitud.selectedItem.ALIMENTADOR;
+				TxtModSed.text = DataSolicitud.selectedItem.SED;
+				arranque_id = DataSolicitud.selectedItem.ID_ARRANQUE;
+				segmento_id = DataSolicitud.selectedItem.ID_SEGMENTO;
+				TxtModArranque.text = DataSolicitud.selectedItem.ARRANQUE;
+				TxtModNombreCalle.text = DataSolicitud.selectedItem.NOMBRE_CALLE;
+				DDLModSolicitante.selectedIndex =obtenerid(ArraySolicitante,DataSolicitud.selectedItem.SOLICITANTE); 
+				DDLModEmergencia.selectedIndex = obtenerid(ArraySolicitante,DataSolicitud.selectedItem.EMERGENCIA); 
+				DateModFechaCreacionSol.selectedDate = DateField.stringToDate(DataSolicitud.selectedItem.FECHA_SOLICITUD_CREACION,"DD-MM-YYYY");
+				
+			}		
+			
+			
+			public function obtenerid(arrayc:ArrayList,nombre:String):int{			
+				
+				//Alert.show(nombre);
+				var len:int = arrayc.length;			
+				var x:int = 0;
+				for (var i:int=0;i<len;i++)
+				{	
+					if (arrayc.getItemAt(i).descripcion == nombre)
+					{	
+						//CenEnerPrim.selectedIndex = i;
+						x=i;						
+					}
+				}
+				
+				return x;
+				
+			}
+			
+			protected function BtnModSolicitud_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				modsolicitud();
+				
+			}
+			
+			protected function togBtnModArranque_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if (event.target.selected){						
+					togBtnModArranque.label = "Off";
+					map.addEventListener(MapMouseEvent.MAP_CLICK,MaponClickArranque);
+				} else{
+					
+					togBtnModArranque.label = "On";
+					map.removeEventListener(MapMouseEvent.MAP_CLICK,MaponClickArranque);
+				}
+			}
+			
+			protected function togBtnModCalle_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if (event.target.selected){
+					
+					togBtnModCalle.label = "Off";
+					map.addEventListener(MapMouseEvent.MAP_CLICK,MaponClick);
+				} else{
+					
+					togBtnModCalle.label = "On";
+					
+					
+					map.removeEventListener(MapMouseEvent.MAP_CLICK,MaponClick);
+				}
+			}
+			
+			protected function BtnModsolicitudVolver_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				statelist();
+			}
+			
+			protected function EliminarPoligono():void
+			{
+				try{
+					
+					const deletes:Array =  [DataSolicitud.selectedItem.gra];
+					
+					//myPodaLayer.url = widgets.MantenimientoPodas.URLS.URL_SOLICITUD_PODA;	
+					myPodaLayer.applyEdits(null,null,deletes,false,new AsyncResponder(featureLayer_editsCompleteHandler, featureLayer_faultHandler));
+					
+					function featureLayer_editsCompleteHandler(featureEditResults:FeatureEditResults, token:Object = null):void
+					{
+						Alert.show("Elminado Exitosamente") 
+						coleccionSolicitud.removeAll();
+						ConsultaSolicitudes();
+					}
+					
+					function featureLayer_faultHandler(event:Fault, token:Object = null):void
+					{
+						Alert.show("delete failed: " + event.message)
+					}
+				}
+				catch (error:Error)
+				{
+					Alert.show("error at deleting process" + error.toString())
+				}
+			}
+			
+			protected function BtnDelSolicitud_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				Alert.show("Esta seguro que desea eliminar la solicitud?\n Al eliminar la solicitud ademas se borraran todas las actividades asociadas.", "Solicitud Podas",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler);
+				
+				function alertClickHandler(evt:CloseEvent):void {
+					if (evt.detail == Alert.YES) {
+						EliminarPoligono();					
+					} else {
+						
+					}
+				}			
+			}
+			
+			//MENU DE BOTONES ---------------------------------------------------------------------------------------------------------
+			public function funcionesBtn(event:MouseEvent):void{
+				
+				switch(event.currentTarget.id)
+				{
+					//Va a la ventana de las actividades asociadas a la solicitud
+					case "BtnSeeActividades":
+					{
+						cargarHeaderActividades();
+						cargarActividadesRelacionadas();
+						wTemplate.width = 954;
+						wTemplate.height = 400;
+						currentState = "bkmActividades";
+						break;
+					}
+						//Vuelve a la ventana de listado de solicitudes tras estar en la ventana de la lista de act. 
+					case "BtnVolverSolicitud":
+					{
+						
+						StateList();
+						break;
+					}
+					case "BtnVerDetalleActividad":
+					{
+						cargarHeaderDetalleActividad();   
+						cargarDetalleAsociado();
+						currentState = "bkmDetalleActividad";
+						wTemplate.width = 900;
+						wTemplate.height = 350;
+						break;
+					}
+					case "BtnDetalleVolverSolicitud":
+					{
+						currentState = "bkmActividades";
+						wTemplate.width = 954;
+						wTemplate.height = 400;
+						break;
+					}
+					case "BtnVerFotos":
+					{
+						imageAntes.source = "";
+						imageDespues.source = "";
+						
+						cargarFotosDesdeServicio();
+						currentState = "bkmVerFotos";
+						break;
+					}
+					case "BtnVerVolverMenuListado":
+					{
+						currentState = "bkmDetalleActividad";
+						wTemplate.width = 900;
+						wTemplate.height = 350;
+						break;
+					}
+					case "BtnCloseSolicitud":
+					{
+						cargarHeaderCierreSoli();
+						currentState = "StateCerrarSol";
+						wTemplate.width = 500;
+						wTemplate.height = 350;
+						break;
+					}
+					case "BtnVolverCloseSoliciud":
+					{
+						currentState = "StateList";
+						wTemplate.width = 800;
+						wTemplate.height = 500;
+						break;
+					}
+						
+						
+					default:
+					{
+						break;
+					}
+				}
+			}
+			
+			//ACTIVIDADES DETALLE -------------------------------------------------------------------------------------------------------------------
+			
+			public function cargarHeaderDetalleActividad():void{
+				codigo_sap = DataSolicitud.selectedItem.CODIGO_SAP;
+				numActividad = DataActividades.selectedItem.ID_ACTIVIDAD;
+				numLibroObra = DataActividades.selectedItem.NUM_LIBRO_OBRA;
+				nomSupervisor = DataActividades.selectedItem.SUPERVISOR;
+				
+			}
+			public function cargarHeaderCierreSoli():void{
+				codigo_sap = DataSolicitud.selectedItem.CODIGO_SAP;
+				descripcion = DataSolicitud.selectedItem.DESCRIPCION;
+				fechacreacionSolicitud =DataSolicitud.selectedItem.FECHA_CREACION_SOLICITUD;
+				
+				
+			}
+			//carga el detalle asociado a la actividad
+			public function cargarDetalleAsociado():void {
+				coleccionDetalleActividades.removeAll();
+				var queryTask:QueryTask = new QueryTask(widgets.MantenimientoPodas.URLS.URL_DETALLE_ACTIVIDADES);
+				var query:Query = new Query();
+				//Alert.show("HOLA");
+				query.where = "ID_ACTIVIDAD= " + int(DataActividades.selectedItem.ID_ACTIVIDAD);				
+				query.outFields = ['*'];
+				query.returnGeometry = true;
+				query.orderByFields = ["OBJECTID"];
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				//si hay conexion
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{
+					//si no hay detalle de actividades asociadas a esa actividad
+					if (featureSet.features.length<=0){
+						// TODO Auto-generated method stub
+						Alert.show("No se han encontrado detalles de actividades asociadas.");
+						
+						
+						
+					}else{
+						featureDetalle = featureSet;
+						//Alert.show("HOLA 2");
+						var k:int;
+						coleccionDetalleActividades.removeAll();
+						for(k=0;k<featureSet.features.length;k++){
+							
+							var recordGraphic:Graphic = featureSet.features[k];
+							coleccionDetalleActividades.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+								ID_ACTIVIDAD:recordGraphic.attributes["ID_ACTIVIDAD"], 
+								ID_ARBOL:recordGraphic.attributes["ID_ARBOL"],
+								NOMBRE_ARBOL:recordGraphic.attributes["NOMBRE_ARBOL"],
+								CANTIDAD:recordGraphic.attributes["CANTIDAD"],
+								NIVEL_TENSION:recordGraphic.attributes["NIVEL_TENSION"],
+								ID_TIPO_PODA:recordGraphic.attributes["ID_TIPO_PODA"],
+								NOMBRE_TIPO_PODA:recordGraphic.attributes["NOMBRE_TIPO_PODA"],
+								OBSERVACIONES:recordGraphic.attributes["OBSERVACIONES"], 
+								gra:recordGraphic });
+							
+							DataDetalleActividad.selectedIndex = 0;
+							buscarAdjuntos(DataDetalleActividad.selectedItem.OBJECTID, "clickGrilla");
+							
+						}
+					}
+					
+				}
+				//no hay conexion
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error al cargar el detalle de las actividades","Carga de Detalle de Actividades");
+				}
+				bkmDetalleActividad.redrawRequested=true;
+				DataDetalleActividad.dataProvider = coleccionDetalleActividades;
+				bkmDetalleActividad.redrawRequested=true;
+				
+			}
+			//Carga los campos de header de la solicitud elegida 
+			public function cargarHeaderActividades():void{
+				
+				codigo_sap = DataSolicitud.selectedItem.CODIGO_SAP;
+				tdescripcion = DataSolicitud.selectedItem.DESCRIPCION;
+				solicitante = DataSolicitud.selectedItem.SOLICITANTE;
+				ComunaSolictud = DataSolicitud.selectedItem.COMUNA;
+				AlimentadorSolicitud = DataSolicitud.selectedItem.ALIMENTADOR;
+				SedSolicitud = DataSolicitud.selectedItem.SED;
+				EstadoSolicitud = DataSolicitud.selectedItem.ESTADO_SOLICITUD;
+				
+			}
+			
+			public function cargarActividadesRelacionadas():void{
+				coleccionActividades.removeAll();
+				var queryTask:QueryTask = new QueryTask(widgets.MantenimientoPodas.URLS.URL_ACTIVIDADES);
+				var query:Query = new Query();
+				//Alert.show("HOLA");
+				query.where = "COD_SAP= " + DataSolicitud.selectedItem.CODIGO_SAP;				
+				query.outFields = ['*'];
+				query.orderByFields=["OBJECTID"];
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				
+				//si hay conexion
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{
+					//si no hay actividades asociadas a esa solicitud
+					if (featureSet.features.length<=0){
+						// TODO Auto-generated method stub
+						Alert.show("No se han encontrado actividades asociadas.");
+						
+						
+					}else{
+						featurePodas = featureSet;
+						//Alert.show("HOLA 2");
+						var k:int;
+						coleccionActividades.removeAll();
+						for(k=0;k<featureSet.features.length;k++){
+							
+							var recordGraphic:Graphic = featureSet.features[k];
+							coleccionActividades.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+								ID_ACTIVIDAD:recordGraphic.attributes["ID_ACTIVIDAD"], 
+								FECHA_ACTIVIDAD:dateFormatter.format(new Date(recordGraphic.attributes["FECHA_ACTIVIDAD"])),
+								NUM_LIBRO_OBRA:recordGraphic.attributes["NUM_LIBRO_OBRA"],
+								SUPERVISOR:recordGraphic.attributes["SUPERVISOR"],
+								PERMISO_PREVENTIVO:recordGraphic.attributes["PERMISO_PREVENTIVO"],
+								HORA_SOLICITUD_PP:recordGraphic.attributes["HORA_SOLICITUD_PP"],
+								HORA_CANCELACION_PP:recordGraphic.attributes["HORA_CANCELACION_PP"],
+								CANT_TRABAJADOR_ALTURA:recordGraphic.attributes["CANT_TRABAJADOR_ALTURA"],
+								CANT_TRABAJADOR_PISO:recordGraphic.attributes["CANT_TRABAJADOR_PISO"], 
+								gra:recordGraphic });
+							
+							DataActividades.selectedIndex = 0;
+						}
+					}
+					
+				}
+				//no hay conexion
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error al cargar las actividades","Carga de Actividades");
+				}
+				bkmActividades.redrawRequested=true;
+				DataActividades.dataProvider = coleccionActividades;
+				bkmActividades.redrawRequested=true;
+			}
+			
+			//permite buscar el valor máximo de una lista de actividades asociada a la solicitud y graba en "numSigteAct el valor que sigue: correlativo
+			public function buscarMaxActividad(id_solicitud:int):void{
+				
+				
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = widgets.MantenimientoPodas.URLS.URL_ACTIVIDADES;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["ID_ACTIVIDAD","OBJECTID"];
+				query.returnGeometry = false;
+				query.where = "ID_ACTIVIDAD=(SELECT MAX(ID_ACTIVIDAD) FROM MANTENIMIENTO_ACTIVIDADES_PODA WHERE COD_SAP =" + id_solicitud + ")";
+				query.orderByFields=["ID_ACTIVIDAD"];
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{	
+					
+					
+					if (featureSet.features.length > 0) {
+						
+						numSigteAct = int(featureSet.features[0].attributes["ID_ACTIVIDAD"]) + 1;
+						
+						
+					}else{
+						numSigteAct = 1;
+						
+					}
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("error asd: "+ info.toString());
+					
+				}	
+			}
+			
+			//funcion que verifica existencia de adjuntos
+			public function buscarAdjuntos(nobjectid:int, op:String):void{
+				var myDetalle:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_DETALLE_ACTIVIDADES);
+				
+				if (op=="clickGrilla") 
+				{
+					var objActividad:int= nobjectid;  
+					
+					myDetalle.queryAttachmentInfos(objActividad,new AsyncResponder(onResult,onFault));  
+					
+					function onResult(event:Array, token:Object=null):void{  
+						//tiene attachment
+						if (event.length>0) 
+						{
+							//Alert.show("Tiene Attachment");
+							lblHayFotos.text = "Sí";
+							//	BtnDetalleAdjuntarfotos.enabled=false;
+							BtnVerFotos.enabled=true;
+						}
+							//no tiene attachment
+						else  
+						{
+							//Alert.show("No Tiene Attachment");
+							lblHayFotos.text = "No";
+							//	BtnDetalleAdjuntarfotos.enabled=true;
+							BtnVerFotos.enabled=false;
+						}
+						
+					}
+					function onFault(event:Object,token:Object=null):void{
+						Alert.show("No se pudo conectar al servicio de fotos adjuntas");
+					}	
+				}
+				
+				
+			}
+			
+			//carga en un array los usuarios solicitantes
+			public function listarSolicitante():void{
+				
+				
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = widgets.MantenimientoPodas.URLS.URL_USUARIOS;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["*"];
+				query.returnGeometry = false;
+				query.where = "1=1 and empresa='006'";
+				query.orderByFields=["NOMBRE_COMPLETO"];
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					for each (var myGraphic:Graphic in featureSet.features)
+					{
+						ArraySupervisor.addItem({descripcion:myGraphic.attributes['NOMBRE_COMPLETO']}); 
+						
+					}
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("No se pueden obtener los solicitantes"+ info.toString());
+				}
+			}
+			
+			//Funcion que al hacer click en un elemento de la grilla, revisa en el servicio de attachment si existe un adjunto para el objectid seleccionado de la fila.
+			protected function DataDetalleActividad_itemClickHandler(event:ListEvent):void
+			{
+				//Alert.show(String(DataDetalleActividad.selectedItem['OBJECTID']));
+				buscarAdjuntos(int(DataDetalleActividad.selectedItem['OBJECTID']),"clickGrilla");
+				
+			}
+			public function cargarFotosDesdeServicio():void {
+				imageAntes.source = "";
+				imageDespues.source = "";
+				//Alert.show(String(DataDetalleActividad.selectedItem['OBJECTID']));
+				
+				//el objeto imagen que tendrá el canvas
+				var verImageDespues:Image = new Image;
+				var verImageAntes:Image = new Image;
+				//imagen configuraciones
+				verImageDespues.scaleContent = true;
+				verImageDespues.maintainAspectRatio =false;
+				verImageDespues.percentWidth = 150;
+				verImageDespues.percentHeight = 150;
+				
+				verImageAntes.scaleContent = true;
+				verImageAntes.maintainAspectRatio =false;
+				verImageAntes.percentWidth = 150;
+				verImageAntes.percentHeight = 150;
+				
+				
+				
+				var myDetalle:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_DETALLE_ACTIVIDADES);
+				
+				var objActividad:int= DataDetalleActividad.selectedItem['OBJECTID'];  
+				//Alert.show(String(objActividad));
+				myDetalle.queryAttachmentInfos(objActividad,new AsyncResponder(onResult,onFault));  
+				
+				function onResult(event:Array, token:Object=null):void{  
+					//tiene attachment
+					if (event.length>0) 
+					{
+						
+						verImageDespues.source =  event[1].url;
+						pbVerDespues.addChild(verImageDespues);
+						verImageAntes.source =  event[0].url;
+						pbVerAntes.addChild(verImageAntes);
+						
+					}
+						//no tiene attachment
+					else  
+					{
+						Alert.show("El detalle de actividad no tiene fotos.");
+					}
+					
+				}
+				function onFault(event:Object,token:Object=null):void{
+					Alert.show("No se pudo conectar al servicio de fotos adjuntas");
+				}	
+			}
+			
+			//Modificacion de Poligono
+			private function grabarModSolicitud():void
+			{
+				var ModificacionesSolicitud:* = new Object;
+				
+				
+				ModificacionesSolicitud["OBJECTID"]= int(DataSolicitud.selectedItem['OBJECTID']);
+				ModificacionesSolicitud["CODIGO_SAP"]= TxtModCodigoSAPSolicitud.text;
+				ModificacionesSolicitud["DESCRIPCION"]= TxtModDescripcionSolicitud.text;
+				ModificacionesSolicitud["ALIMENTADOR"]= TxtModAlimentador.text;
+				ModificacionesSolicitud["SOLICITANTE"]= DDLModSolicitante.selectedItem.descripcion;
+				ModificacionesSolicitud["SED"]= TxtModSed.text;
+				ModificacionesSolicitud["FECHA_SOLICITUD_CREACION"]= DateModFechaCreacionSol.selectedDate;
+				ModificacionesSolicitud["FECHA_SOLICITUD_CIERRE"]= null;
+				ModificacionesSolicitud["NOMBRE_CALLE"]= TxtModNombreCalle.text;
+				ModificacionesSolicitud["ID_SEGMENTO"]= int(segmento_id);
+				ModificacionesSolicitud["COMUNA"]= TxtModComuna.text;
+				ModificacionesSolicitud["ARRANQUE"]= TxtModArranque.text;
+				ModificacionesSolicitud["ID_ARRANQUE"]= int(arranque_id);
+				ModificacionesSolicitud["ESTADO_SOLICITUD"]= "NUEVA";
+				ModificacionesSolicitud["EMERGENCIA"]= DDLModEmergencia.selectedItem;
+				ModificacionesSolicitud["NUM_OC"]= "";
+				ModificacionesSolicitud["NUM_SOLPE"]= "";
+				ModificacionesSolicitud["NUM_OI"]= "";
+				ModificacionesSolicitud["MONTO_PAGO"]= 0;
+				ModificacionesSolicitud["NOMBRE_AREA"]= "";
+				
+				var graficoEditadoActual:Graphic = new Graphic;
+				
+				
+				if (geom.spatialReference==null)
+				{
+					graficoEditadoActual = new Graphic(null,null,ModificacionesSolicitud);
+					
+					myPodaLayer.applyEdits(null,[graficoEditadoActual],null, false,new AsyncResponder(onResult, onFault));
+					
+				}
+				else
+				{					
+					graficoEditadoActual = new Graphic(geom,null,ModificacionesSolicitud);
+					
+					
+					myPodaLayer.applyEdits(null,[graficoEditadoActual],null, false,new AsyncResponder(onResult, onFault));
+					
+				}
+				
+				function onResult():void
+				{	
+					Alert.show("Solicitud Modificada");
+					statelist();
+					ConsultaSolicitudes();
+				}
+				
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("Error al modificar la solicitud "+info.toString());
+				}
+			}
+			
+			protected function BtnModGrabaSolicitud_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				Alert.show("¿Está seguro que desea guardar los cambios?", "modificacion de solicitud podas",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler);
+				
+				function alertClickHandler(evt:CloseEvent):void 
+				{
+					if (evt.detail == Alert.YES)
+					{	
+						grabarModSolicitud();
+						ConsultaActulizaCodSapActividades();
+						//ActualizaSapActividad();
+					}					
+				}
+			}
+			//obtiene arreglo de id de actividades para actualizacion
+			protected function ConsultaActulizaCodSapActividades():void{
+				
+				var queryTask:QueryTask = new QueryTask(widgets.MantenimientoPodas.URLS.URL_ACTIVIDADES);
+				var query:Query = new Query();
+				query.where = "COD_SAP=" + (DataSolicitud.selectedItem['CODIGO_SAP']);
+				query.outFields = ["OBJECTID"];
+				query.returnGeometry = true;				
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{					
+					var k:int = 0;	
+					for (k;k<featureSet.features.length;k++)
+					{
+						
+						var ModificaActSol:* = new Object;
+						
+						
+						
+						ModificaActSol["OBJECTID"]= int(featureSet.features[k].attributes["OBJECTID"]);
+						ModificaActSol["COD_SAP"]= int(TxtModCodigoSAPSolicitud.text);
+						
+						var graficoEditadoActual:Graphic = new Graphic;
+						
+						graficoEditadoActual = new Graphic(null,null,ModificaActSol);
+						
+						myActLayer.applyEdits(null,[graficoEditadoActual],null, false,new AsyncResponder(onResult, onFault));
+					}
+					function onResult():void{
+						Alert.show("modificado");
+					}
+					function onFault():void{
+					}
+					
+				}	
+				
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					
+					Alert.show("Error en consulta","actualizacion de actividades");
+				}
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<viewer:WidgetTemplate id="wTemplate"				
+						   width="800" height="500"
+						   visible="true">
+		<s:Group id="StateList"
+				 width="100%" height="100%"
+				 visible="false"
+				 visible.StateList="true" initialize="StateList_initializeHandler(event)">
+			
+			<s:VGroup width="100%" top="5" bottom="5" height="100%">
+				<mx:Label id="LblCentral" text="Listado de OT" fontSize="18"/>
+				<s:HGroup width="100%" verticalAlign="middle">
+					<mx:TextInput x="10" id="txtFilterSolicitud" width="100%" height="30" fontSize="14" fontWeight="bold" />
+					<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png"/>
+					<mx:Label id="label2"/>
+				</s:HGroup>
+				<mx:DataGrid id="DataSolicitud" resizableColumns="true" sortableColumns="true" editable="false"
+							 width="100%" height="100%" visible="true" selectable="true" resize="DataSolicitud_resizeHandler(event)" horizontalScrollPolicy="on">
+					<mx:columns>		
+						<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID"  visible="false"/>
+						<mx:DataGridColumn  dataField="CODIGO_SAP" headerText="CODIGO SAP" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="DESCRIPCION" headerText="DESCRIPCION" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="ALIMENTADOR" headerText="ALIMENTADOR" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="SOLICITANTE" headerText="SOLICITANTE" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="SED" headerText="SED" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="FECHA_SOLICITUD_CREACION" headerText="FECHA SOLICITUD" width="{anchoColumna}"  />
+						<mx:DataGridColumn  dataField="FECHA_SOLICITUD_CIERRE" headerText="FECHA CIERRE" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="NOMBRE_CALLE" headerText="NOMBRE CALLE" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="ID_SEGMENTO" headerText="ID SEGMENTO" width="{anchoColumna}" visible="false" />
+						<mx:DataGridColumn  dataField="COMUNA" headerText="COMUNA" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="ARRANQUE" headerText="ARRANQUE" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="ID_ARRANQUE" headerText="ID ARRANQUE" width="{anchoColumna}" visible="false" />
+						<mx:DataGridColumn  dataField="ESTADO_SOLICITUD" headerText="ESTADO" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="EMERGENCIA" headerText="EMERGENCIA" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="NUM_OC" headerText="NUMERO OC" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="NUM_SOLPE" headerText="NUMERO SOLPE" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="NUM_OI" headerText="NUMERO OI/PEP" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="MONTO_PAGO" headerText="MONTO PAGO" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="NOMBRE_AREA" headerText="AREA" width="{anchoColumna}" />
+					</mx:columns>
+				</mx:DataGrid>	
+				
+				<s:HGroup>
+					<s:HGroup horizontalAlign="left" width="50%">
+						<s:Button id="BtnNewSolicitud" label="+ Agregar nueva solicitud" height="30" click="BtnNewSolicitud_clickHandler(event)"/>
+						<s:Button id="BtnModSolicitud" label="Modificar" height="30" click="BtnModSolicitud_clickHandler(event)"/>
+						<s:Button id="BtnDelSolicitud" label="Eliminar" height="30" click="BtnDelSolicitud_clickHandler(event)"/>
+					</s:HGroup>
+					<s:HGroup horizontalAlign="center" width="25%">
+						<s:Button id="BtnSeeActividades" label="Ver actividades" height="30" click="funcionesBtn(event)"/>
+					</s:HGroup>
+					<s:HGroup horizontalAlign="right" width="25%">						
+						<s:Button id="BtnCloseSolicitud" label="Cerrar solicitud" height="30" click="funcionesBtn(event)"/>
+					</s:HGroup>
+				</s:HGroup>
+			</s:VGroup>
+		</s:Group>
+		<!--Ventana nueva solicitud-->
+		<s:Group id="StateNewsol" width="100%" height="100%" visible="false"
+				 visible.StateNewsol="true" initialize="StateNewsol_initializeHandler(event)">
+			<mx:Form id="FormNewSolicitud" width="100%" height="100%">
+				<mx:FormHeading label="Complete Todos los campos del formulario."/>	
+				<mx:FormItem label="Codigo SAP">
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtCodigoSAPSolicitud" width="200" maxChars="50"/>				
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Debe ingresar el codigo de la actividad creada en SAP" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Descripcion">
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtDescripcionSolicitud" width="200" maxChars="50" />
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Debe ingresar alguna referencia que represente a la solicitud" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Solicitante">
+					<s:HGroup width="100%">
+						<s:DropDownList id="DDLSolicitante"  width="200" 
+										dataProvider="{ArraySolicitante}" prompt="Seleccione usuario.."
+										labelField="descripcion"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Debe seleccionar al solicitante" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Fecha Creación">
+					<s:HGroup width="100%">
+						<mx:DateField width="200" formatString="DD/MM/YYYY" yearNavigationEnabled="true" id="DateFechaCreacionSol"
+									  showToday="true"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Seleccione la fecha de la solicitud" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="¿Emergencia?">
+					<s:HGroup width="100%">
+						<s:DropDownList id="DDLEmergencia"  width="200" 
+										dataProvider="{ArrayEmergencia}" prompt="Seleccione Si o no"
+										labelField="descripcion"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Seleccione si es emergencia o no" />
+					</s:HGroup>
+				</mx:FormItem>				
+				<mx:FormItem label="Arranque">
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtArranque" width="200" maxChars="50" text="{widgets.MantenimientoPodas.Generica.Nom_arranque}"/>
+						<s:ToggleButton id="togBtnArranque" label="On" click="togBtnArranque_clickHandler(event)" width="20%" height="24"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Para completar el arranque debe hacer clic en boton On y luego seleccionar el arranque en el mapa" />
+					</s:HGroup>
+				</mx:FormItem>	
+				<mx:FormItem label="Nombre calle" >					
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtNombreCalle" width="200" maxChars="50"/>
+						<s:ToggleButton id="togBtnCalle" label="On" click="togBtnCalle_clickHandler(event)" width="20%" height="24"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Para completar el nombre de calle debe hacer clic en boton On y luego seleccionar el eje de calle en el mapa" />	
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Comuna" >					
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtComuna" width="200" maxChars="50"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Este campo se autocompleta al seleccionar la calle o se puede completar" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Crear Poligono">
+					<s:HGroup width="100%">
+						<components:FocusableImage name="Polygono"
+												   width="42" height="40"
+												   buttonMode="true"
+												   click="tbb_itemClickHandler(event)"											  
+												   source="assets/images/i_draw_poly.png"										
+												   toolTip="Polygono"
+												   useHandCursor="true"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="para crear el area de trabajo debe hacer clic en la imagen y luego dibujar en el mapa terminando el dibujo con doble clic." />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Alimentador" >
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtAlimentador" width="200" maxChars="50"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Este campo se autocompleta al seleccionar el arranque" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="SED" >
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtSed" width="200" maxChars="50"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Este campo se autocompleta al seleccionar el arranque" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem>
+					<s:HGroup width="100%" horizontalAlign="center">
+						<s:Button id="BtnGrabaSolicitud" height="30" label="Grabar" click="BtnGrabaSolicitud_clickHandler(event)"/>
+						<s:Button id="BtnsolicitudVolver" height="30" label="Volver" click="BtnsolicitudVolver_clickHandler(event)"/>	
+					</s:HGroup>
+				</mx:FormItem>
+			</mx:Form>
+			
+		</s:Group>
+		<!--Ventana Modificar solicitud-->
+		<s:Group id="StateModsol" width="100%" height="100%" visible="false"
+				 visible.StateModsol="true" >
+			<mx:Form id="FormModSolicitud" width="100%" height="100%">
+				<mx:FormHeading label="Complete Todos los campos del formulario."/>	
+				<mx:FormItem label="Codigo SAP">
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtModCodigoSAPSolicitud" width="200" maxChars="50"/>				
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Debe ingresar el codigo de la actividad creada en SAP" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Descripcion">
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtModDescripcionSolicitud" width="200" maxChars="50" />
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Debe ingresar alguna referencia que represente a la solicitud" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Solicitante">
+					<s:HGroup width="100%">
+						<s:DropDownList id="DDLModSolicitante"  width="200" 
+										dataProvider="{ArraySolicitante}" prompt="Seleccione usuario.."
+										labelField="descripcion"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Debe seleccionar al solicitante" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Fecha Creación">
+					<s:HGroup width="100%">
+						<mx:DateField width="200" formatString="DD/MM/YYYY" yearNavigationEnabled="true" id="DateModFechaCreacionSol"
+									  showToday="true"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Seleccione la fecha de la solicitud" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="¿Emergencia?">
+					<s:HGroup width="100%">
+						<s:DropDownList id="DDLModEmergencia"  width="200" 
+										dataProvider="{ArrayEmergencia}" prompt="Seleccione Si o no"
+										labelField="descripcion"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Seleccione si es emergencia o no" />
+					</s:HGroup>
+				</mx:FormItem>				
+				<mx:FormItem label="Arranque">
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtModArranque" width="200" maxChars="50" text="{widgets.MantenimientoPodas.Generica.Nom_arranque}"/>
+						<s:ToggleButton id="togBtnModArranque" label="On" click="togBtnModArranque_clickHandler(event)" width="20%" height="24"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Para completar el arranque debe hacer clic en boton On y luego seleccionar el arranque en el mapa" />
+					</s:HGroup>
+				</mx:FormItem>	
+				<mx:FormItem label="Nombre calle" >					
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtModNombreCalle" width="200" maxChars="50"/>
+						<s:ToggleButton id="togBtnModCalle" label="On" click="togBtnModCalle_clickHandler(event)" width="20%" height="24"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Para completar el nombre de calle debe hacer clic en boton On y luego seleccionar el eje de calle en el mapa" />	
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Comuna" >					
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtModComuna" width="200" maxChars="50"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Este campo se autocompleta al seleccionar la calle o se puede completar" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Crear Poligono">
+					<s:HGroup width="100%">
+						<components:FocusableImage name="Polygono"
+												   width="42" height="40"
+												   buttonMode="true"
+												   click="tbb_itemClickHandler(event)"											  
+												   source="assets/images/i_draw_poly.png"										
+												   toolTip="Polygono"
+												   useHandCursor="true"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="para crear el area de trabajo debe hacer clic en la imagen y luego dibujar en el mapa terminando el dibujo con doble clic." />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Alimentador" >
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtModAlimentador" width="200" maxChars="50"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Este campo se autocompleta al seleccionar el arranque" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="SED" >
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtModSed" width="200" maxChars="50"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Este campo se autocompleta al seleccionar el arranque" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem>
+					<s:HGroup width="100%" horizontalAlign="center">
+						<s:Button id="BtnModGrabaSolicitud" height="30" label="Grabar" click="BtnModGrabaSolicitud_clickHandler(event)"/>
+						<s:Button id="BtnModsolicitudVolver" height="30" label="Volver" click="BtnModsolicitudVolver_clickHandler(event)"/>	
+					</s:HGroup>
+				</mx:FormItem>
+			</mx:Form>
+			
+		</s:Group>
+		
+		<!-- Grupo listado de Actividades-->	
+		<s:Group id="bkmActividades" width="100%" height="100%"
+				 visible="false" visible.bkmActividades="true">
+			<s:VGroup width="100%">
+				<mx:Form id="FormPolPodas" width="100%" height="15%">
+					<s:HGroup width="100%">
+						<s:VGroup width="30%">
+							<mx:FormItem label="CODIGO SAP:" fontWeight="bold">
+								<s:Label id="lblCodigoSAP" text="{codigo_sap}" fontWeight="normal" />
+							</mx:FormItem>
+							<mx:FormItem label="DESCRIPCIÓN:" fontWeight="bold">
+								<s:Label id="lblDescripcion" text="{tdescripcion}"  fontWeight="normal"/>
+							</mx:FormItem>
+							<mx:FormItem label="SOLICITANTE:" fontWeight="bold">
+								<s:Label id="lblSolicitante" text="{solicitante}" fontWeight="normal" />
+							</mx:FormItem>
+						</s:VGroup>
+						<s:VGroup width="30%" paddingLeft="10">							
+							<mx:FormItem label="COMUNA:" fontWeight="bold">
+								<s:Label id="lblComuna" text="{ComunaSolictud}" fontWeight="normal"/>
+							</mx:FormItem>
+							<mx:FormItem label="ALIMENTADOR:" fontWeight="bold">
+								<s:Label id="lblAlimentador" text="{AlimentadorSolicitud}" fontWeight="normal"/>	
+							</mx:FormItem>
+							<mx:FormItem label="SED:" fontWeight="bold">
+								<s:Label id="lblSed" text="{SedSolicitud}" fontWeight="normal"/>
+							</mx:FormItem>
+						</s:VGroup>							
+						<s:VGroup width="30%">	
+							<mx:FormItem label="ESTADO:" fontWeight="bold">
+								<s:Label id="lblEstado" text="{EstadoSolicitud}" fontWeight="normal"/>
+							</mx:FormItem>
+						</s:VGroup>
+					</s:HGroup>
+				</mx:Form>
+				<mx:HRule width="100%">
+					
+				</mx:HRule>
+				<mx:DataGrid id="DataActividades" resizableColumns="true" sortableColumns="true" editable="false"
+							 width="100%" height="100%" visible="true" selectable="true" resize="DataSolicitud_resizeHandler(event)" horizontalScrollPolicy="on">
+					<mx:columns>		
+						<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID"  visible="false"/>
+						<mx:DataGridColumn  dataField="COD_SAP" headerText="COD SAP"  width="{anchoColumna}" visible="false" />
+						<mx:DataGridColumn  dataField="ID_ACTIVIDAD" headerText="ID ACTIVIDAD"  width="{anchoColumna}"  />
+						<mx:DataGridColumn  dataField="FECHA_ACTIVIDAD" headerText="FECHA ACTIVIDAD"  width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="NUM_LIBRO_OBRA" headerText="NUM LIBRO OBRA"  width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="SUPERVISOR" headerText="SUPERVISOR"  width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="PERMISO_PREVENTIVO" headerText="PERMISO PREVENTIVO"  width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="HORA_SOLICITUD_PP" headerText="HORA SOLICITUD PP"  width="{anchoColumna}" />				
+						<mx:DataGridColumn  dataField="HORA_CANCELACION_PP" headerText="HORA CANCELACION PP"  width="{anchoColumna}" />				
+						<mx:DataGridColumn  dataField="CANT_TRABAJADOR_ALTURA" headerText="CANT TRABAJADOR ALTURA"  width="{anchoColumna}" />	
+						<mx:DataGridColumn  dataField="CANT_TRABAJADOR_PISO" headerText="CANT TRABAJADOR PISO"  width="{anchoColumna}" />		
+					</mx:columns>
+				</mx:DataGrid>
+				<s:HGroup width="100%">	
+					<s:Button id="BtnVerDetalleActividad" height="30" label="Ver Detalle Actividad" click="funcionesBtn(event)"/>
+					<s:Button id="BtnVolverSolicitud" height="30" label="Volver" click="funcionesBtn(event)"/>
+				</s:HGroup>
+				
+			</s:VGroup>	
+		</s:Group>	
+		<!-- Grupo listado de Detalle de Actividad-->	
+		<s:Group id="bkmDetalleActividad" width="100%" height="100%"
+				 visible="false" visible.bkmDetalleActividad="true" >
+			<s:VGroup width="100%">
+				<mx:Form id="FormDetalleAct" width="100%" height="15%">
+					<s:HGroup width="100%">
+						<mx:FormItem label="CODIGO SAP:" fontWeight="bold">
+							<s:Label id="lblCodigoSAP2" text="{codigo_sap}" fontWeight="normal" />
+						</mx:FormItem>
+						<mx:FormItem label="N° ACTIVIDAD:" fontWeight="bold">
+							<s:Label id="lblNumActividad" text="{numActividad}"  fontWeight="normal"/>
+						</mx:FormItem>
+						<mx:FormItem label="N° LIBRO DE OBRA:" fontWeight="bold">
+							<s:Label id="lblNumLibroObra" text="{numLibroObra}" fontWeight="normal" />
+						</mx:FormItem>
+						<mx:FormItem label="SUPERVISOR:" fontWeight="bold">
+							<s:Label id="lblSupervisor" text="{nomSupervisor}" fontWeight="normal"/>
+						</mx:FormItem>
+					</s:HGroup>
+				</mx:Form>
+				<mx:HRule width="100%">
+					
+				</mx:HRule>
+				<mx:DataGrid id="DataDetalleActividad" resizableColumns="true" sortableColumns="true" editable="false" resize="DataSolicitud_resizeHandler(event)"
+							 width="100%" height="100%" visible="true" selectable="true" itemClick="DataDetalleActividad_itemClickHandler(event)" horizontalScrollPolicy="on">
+					<mx:columns>		
+						<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID"  visible="true"/>
+						<mx:DataGridColumn  dataField="ID_ACTIVIDAD" headerText="ID ACTIVIDAD"  width="140" visible="false" />
+						<mx:DataGridColumn  dataField="ID_ARBOL" headerText="ID ARBOL"  width="140" visible="false" />
+						<mx:DataGridColumn  dataField="NOMBRE_ARBOL" headerText="NOMBRE ARBOL"  width="140"  />
+						<mx:DataGridColumn  dataField="CANTIDAD" headerText="CANTIDAD"  width="140" />
+						<mx:DataGridColumn  dataField="NIVEL_TENSION" headerText="NIVEL TENSION"  width="140" />
+						<mx:DataGridColumn  dataField="ID_TIPO_PODA" headerText="ID TIPO PODA"  width="140" visible="false" />
+						<mx:DataGridColumn  dataField="NOMBRE_TIPO_PODA" headerText="NOMBRE TIPO PODA"  width="140" />
+						<mx:DataGridColumn  dataField="OBSERVACIONES" headerText="OBSERVACIONES"  width="140" />
+					</mx:columns>
+				</mx:DataGrid>
+				<s:HGroup width="100%">				
+					<s:Button id="BtnDetalleVolverSolicitud" label="Volver"  height="30" click="funcionesBtn(event)"/>
+					<s:Label id="lblFotos" text="¿Detalle con Fotos Adjuntas? : " fontWeight="normal" paddingLeft="50" paddingTop="5" />
+					<s:Label id="lblHayFotos" text="{fotosAdjuntas}" fontWeight="normal" paddingTop="5" />
+					<s:Button id="BtnVerFotos" label="Ver" height="30" click="funcionesBtn(event)" width="80" enabled="false"/>
+				</s:HGroup>
+				
+			</s:VGroup>	
+		</s:Group>	
+		<!-- Grupo Ver FOTOS-->
+		<s:Group id="bkmVerFotos" width="100%" height="100%"
+				 visible="false" visible.bkmVerFotos="true">
+			<mx:Form id="FormVerFotos" width="100%" height="100%">
+				<mx:FormHeading label="Fotos Asociadas a esta Actividad."/>			
+				<mx:HBox>
+					<mx:VBox>
+						<mx:FormItem label="Foto Antes">
+							<mx:Canvas width="227" height="156" id="pbVerAntes" color="0x000000" horizontalScrollPolicy="off"
+									   verticalScrollPolicy="off" />							
+							<s:Label id="LblVerNomFotoAntes"/>
+						</mx:FormItem>
+					</mx:VBox>
+					<mx:VRule height="100%">
+						
+					</mx:VRule>
+					<mx:VBox>
+						<mx:FormItem label="Foto Después">
+							<mx:Canvas width="227" height="156" id="pbVerDespues" horizontalScrollPolicy="off"
+									   verticalScrollPolicy="off" />
+							<s:Label id="LblVerNomFotoDespues"/>
+							
+						</mx:FormItem>
+					</mx:VBox>
+				</mx:HBox>
+				<mx:FormItem>
+					<s:HGroup width="100%" horizontalAlign="center">					
+						<s:Button id="BtnVerVolverMenuListado"  height="30" visible="true" label="Volver" click="funcionesBtn(event)" />		
+					</s:HGroup>
+				</mx:FormItem>
+			</mx:Form>
+		</s:Group>		
+		<s:Group id="StateCerrarSol" width="100%" height="100%"
+				 visible="false" visible.StateCerrarSol="true">
+			<mx:Form id="FormCierreSol" width="100%" height="100%">
+				
+				<s:HGroup>
+					<mx:FormItem label="CODIGO SAP:" fontWeight="bold">
+						<s:Label id="lblCodigoSAP3" text="{codigo_sap}" fontWeight="normal" />
+					</mx:FormItem>
+					<mx:FormItem label="DESCRIPCION:" fontWeight="bold">
+						<s:Label id="lblDescripcion3" text="{descripcion}" fontWeight="normal" />
+					</mx:FormItem>
+					<mx:FormItem label="FECHA CREACION:" fontWeight="bold">
+						<s:Label id="lblFechaCreacion3" text="{fechacreacionSolicitud}" fontWeight="normal" />
+					</mx:FormItem>
+				</s:HGroup>
+				<mx:FormItem label="Fecha de Cierre:">
+					<s:HGroup width="100%">
+						<mx:DateField width="200" formatString="DD/MM/YYYY" yearNavigationEnabled="true" id="DateFechaCierreSol"
+									  showToday="true"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Seleccione la fecha de la cierre de la solicitud" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="AREA">
+					<s:HGroup width="100%">
+						<s:DropDownList id="DDLCierreArea"  width="200" 
+										dataProvider="{ArrayAreas}" prompt="Seleccione area"
+										labelField="descripcion"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Seleccione el area" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Grupo Compra:">
+					<s:HGroup width="100%">
+						<s:Label id="lblGrupocompra" text="{codigo_sap}" fontWeight="normal" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Num OI/PEP">
+					<s:HGroup width="100%">
+						<s:DropDownList id="DDLOIPEP"  width="200" 
+										dataProvider="{ArrayEmergencia}" prompt="Seleccione OI o PEP"
+										labelField="descripcion"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Seleccione la cuenta de Oi o PEP que corresponda." />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Num OC">
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtNumOC" width="200" maxChars="50" text="{widgets.MantenimientoPodas.Generica.Nom_arranque}"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Ingrese el numero de OC correspondiente" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem label="Num SOLPE">
+					<s:HGroup width="100%">
+						<mx:TextInput id="TxtNumSOLPE" width="200" maxChars="50" text="{widgets.MantenimientoPodas.Generica.Nom_arranque}"/>
+						<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/img/informacion.png" toolTip="Ingrese el numero de SOLPE correspondiente" />
+					</s:HGroup>
+				</mx:FormItem>
+				<mx:FormItem>
+					<s:HGroup width="100%" horizontalAlign="center">					
+						<s:Button id="BtnVolverCloseSoliciud"  height="30" visible="true" label="Volver" click="funcionesBtn(event)" />		
+					</s:HGroup>
+				</mx:FormItem>
+			</mx:Form>
+		</s:Group>		
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("comun.wizard.ControlPasoWizard")]
+	</fx:Metadata>
+	
+	<s:HGroup paddingRight="15">
+		<mx:ViewStack id="stack" creationPolicy="all" selectedIndex="0">
+			<s:NavigatorContent>
+				<s:Image id="circuloInactivo" source="@Embed(source='assets/images/inactivo-04.png')" />
+				<s:Label id="etiquetaNumeroPasoInactivo" text="1" x="10" y="10" fontSize="15" color="0x000000" />
+			</s:NavigatorContent>
+			<s:NavigatorContent>
+				<s:Image id="circuloNormal" source="@Embed(source='assets/images/paso.png')" />
+				<s:Label id="etiquetaNumeroPasoNormal" text="1" x="10" y="10" fontSize="15" color="0x000000" />
+			</s:NavigatorContent>
+			<s:NavigatorContent>
+				<s:Image id="circuloSeleccionado" source="@Embed(source='assets/images/activo-05.png')" />
+				<s:Label id="etiquetaNumeroPasoSeleccionado" text="1" x="10" y="10" fontSize="15" color="0x000000" />
+			</s:NavigatorContent>
+		</mx:ViewStack>
+		
+		<s:VGroup height="31">
+			<s:Label id="etiqueta1" text="PRUEBA" verticalAlign="middle" />
+			<s:Label id="etiqueta2" text="PRUEBA" verticalAlign="middle" />	
+		</s:VGroup>
+		
+	</s:HGroup>
+	
+</s:Skin>

@@ -1,0 +1,345 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Chilquinta Energia S.A.</title>
+    <subtitle>Red Electrica en Arcgis</subtitle>
+    <logo>assets/images/logogisred_8x8.png</logo>
+    <style>
+        <colors>0xFFFFFF,0x333333,0x101010,0x000000,0xFFFFFF</colors>
+        <alpha>0.8</alpha>
+        <font name="Verdana"/>
+        <titlefont name="Verdana"/>
+        <subtitlefont name="Verdana"/>
+    </style>
+    <!-- replace the following url with your own geometryservice -->
+    <geometryservice url="https://utility.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer"/>
+    
+    <bing key="Asrn2IMtRwnOdIRPf-7q30XVUrZuOK7K2tzhCACMg7QZbJ4EPsOcLk6mE9-sNvUe"/>
+    <widget url="widgets/Navigation/NavigationWidget.swf" config="widgets/Navigation/NavigationWidget.xml" left="10" top="50"/>
+    <widget url="widgets/OverviewMap/OverviewMapWidget.swf" config="widgets/OverviewMap/OverviewMapWidget.xml" right="0" bottom="0"/>
+    <widget right="15" top="55"    config="widgets/eMapSwitcher/eMapSwitcherWidget.xml" url="widgets/eMapSwitcher/eMapSwitcherWidget.swf"/> 
+    <widget url="widgets/HeaderController/HeaderControllerWidget.swf" config="widgets/HeaderController/HeaderControllerWidget.xml" left="0" top="0"/>
+     <widget left="0" right="0" bottom="0" url="widgets/eSearch/SearchWidgetFixedDG.swf" config="widgets/eSearch/SearchWidgetFixedDG.xml"/>
+   <!--  <splashpage label="CHILQUINTA ENERGÍA S.A." config="widgets/mySplash/SplashWidget.xml" url="widgets/mySplash/SplashWidget.swf"/> -->
+    <widget right="135" top="55"  config="widgets/ExportMap/exportMap.xml" url="widgets/ExportMap/exportMap.swf"/>      
+     <widget left="0"  top="0"  config="widgets/CoordinateMenu/CoordinateMenuWidget.xml" url="widgets/CoordinateMenu/CoordinateMenuWidget.swf"/>
+     <widget config="widgets/GoogleAnalytics/GoogleAnalyticsWidget.xml"  url="widgets/GoogleAnalytics/GoogleAnalyticsWidget.swf"/>
+    
+    
+    <map attributionvisible="true" esrilogovisible="true" openhandcursorvisible="false" scalebarvisible="true" scalebar="default" zoomslidervisible="false" wraparound180="true" addarcgisbasemaps="false" initialextent="-8007585.32657955 -3933739.55021092 -7879323.993116975 -3862041.617679396" wkid="102100" top="40" portalurl="https://www.arcgis.com/">
+        <basemaps>
+        	<layer type="bing" label="Calles" icon="https://www.arcgis.com/sharing/rest/content/items/0914b1220e3a4484b3fbece2b746558d/info/thumbnail/tempbing_road_manchester2.png" style="road" culture="es-ES" visible="true"/>
+            <layer type="bing" label="Satelite" icon="https://www.arcgis.com/sharing/rest/content/items/1a1096e7254a483db4404a09c95034b2/info/thumbnail/tempbing_aerial_manchester2.png" style="aerial" culture="es-ES" visible="false"/>
+			<layer type="bing" label="Satelite With label" icon="https://www.arcgis.com/sharing/rest/content/items/1a1096e7254a483db4404a09c95034b2/info/thumbnail/tempbing_aerial_manchester2.png"  style="aerialWithLabels" culture="es-ES" visible="false"/>
+            <layer type="dynamic" label="Local Landbase" icon="assets/images/mapabase.png" url="http://gisred.chilquinta/arcgis/rest/services/MapaBase/MapServer" visible="false"/>
+        </basemaps>
+        <operationallayers>
+        
+        <!-- 
+        	<layer type="dynamic"
+     			label="Clientes subterraneos"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/Test/Cleintes_subterraneos/MapServer"
+     			visible="false">
+     			
+     		</layer> -->
+     		<layer type="dynamic"
+     			label="GE_VOLT"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/TELEMEDIDA/GE_NATO/MapServer"
+     			visible="false">
+     				<sublayer id="0" label="GE Volt" popupconfig="popups/PopUp_ge_volt.xml"/>
+     		</layer>   
+     		<layer type="dynamic"
+     			label="Clientes No Leidos"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/CECOM/CLIENTES_NL/MapServer"
+     			visible="false">
+     				<sublayer id="0" label="Clientes No Leidos" popupconfig="popups/PopUp_clientes_no_leidos.xml"/>
+     		</layer> 
+     		<layer type="dynamic"
+     			label="Unidad vecinal"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/MANTENIMIENTO/Otras_Capas/MapServer"
+     			visible="false">
+     				<sublayer id="0" label="Unidad vecinal" popupconfig="popups/PopUp_Unidad_vecinal.xml"/>
+     		</layer>  
+     		<layer type="dynamic"
+     			label="ECSE"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/Varios/ECSE/MapServer">
+     			<sublayer id="0" label="Encuestado" definitionexpression="ano=2015" visible="false"/>
+     			<sublayer id="0" label="Reemplazo" definitionexpression="ano=2015" visible="false"/>
+     		</layer>  
+     		<layer type="dynamic"
+     			label="Cobertura Antena"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/CNR/CoberturaAntena/MapServer"
+     			visible="false">
+     			     <sublayer id="0" popupconfig="popups/PopUp_AccessPoint.xml"/>      
+     		</layer>    
+     		<layer type="dynamic"
+     			label="Vialidad"
+     			imageformat="png32"
+     			url="http://wservice-sit.mop.gov.cl/ArcGIS/rest/services/DV/red_caminera_de_chile/MapServer"
+     			visible="false">
+     		</layer>  
+    
+        	<layer type="dynamic"
+			           label="Luminarias" 
+			           imageformat="png32"
+			           url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Luminarias/MapServer" 
+			           visible="true">       			
+       		</layer>
+       		
+        	<layer type="dynamic"
+			           label="Linea Gas" 
+			           imageformat="png32"
+			           url="http://gisred.chilquinta/arcgis/rest/services/Varios/GAS/MapServer" 
+			           visible="true"
+			           info="widgets/InfoTemplates/AttRelateInfoWinWidget.swf"
+                 	   infoconfig="widgets/InfoTemplates/IWT_Cameras.xml"
+			           >       			
+       		</layer> 
+       		
+                 
+       		
+       			    
+			<!-- <layer type="dynamic"  imageformat="png32" label="Clientes1" url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Clientes/MapServer" visible="false"/> -->        
+            <layer type="dynamic"  imageformat="png32" label="Clientes" url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer" visible="true">
+            	<sublayer id="0" popupconfig="popups/PopUp_Clientes.xml"/></layer>
+            <layer type="dynamic"  imageformat="png32" label="Direcciones" url="http://gisred.chilquinta/arcgis/rest/services/Cartografia/DMPS/MapServer" mode="onDemand" visible="true">
+             	<sublayer id="0" label="Direcciones" popupconfig="popups/PopUp_Direcciones.xml"/></layer>
+            <layer type="dynamic" label="Concesiones" imageformat="png32" url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Concesiones006/MapServer" alpha="0.4" visible="true">
+            	<sublayer id="0" popupconfig="popups/PopUp_Concesion_Distribucion.xml"/>
+                <sublayer id="1" popupconfig="popups/PopUp_Concesion_Transmision.xml"/>
+            </layer>
+             <layer type="dynamic"
+     			label="Nodos"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer"
+     			visible="true">
+     			 <sublayer id="0" label="Postes" popupconfig="popups/PopUp_Poste.xml"/>
+     		</layer>
+            <layer type="dynamic"     		
+     			label="Tramos"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Tramos_006/MapServer"
+     			visible="true">
+     			 <sublayer id="0" label="Tramos MT" popupconfig="popups/PopUp_Tramo_MT.xml"/>
+     			 <sublayer id="1" label="Tramos BT" popupconfig="popups/PopUp_Tramo_BT.xml"/>
+     			 <sublayer id="2" label="Tramo AP" popupconfig="popups/PopUp_Tramo_AP.xml"/>
+     		</layer>
+     		
+     		
+     		     
+     		
+     		<layer type="dynamic"
+     			label="Equipos Pto"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer"
+     			visible="true">
+     			  <sublayer id="0" label="SSEE" popupconfig="popups/PopUp_SSEE.xml"/>
+     			  <sublayer id="1" label="Subestaciones" popupconfig="popups/PopUp_SED.xml"/>
+     			  <sublayer id="2" label="Salida Alimentador" popupconfig="popups/PopUp_Salida_alimentador.xml"/>
+     			  <sublayer id="3" label="Equipos_pto" popupconfig="popups/PopUp_Equipos.xml"/>
+     		</layer>
+     		
+     			<layer type="dynamic"
+     			label="Equipos linea"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_Linea_006/MapServer"
+     			visible="true">
+     			<sublayer id="0" label="Equipos" popupconfig="popups/PopUp_Equipos.xml"/>
+     			<sublayer id="1" label="Equipos_AP" popupconfig="popups/PopUp_EquiposAP.xml"/>
+     		</layer> 
+     		
+            
+          <!--   <layer type="dynamic" label="Electricidad" imageformat="png32" url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Chilquinta/MapServer" visible="true">
+            			   <sublayer id="0" label="Subestaciones" popupconfig="popups/PopUp_SED.xml"/>
+		                   <sublayer id="1" label="Tramos MT" popupconfig="popups/PopUp_Tramo_MT.xml"/>
+     			 		   <sublayer id="2" label="Tramos BT" popupconfig="popups/PopUp_Tramo_BT.xml"/>          
+		                   <sublayer id="3" label="Postes" popupconfig="popups/PopUp_Poste.xml"/>
+		                   <sublayer id="4" label="Salida Alimentador" popupconfig="popups/PopUp_Salida_alimentador.xml"/>
+		                   <sublayer id="5" label="Tramo AP" popupconfig="popups/PopUp_Tramo_AP.xml"/>
+		                   <sublayer id="6" label="Equipos" popupconfig="popups/PopUp_Equipos.xml"/>
+		                   <sublayer id="7" label="SSEE" popupconfig="popups/PopUp_SSEE.xml"/>
+		                   <sublayer id="8" label="Camaras" popupconfig="popups/PopUp_Camaras.xml"/>
+		                   <sublayer id="9" label="Equipos_Sub" popupconfig="popups/PopUp_Equipos.xml"/>
+		    </layer> -->
+		     <layer type="dynamic" label="STx" imageformat="png32" url="http://gisred.chilquinta/arcgis/rest/services/STx/STx/MapServer" visible="true"/>
+		    <layer type="dynamic"
+			           label="Vistas" 
+			           imageformat="png32"
+			           url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Especiales006/MapServer" 
+			           visible="true">	            
+       			</layer>
+       			<!-- 	<layer type="dynamic"
+     			label="Capacidad Conductores"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/Planificacion/topologia_capacidad_conductores/MapServer"
+     			visible="false">
+     		</layer> -->
+     			<layer type="dynamic"
+     			label="Postes sin apoyos mutuos"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/Varios/POSTES_SIN_APOYOS/MapServer"
+     			visible="false">
+     		</layer>
+       		
+       			
+        </operationallayers>
+    </map>
+    <widgetcontainer layout="float">
+     <!--   <widget url="widgets/Query/QueryWidget.swf" 
+       			config="widgets/Query/QueryWidget_SSEE.xml" 
+       			label="SSEE" 
+        		icon="assets/images/SSEE.png" preload="close"/>-->
+        		<widget url="widgets/GISRED360/GISRED360_Widget.swf" 
+       			config="widgets/GISRED360/GISRED360_Widget.xml" 
+       			label="SSEE" 
+        		icon="assets/images/SSEE.png" preload="close"/>
+        		
+         <widgetgroup label="Herramientas" icon="assets/images/Herramientas.png">
+            	<widget label="Dibujar" left="60" top="400"
+                	icon="assets/images/i_draw2.png"
+                	config="widgets/eDraw/eDrawWidget.xml"
+                	url="widgets/eDraw/eDrawWidget.swf"/>
+                <widget label="Google Street View" width="380"
+                		preload="close"
+                		config="widgets/StreetView/StreetViewWidget.xml"
+                		icon="widgets/StreetView/assets/images/i_gsv.png"
+                		url="widgets/StreetView/StreetViewWidget.swf"/>
+                <widget label="Medir"
+		                icon="widgets/Measure/assets/images/i_measure2.png"
+		                config="widgets/Measure/MeasureWidget.xml"
+		                url="widgets/Measure/MeasureWidget.swf"/>
+		    <widget label="Map Coordinates"     		
+            config="widgets/CoordinateMenu/CoordinateMenuWidget.xml"
+            icon="widgets/CoordinateMenu/images/coordinateIcon.png"        
+            url="widgets/CoordinateMenu/CoordinateMenuWidget_GUI.swf"/>
+		                	  
+        </widgetgroup>
+        <widget label="Capas eléctricas" 
+       		   icon="assets/images/i_layers.png"
+               config="widgets/eLayerList/eLayerListWidget.xml"
+               url="widgets/eLayerList/eLayerListWidget.swf" 
+               preload="close"/>
+         <widget label="Capas no eléctricas" 
+       		   icon="assets/images/varios.png"
+               config="widgets/eLayerList/eLayerListWidgetNoElectric.xml"
+               url="widgets/eLayerList/eLayerListWidget.swf" 
+               preload="close"/>
+                
+       <!-- Grupo de Busqueda Clientes-->
+       <widgetgroup label="Búsquedas Clientes" icon="assets/images/Clientes.png">
+               <widget label="Cliente unitario"
+               	       icon="assets/images/clientes3.png"
+                	   config="widgets/eSearch/eSearchWidgetClientes.xml"
+                	   url="widgets/eSearch/eSearchWidget.swf"/>
+               <!-- <widget label="Ruta Clientes"
+				       icon="assets/images/Rutas_clientes.png"
+					   config="widgets/eSearch/eSearchWidgetRuta.xml"
+					   url="widgets/eSearch/eSearchWidget.swf"/> -->
+					    <widget label="Ruta Clientes"
+				       icon="assets/images/Rutas_clientes.png"
+					   config="widgets/Busqueda_Rutas/Busqueda_Rutas.xml"
+					   url="widgets/Busqueda_Rutas/Busqueda_Rutas.swf"/>
+			   <widget label="Busqueda Cliente SED" left="60" top="350"
+				       icon="assets/images/Cliente_SED.png"
+					   config="widgets/eSearch/eSearchWidgetClientesSED.xml"
+					   url="widgets/eSearch/eSearchWidget.swf"/>
+				<widget label="Busqueda Cliente GE VOLT" left="60" top="350"
+				       icon="assets/images/ClientesGE.png"
+					   config="widgets/eSearch/eSearchWidgetClientesGE.xml"
+					   url="widgets/eSearch/eSearchWidget.swf"/>		
+       </widgetgroup>
+        <!-- Grupo de Busqueda Electricidad-->
+  	   <widgetgroup label="Búsquedas Electricidad " icon="assets/images/bombilla.png">
+  	     	   <widget label="Postes"
+				       icon="assets/images/BPoste.png"
+					   config="widgets/eSearch/eSearchWidgetPostes.xml"
+					   url="widgets/eSearch/eSearchWidget.swf"/>
+				<widget label="Cámaras"
+				        icon="assets/images/BCamara.png"
+					    config="widgets/eSearch/eSearchWidgetCamaras.xml"
+					    url="widgets/eSearch/eSearchWidget.swf"/>
+				<widget label="Busqueda de Tramos MT"
+					    icon="assets/images/TramoMT.png"
+					    config="widgets/eSearch/eSearchWidgetTramoMT.xml"
+					    url="widgets/eSearch/eSearchWidget.swf"/>
+				<widget label="Busqueda de Tramos BT"
+					    icon="assets/images/TramoBT.png"
+					    config="widgets/eSearch/eSearchWidgetTramoBT.xml"
+					    url="widgets/eSearch/eSearchWidget.swf"/>
+				<widget label="Busqueda de SED"
+					    icon="assets/images/BSED.png"
+					    config="widgets/eSearch/eSearchWidgetSED.xml"
+					    url="widgets/eSearch/eSearchWidget.swf"/>
+				<widget label="Busqueda de Equipos"
+					    icon="assets/images/BuscadorEquipos.png"
+					    config="widgets/eSearch/eSearchWidgetEquipos.xml"
+					    url="widgets/eSearch/eSearchWidget.swf"/>
+			<!-- 	<widget label="Consulta de Equipos"
+					    icon="assets/images/BuscadorEquipos.png"
+					    config="widgets/ConsultaEquipos/ConsultaEquipos.xml"
+					    url="widgets/ConsultaEquipos/ConsultaEquipos.swf"/> -->
+  	    </widgetgroup>
+  	    <widgetgroup label="Varios" icon="assets/images/themes.png">
+  	   			<widget label="Vistas" x="50" y="100"
+					    icon="assets/images/vista.png"
+					    config="widgets/TOC/TOCWidgetVistas.xml"
+					    url="widgets/TOC/TOCWidget.swf"/>
+				<widget label="Busqueda Direcciones" x="50" y="100"
+					    icon="assets/images/e-mail-sobre-2.png"
+					    config="widgets/Busqueda_Direcciones/Busqueda_Direcciones.xml"
+					    url="widgets/Busqueda_Direcciones/Busqueda_Direcciones.swf"/>
+				<widget label="Busqueda desde Excel"
+						icon="assets/images/excel.png"
+						config="widgets/BusquedaExcel/BusquedaExcel.xml"
+						url="widgets/BusquedaExcel/BusquedaExcel.swf"/>
+				<widget label="Trazado de SED por Atributo"
+						icon="assets/images/tracking.png"		
+						config="widgets/TrazadoBT/TrazadoBT.xml"				
+						url="widgets/TrazadoBT/TrazadoBT.swf"/>
+				<widget label="ECSE" 
+       		   			icon="assets/images/encuesta.png"
+               			config="widgets/eLayerList/eLayerListWidget_ECSE.xml"
+               			url="widgets/eLayerList/eLayerListWidget.swf" 
+               			preload="close"/>
+               	<widget label="Cobertura Antena" 
+       		   			icon="assets/images/antena.png"
+               			config="widgets/eLayerList/eLayerListWidget_Antena.xml"
+               			url="widgets/eLayerList/eLayerListWidget.swf" 
+               			preload="close"/> 					
+  	     </widgetgroup>
+  	       <widget label="Ingreso Clientes" 
+       		   			icon="widgets/IngresoClientes/images/icon_addCliente.png"
+               			config="widgets/IngresoClientes/IngresoClientes.xml"
+               			url="widgets/IngresoClientes/IngresoClientes.swf" 
+               			preload="close"/>               			
+               			
+  	       <widgetgroup label="Varios2" icon="assets/images/admclientes1.png">
+  	      		<widget label="Administracion clientes" 
+       		   			icon="assets/images/adm_clientes.png"
+               			config="widgets/AdmIngresoClientes/AdmIngresoClientes.xml"
+               			url="widgets/AdmIngresoClientes/AdmIngresoClientes.swf" 
+               			preload="close"/>
+  	     		<widget label="Administracion clientesCNR" 
+       		   			icon="assets/images/admclientes_cnr.png"
+               			config="widgets/AdmIngresoClientesCNR/AdmIngresoClientesCNR.xml"
+               			url="widgets/AdmIngresoClientesCNR/AdmIngresoClientesCNR.swf" 
+               			preload="close"/>
+         </widgetgroup>
+  	 <!--      <widget label="Inspecciones" 
+       		   			icon="assets/images/encuesta.png"
+               			config="widgets/Mantenimiento_inspecciones/Inspecciones.xml"
+               			url="widgets/Mantenimiento_inspecciones/Inspecciones.swf" 
+               			preload="close"/>	  		
+  	   <widget label="EQUIPOS" 
+       		   			icon="assets/images/encuesta.png"
+               			config="widgets/ConsultaEquipos/ConsultaEquipos.xml"
+               			url="widgets/ConsultaEquipos/ConsultaEquipos.swf"
+               			preload="close"/> -->
+  	     
+    </widgetcontainer>
+</configuration>

@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>CODIGO SAP: {CODIGO_SAP}</title>
+    <fields>
+        <field name="SOLICITANTE" alias="Solicitante:" visible="true"/>
+        <field name="FECHA_SOLICITUD_CREACION" alias="Fecha solicitud:" visible="true"/>
+        <field name="FECHA_SOLICITUD_CIERRE" alias="Fecha Cierre:" visible="true"/>
+        <field name="EMERGENCIA" alias="Emergencia?:" visible="true"/>
+        <field name="NUM_OC" alias="OC:" visible="true"/>
+        <field name="NUM_SOLPE" alias="Solpe:" visible="true"/>
+        <field name="NUM_OI" alias="OI:" visible="true"/>
+        <field name="NOMBRE_AREA" alias="Area:" visible="true"/>
+        <field name="ESTADO_SOLICITUD" alias="Estado:" visible="true"/>
+        <field name="ASIGNADA" alias="Asignada:" visible="true"/>
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

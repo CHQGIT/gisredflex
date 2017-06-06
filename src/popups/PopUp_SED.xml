@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Codigo: {codigo}</title>
+    <fields>
+        <field name="nombre" alias="Nombre:" visible="true"/>
+        <field name="montaje" alias="Montaje:" visible="true"/>
+        <field name="alimentador" alias="Alimentador:" visible="true"/>
+        <field name="comuna" alias="Comuna:" visible="true"/>
+        <field name="propiedad" alias="Propiedad:" visible="true"/>
+        <field name="kva" alias="kva:" visible="true"/>
+        <field name="fecha" alias="fecha:" visible="true"/>
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

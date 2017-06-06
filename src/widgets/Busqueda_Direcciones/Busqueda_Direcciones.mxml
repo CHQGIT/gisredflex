@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   xmlns:viewer="com.esri.viewer.*"
+					   xmlns:esri="http://www.esri.com/2008/ags"				   
+					   layout="vertical"
+					   initialize="basewidget1_initializeHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.SpatialReference;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.symbols.SimpleMarkerSymbol;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.rpc.AsyncResponder;
+			[Bindable]
+			private var coleccion:ArrayCollection = new ArrayCollection;
+			public var ListComuna:ArrayList = new ArrayList;
+			[Bindable] private var g:Graphic;
+			public var acPolyline:ArrayCollection = new ArrayCollection;
+			
+			protected function basewidget1_initializeHandler(event:FlexEvent):void
+			{
+				
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = "http://gisred.chilquinta/arcgis/rest/services/MapaBase/MapServer/4";
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["nombre"];
+				query.returnGeometry = false;
+				query.where = "1 = 1";
+				query.orderByFields=["nombre"];
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					for each (var myGraphic:Graphic in featureSet.features)
+					{
+						if (myGraphic.attributes['nombre'] == 'VIÑA DEL MAR')
+						{
+							ListComuna.addItem("VINA DEL MAR")
+						}
+						else
+						{													
+						ListComuna.addItem(myGraphic.attributes['nombre']);						
+						}
+						CboComuna.dataProvider=ListComuna;
+					}
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("no se puede cargar tipo propiedad "+ info.toString());
+				}	
+				
+			}
+			
+			protected function BtnBuscar_clickHandler(event:MouseEvent):void
+			{
+				graphicsLayer.clear();
+				coleccion.removeAll()
+				// TODO Auto-generated method stub
+				if(TxtNomCalle.text =="")
+				{
+					Alert.show("Ingrese el nombre de la calle","Busqueda de Direcciones");
+				}
+				
+					
+				if (CboComuna.selectedIndex==-1)
+				{
+					Alert.show("Seleccione una comuna","Busqueda de Direcciones");						
+				}
+				else
+				{
+					if(TxtNum.text == "")
+					{
+					
+						BusquedaNomCalle();
+					
+					}
+					else
+					{
+						BusquedaExacta();
+					}
+				}
+				
+				
+			}
+			
+			public function BusquedaNomCalle():void
+			{
+				//graphicsLayer= null
+				var queryTaskNombreCalle:QueryTask = new QueryTask();
+				queryTaskNombreCalle.url = "http://gisred.chilquinta/arcgis/rest/services/Cartografia/DMPS/MapServer/0/query";
+				queryTaskNombreCalle.useAMF = false;
+				var queryNombreCalleSelected:Query = new Query();
+				queryNombreCalleSelected.outFields = ["*"];
+				queryNombreCalleSelected.returnGeometry = true;
+			
+				queryNombreCalleSelected.where="upper(nombre_calle) LIKE upper('%" + TxtNomCalle.text +"%') AND COMUNA = '" + CboComuna.selectedItem + "'";
+								
+				queryNombreCalleSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryNombreCalleSelected.outSpatialReference = map.spatialReference;
+				queryTaskNombreCalle.execute(queryNombreCalleSelected, new AsyncResponder(onResult, onFault));
+				
+				var arrPoints:Array = new Array;
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					if(featureSet.features.length == 0 ){
+						Alert.show("Calle no encontrada","Busqueda de Direcciones");
+					}
+					else{			
+						
+						try{
+							for each (var myGraphic:Graphic in featureSet.features)
+							{
+								
+								
+								myGraphic.symbol=new SimpleMarkerSymbol("diamond",15,0x0099FF)
+								graphicsLayer.add(myGraphic);
+								map.zoomTo(featureSet.features[0].geometry);				
+								map.level = 16;	
+								map.addLayer(graphicsLayer);
+								
+						//		Alert.show("PASE");
+								
+							//coleccion.addAll(new ArrayCollection(featureSet.attributes));
+							//DataDirecciones.dataProvider = coleccion;
+							myViewStack.selectedIndex = 1;
+							}
+							coleccion.addAll(new ArrayCollection(featureSet.attributes));
+							
+						}catch(err:Error){
+							Alert.show("Error al graficar","Busqueda de Direcciones");
+						}
+						
+					}
+				}
+				function onFault(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","Busqueda de Direcciones");
+				}
+			}
+				
+			
+			
+			public function BusquedaExacta():void
+			{
+				
+					//graphicsLayer= null
+					var queryTaskNombreCalle:QueryTask = new QueryTask();
+					queryTaskNombreCalle.url = "http://gisred.chilquinta/arcgis/rest/services/Cartografia/DMPS/MapServer/0/query";
+					queryTaskNombreCalle.useAMF = false;
+					var queryNombreCalleSelected:Query = new Query();
+					queryNombreCalleSelected.outFields = ["*"];
+					queryNombreCalleSelected.returnGeometry = true;
+					
+					queryNombreCalleSelected.where="upper(nombre_calle) LIKE upper('%" + TxtNomCalle.text +"%') AND COMUNA = '" + CboComuna.selectedItem + "'AND numero = '" + TxtNum.text +"'";
+					
+					queryNombreCalleSelected.spatialRelationship ="esriSpatialRelIntersects";
+					queryNombreCalleSelected.outSpatialReference = map.spatialReference;
+					queryTaskNombreCalle.execute(queryNombreCalleSelected, new AsyncResponder(onResult, onFault));
+					
+					var arrPoints:Array = new Array;
+					function onResult(featureSet:FeatureSet, token:Object = null):void
+					{
+						if(featureSet.features.length == 0 ){
+							Alert.show("Direccion no encontrada","Busqueda de Direcciones");
+						}
+						else{			
+							
+							try{
+								for each (var myGraphic:Graphic in featureSet.features)
+								{
+									
+									
+									myGraphic.symbol=new SimpleMarkerSymbol("diamond",15,0x0099FF)
+									graphicsLayer.add(myGraphic);
+									map.zoomTo(featureSet.features[0].geometry);				
+									map.level = 16;	
+									map.addLayer(graphicsLayer);
+									
+									//		Alert.show("PASE");
+									
+									coleccion.addAll(new ArrayCollection(featureSet.attributes));
+									//DataDirecciones.dataProvider = coleccion;
+									
+								}
+								
+							}catch(err:Error){
+								Alert.show("Error al graficar","Busqueda de Direcciones");
+							}
+							
+						}
+					}
+					function onFault(info:Object, token:Object = null):void
+					{   
+						Alert.show("Error en consulta","Busqueda de Direcciones");
+					}
+				
+			}
+				
+			
+			protected function custInfo_tabEnabledChangeHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				DataDirecciones.dataProvider = coleccion;
+			}
+			
+			protected function BtnLimpiar_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				Limpiar();
+			}
+			
+			public function Limpiar():void
+			{
+				TxtNomCalle.text = null;
+				TxtNum.text = null;
+				coleccion.removeAll();
+				graphicsLayer.clear();
+			}
+			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				Limpiar();
+			}
+			
+			protected function DataDirecciones_doubleClickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub			
+			
+				graphicsLayer.remove(g);
+				
+				var DirSelected:int = int(event.currentTarget.selectedItem.id_direccion);
+							
+				var queryTaskLumSel:QueryTask = new QueryTask();
+				queryTaskLumSel.url = "http://gisred.chilquinta/arcgis/rest/services/Cartografia/DMPS/MapServer/0/query";
+				queryTaskLumSel.useAMF = false;
+				var queryLumSel:Query = new Query();
+				queryLumSel.outFields = ["*"];
+				queryLumSel.returnGeometry = true;
+				
+				queryLumSel.where = "id_direccion =" + DirSelected;				
+				queryLumSel.spatialRelationship ="esriSpatialRelIntersects";
+				queryLumSel.outSpatialReference = map.spatialReference;
+				queryTaskLumSel.execute(queryLumSel, new AsyncResponder(onResult, onFault));
+				
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					try{
+						
+						map.zoomTo(featureSet.features[0].geometry);				
+						map.level = 18;
+						
+						var mp:MapPoint=featureSet.features[0].geometry as MapPoint;
+						
+						g = new Graphic(new MapPoint(mp.x,mp.y, new SpatialReference(102100)));
+						g.symbol =  new SimpleMarkerSymbol("diamond",15,0xFF00FF,1);
+						graphicsLayer.add(g);
+						acPolyline.addItem(graphicsLayer);
+						
+						
+					}catch(err:Error){
+						Alert.show("no se pudo hacer zoom a la direccion seleccionada");
+					}					
+				}
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					Alert.show("Direccion no encontrada");
+				}
+			}		
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<mx:WipeUp id="myWU" duration="300"/>
+		<mx:WipeDown id="myWD" duration="300"/>
+		<mx:WipeRight id="myWR" duration="300"/>
+		<esri:GraphicsLayer id="graphicsLayer" />
+	</fx:Declarations>
+
+	<viewer:WidgetTemplate id="wTemplate" width="440" height="320" closed="wTemplate_closedHandler(event)">
+		<s:VGroup width="100%" height="100%">
+			<mx:LinkBar dataProvider="{myViewStack}" 
+						borderStyle="solid"
+						backgroundColor="#EEEEFF"/>
+			
+			<mx:ViewStack id="myViewStack" width="100%" height="100%" borderStyle="solid"
+						  creationCompleteEffect="{myWR}">
+				
+				<mx:Canvas id="search" 
+						   label="Busqueda"
+						   hideEffect="{myWD}" 
+						   showEffect="{myWU}"
+						   width="100%"
+						   height="100%">
+					<s:VGroup x="10" y="10" width="100%" height="100%" gap="5" paddingTop="20">
+						<s:Label width="100%" height="16" text="Ingrese nombre de calle"/>
+						<s:TextInput id="TxtNomCalle" width="100%" restrict="a-z A-Z^ñÑ" typographicCase="uppercase"/>
+						<s:Label text="Ingrese numero municipal"/>
+						<s:TextInput id="TxtNum" width="100%" restrict="0-9"/>
+						<s:Label text="Seleccione Comuna"/>						
+						<s:DropDownList id="CboComuna" width="40%"></s:DropDownList>
+						<s:HGroup width="100%" height="33" horizontalAlign="center" verticalAlign="middle">
+							<s:Button id="BtnBuscar" label="Buscar" toolTip="Busca direccion" click="BtnBuscar_clickHandler(event)"/>
+							<s:Button id="BtnLimpiar" label="Limpiar" toolTip="Limpia textos" click="BtnLimpiar_clickHandler(event)"/>
+						</s:HGroup>
+					</s:VGroup>
+				</mx:Canvas>
+				
+				<mx:Canvas id="Resultado" 
+						   label="Resultado"
+						   hideEffect="{myWD}" 
+						   showEffect="{myWU}"
+						   width="100%"
+						   height="100%"
+						   tabEnabledChange="custInfo_tabEnabledChangeHandler(event)">
+					<s:DataGrid id="DataDirecciones" resizableColumns="true" sortableColumns="true" editable="false" 
+								width="100%" height="100%" visible="true" doubleClickEnabled="true" doubleClick="DataDirecciones_doubleClickHandler(event)">
+						<s:columns>
+							<s:ArrayList>								
+								<s:GridColumn dataField="nombre_calle" headerText="Nombre Calle"></s:GridColumn>
+								<s:GridColumn dataField="numero" headerText="Numero"></s:GridColumn>
+								<s:GridColumn dataField="tipo_edificacion" headerText="Tipo Edificacion" ></s:GridColumn>								
+								<s:GridColumn dataField="id_direccion" headerText="Id direccion" visible="true" ></s:GridColumn>
+							</s:ArrayList>
+						</s:columns>
+					</s:DataGrid>					
+				</mx:Canvas>
+			</mx:ViewStack>
+		</s:VGroup>
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:porZona="widgets.Interrupciones.busqueda.resultado.porZona.*" xmlns:porSSEE="widgets.Interrupciones.busqueda.resultado.porSSEE.*" xmlns:porAlimentador="widgets.Interrupciones.busqueda.resultado.porAlimentador.*" xmlns:porComuna="widgets.Interrupciones.busqueda.resultado.porComuna.*" xmlns:porClienteSED="widgets.Interrupciones.busqueda.resultado.porClienteSED.*">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("widgets.Interrupciones.busqueda.resultado.TablaInterrupciones")]
+	</fx:Metadata>
+	
+	<s:layout>
+		<s:VerticalLayout  />
+	</s:layout>
+	
+	
+	<s:DropDownList id="comboNav" dataProvider="{stackResultados}"  width="200"
+					selectedIndex="0"/>
+	<mx:ViewStack id="stackResultados" height="100%">
+		<s:NavigatorContent label="Resultados Por Zona" id="navigatorContentZona">
+	
+			<porClienteSED:InterrupcionesPorClienteSED id="interrupcionesPorZona" tipoResultados="{ClasificadorResultados.TIPO_ZONA}">
+			</porClienteSED:InterrupcionesPorClienteSED>
+			
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent label="Resultado Por SSEE" id="navigatorContentSSEE">
+			
+			<porClienteSED:InterrupcionesPorClienteSED id="interrupcionesPorSSEE" tipoResultados="{ClasificadorResultados.TIPO_SSEE}">
+			</porClienteSED:InterrupcionesPorClienteSED>
+			
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent label="Resultado Por Alimentador" id="navigatorContentAlimentador">
+			
+			<porClienteSED:InterrupcionesPorClienteSED id="interrupcionesPorAlimentador" tipoResultados="{ClasificadorResultados.TIPO_ALIMENTADOR}">
+			</porClienteSED:InterrupcionesPorClienteSED>
+			
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent label="Resultado Por Comuna" id="navigatorContentComuna">
+			
+			<porClienteSED:InterrupcionesPorClienteSED id="interrupcionesPorComuna" tipoResultados="{ClasificadorResultados.TIPO_COMUNA}">
+			</porClienteSED:InterrupcionesPorClienteSED>
+			
+		</s:NavigatorContent>
+	</mx:ViewStack>
+</s:Skin>

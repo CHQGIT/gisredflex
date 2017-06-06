@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Id Tramo MT: {ARCGIS.DBO.Tramos_MT_006.id}</title>
+    <fields>
+        <field name="ARCGIS.DBO.Tramos_MT_006.alimentador" alias="Alimentador:" visible="true"/>
+        <field name="ARCGIS.DBO.Tramos_MT_006.comuna" alias="Comuna:" visible="true"/>
+        <field name="ARCGIS.DBO.Tramos_MT_006.tipo" alias="Tipo:" visible="true"/>
+        <field name="ARCGIS.DBO.Tramos_MT_006.propiedad" alias="Propiedad:" visible="true"/>
+        <field name="ARCGIS.DBO.Tramos_MT_006.catalogo" alias="Catalogo:" visible="true"/>
+        <field name="ARCGIS.DBO.Tramos_MT_006.descripcion" alias="Descripcion:" visible="true"/>
+        <field name="ARCGIS.DBO.Tramos_MT_006.tension" alias="Tension:" visible="true"/>
+        <field name="ARCGIS.DBO.Tramos_MT_006.fecha" alias="Fecha:" visible="true"/>
+        
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>NIS: {ARCGIS.DBO.CLIENTES_XY_006.nis}</title>
+    <fields>
+        <field name="ARCGIS.dbo.TEMP_GE_NATO.tarifa" alias="Tarifa:" visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_GE_NATO.ruralidad" alias="Ruralidad:" visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_GE_NATO.cantidad" alias="Cantidad:" visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_GE_NATO.ok" alias="OK:" visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_GE_NATO.alto" alias="Alto:" visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_GE_NATO.bajo" alias="Bajo:" visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_GE_NATO.malo" alias="Malo:" visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_GE_NATO.por_ok" alias="Por OK:" visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_GE_NATO.RESULATDO" alias="Resultado 1:" visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_GE_NATO.RESULATDO_2" alias="Resultado 2:" visible="true"/>
+        
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

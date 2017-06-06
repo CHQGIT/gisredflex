@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <title>Id Tramo: {ARCGIS.DBO.TEMP_LINEAS_CORTADAS.id_tramo}</title>
+    <fields>
+        <field name="ARCGIS.DBO.TEMP_LINEAS_CORTADAS.Tipo_red" alias="Tipo :" visible="true"/>
+        <field name="ARCGIS.DBO.TEMP_LINEAS_CORTADAS.Longitud" alias="Longitud: " visible="true"/> 
+        <field name="ARCGIS.DBO.TEMP_LINEAS_CORTADAS.Calibre" alias="Calibre: " visible="true"/>
+        <field name="ARCGIS.DBO.TEMP_LINEAS_CORTADAS.fecha" alias="Fecha: " visible="true"/>
+        <field name="ARCGIS.DBO.TEMP_LINEAS_CORTADAS.Orden_Power_On" alias="Orden: " visible="true"/>
+        <field name="ARCGIS.DBO.TEMP_LINEAS_CORTADAS.Operador" alias="Operador: " visible="true"/>
+        <field name="ARCGIS.DBO.Tramos_BT_2_006.alimentador" alias="Alimentador: " visible="true"/>      
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

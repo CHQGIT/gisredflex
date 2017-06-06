@@ -1,0 +1,820 @@
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"				   
+				   xmlns:components="com.esri.viewer.components.*"
+				   xmlns:esri="http://www.esri.com/2008/ags"  initialize="basewidget1_initializeHandler(event)" creationComplete="basewidget1_creationCompleteHandler(event)"
+				   
+				   >	
+	
+	<viewer:states>
+		<s:State name="bkmInit"/>
+		<s:State name="bkmConsulta"/>
+		
+	</viewer:states>
+	<viewer:transitions>
+		<s:Transition autoReverse="true" toState="*">
+			<s:Fade targets="{[bkmInit,bkmConsulta]}"/>
+		</s:Transition>
+	</viewer:transitions>
+	
+	<fx:Declarations>
+		<s:GlowFilter id="glowFilter"
+					  alpha="1"
+					  color="{getStyle('focusColor')}"
+					  inner="true"
+					  strength="2"/>
+		
+		<s:DateTimeFormatter id="dateFormatter" dateTimePattern="dd/MM/yyyy"/>
+		
+		<esri:SimpleMarkerSymbol id="smsIdentify"
+								 alpha="0.5"
+								 color="0xFF9900"
+								 size="20"
+								 style="circle"/>
+		
+		<mx:WipeUp id="myWU" duration="300"/>
+		<mx:WipeDown id="myWD" duration="500"/>
+		<mx:WipeRight id="myWR" duration="850"/>
+		
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.as3xls.xls.ExcelFile;
+			import com.as3xls.xls.Sheet;
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.layers.FeatureLayer;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.messaging.messages.ErrorMessage;
+			import mx.rpc.AsyncResponder;
+			import mx.utils.StringUtil;
+			
+			import comun.Planificacion.User;
+			import comun.url.URL;
+			
+			import widgets.AdmIngresoClientesCNR.utilidad.urls;
+			
+			
+			[Bindable] public var idPosteNuevo:String;
+			[Bindable] public var idDirNueva:String;
+			[Bindable] public var rotNuevo:String;
+			[Bindable] public var dirNueva:String;
+			
+			[Bindable] public var coleccionClientes:ArrayCollection = new ArrayCollection;
+			[Bindable] public var coleccionEstados:ArrayCollection = new ArrayCollection;
+			
+			
+			[Bindable] public var fs:FeatureSet = new FeatureSet;
+			[Bindable] public var rotu:int;
+			[Bindable] public var rotuloEncontrado:String;
+			[Bindable] public var direccionCompleta:String;
+			[Bindable] public var nisBuscado:String;
+			[Bindable] public var anexo1:String;
+			[Bindable] public var anexo2:String;
+			[Bindable] public var tipoEdificacion:String;
+			public var myGraphicsLayer:GraphicsLayer =  new GraphicsLayer;
+			
+			private var ColeccionUser:ArrayCollection = new ArrayCollection;
+			private var text1:String;
+			
+			protected function basewidget1_initializeHandler(event:FlexEvent):void
+			{
+				
+				ConsultarAcceso();
+				
+				//DataClientesNuevos.selectedIndex = 1;
+			}
+			
+			protected function ConsultarAcceso():void
+			{
+				
+				var queryTaskUserSelected:QueryTask = new QueryTask();
+				queryTaskUserSelected.url = comun.url.URL.URL_ACCESO;
+				queryTaskUserSelected.useAMF = false;
+				var queryEquipoSelected:Query = new Query();
+				queryEquipoSelected.outFields = ["*"];
+				queryEquipoSelected.returnGeometry = true;     
+				queryEquipoSelected.orderByFields = ["usuario"];
+				queryEquipoSelected.where = "usuario = '" + User.Usuario + "' AND MODULO ='INGRESO_CLIENTES' AND widget='ADMINGRESOCLIENTESCNR'" ;
+				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryEquipoSelected.outSpatialReference = map.spatialReference;
+				queryTaskUserSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					if(featureSet.features.length == 0 ){
+						//     Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
+						//currentState = "bkmInit"; 
+						currentState ="bkmInit";
+						lblwarning.visible = true;
+						lblwarning2.visible = true;
+						pbGisred.visible = true;
+						wTemplate.height = 500;
+						wTemplate.width = 800;
+					}
+						//si hay, cuales son los permisos
+					else{               
+						ColeccionUser.addAll(new ArrayCollection(featureSet.attributes));
+						
+						for(var i:int=0;i<=ColeccionUser.length-1;i++){	
+							
+							if(ColeccionUser[i].select_ == 'FALSE'){
+								btnExportarDatosClientes.enabled = false;
+							}else{
+								btnExportarDatosClientes.enabled = true;
+							}
+							
+							if( ColeccionUser[i].update_ == 'FALSE'){
+								DDLEstadoCliente.enabled = false;
+								btnCambiarEstadoCliente.enabled = false;
+								
+								
+							}else{
+								DDLEstadoCliente.enabled = true;
+								btnCambiarEstadoCliente.enabled = true;
+								
+							}
+							
+							
+						}
+						
+						
+						cargarListaClientesNuevos();
+						txtFilterClientes.addEventListener(Event.CHANGE,filterGridClientes);
+						
+						currentState ="bkmConsulta";
+						wTemplate.height = 500;
+						wTemplate.width = 800;
+						
+					}
+				}
+				
+				
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					//Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
+					currentState ="bkmInit";
+					lblwarning.visible = true;
+					lblwarning2.visible = true;
+					pbGisred.visible = true;
+					wTemplate.width = 800;
+					wTemplate.height = 500;
+				}
+			}
+			
+			
+			//Filtra Listado de Solicitudes ingresadas en Textbox
+			protected function filterGridClientes(event:Event):void
+			{
+				/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
+				Everything else is dynamic. Do not edit variable names. */
+				var filterText:String = StringUtil.trim(txtFilterClientes.text.toLowerCase()); //Trimmed text String to filter by
+				var columnArray:Array = ['NUMERO_MEDIDOR','TIPO_MEDIDOR','NIS','TIPO_POSTE_CAMARA','ID_POSTE_CAMARA','TIPO_EMPALME','TIPO_DIRECCION','ID_DIRECCION','created_user', 'created_date', 'ESTADO']; //Datagrid column names to filter on
+				var gridDataProvider:ArrayCollection = this.coleccionClientes as ArrayCollection; //Name of datagrid's dataprovider. In this case e.g. databases
+				var dataGridName:String = 'DataClientesNuevos'; //Name of the datagrid you are filtering by
+				
+				//Do not edit code past this point
+				var filteredData:Array = [];
+				var added:Boolean=false;
+				var i:int;
+				var j:int;
+				
+				// Loop Through Grid
+				for(i=0; i < gridDataProvider.length; i++){    
+					added = false;
+					
+					//Loop through grid column
+					for(j=0; j<columnArray.length; j++){            
+						if(gridDataProvider[i][columnArray[j]]!=null){
+							
+							//Grab datagrid cell contents, trim it, and convert to lowercase for comparison.
+							var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
+							
+							//Compare the datagrid string(filterString) to the user typed string(filterText).  
+							if(!added){      
+								//If the datagrid string matches the users string, put it into the array.
+								if(filterString.indexOf(filterText) != -1){
+									filteredData.push(gridDataProvider[i]);
+									added = true;
+								} 
+							}else{
+								//Do nothing, break out.
+								break;
+							}
+						}    
+					}
+				}
+				
+				//Set datagrid dataprovider
+				if(filterText.length == 0){
+					this[dataGridName].dataProvider = gridDataProvider; //Display the original unfiltered data
+				}else{
+					this[dataGridName].dataProvider = filteredData; //Pusht he filtered data into the datagrid
+				}
+			}	
+			
+			public function cargarListaClientesNuevos():void {
+				// TODO Auto-generated method stub
+				coleccionClientes.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
+				var query:Query = new Query();
+				query.where = "ESTADO IS NULL OR ESTADO ='NO CARGADO'";
+				query.outFields = ['*'];
+				query.orderByFields = ['created_date'];
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{
+					var k:int;
+					
+					
+					for(k=0;k<featureSet.features.length;k++)
+					{
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ){
+							idPosteNuevo = "";
+							rotNuevo = "";
+							idDirNueva = "";
+							dirNueva = "";
+						}
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
+							idPosteNuevo = "";
+							rotNuevo = "";
+							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
+							
+						}
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ) {
+							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
+							rotNuevo = "";
+							idDirNueva = "";
+							dirNueva = "";
+						}
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
+							//buscarRotulo(featureSet.features[k].attributes["ID_POSTE_CAMARA"]);
+							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
+							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
+							
+							
+						}
+						
+						var recordGraphic:Graphic = featureSet.features[k];
+						coleccionClientes.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+							NIS:recordGraphic.attributes["NIS"],
+							NUMERO_MEDIDOR:recordGraphic.attributes["NUMERO_MEDIDOR"],
+							TIPO_POSTE_CAMARA:recordGraphic.attributes["TIPO_POSTE_CAMARA"],
+							TIPO_EMPALME:recordGraphic.attributes["TIPO_EMPALME"],
+							TIPO_MEDIDOR:recordGraphic.attributes["TIPO_MEDIDOR"],
+							ID_POSTE_CAMARA:String(idPosteNuevo),
+							TIPO_DIRECCION:recordGraphic.attributes["TIPO_DIRECCION"],
+							created_user:recordGraphic.attributes["created_user"],
+							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
+							ID_DIRECCION:String(idDirNueva),
+							ESTADO:recordGraphic.attributes["ESTADO"],
+							gra:recordGraphic});			
+					}
+					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","Carga de Clientes");
+				}
+			}
+			
+			public function cargarListaClientesNuevosRango():void {
+				// TODO Auto-generated method stub
+				coleccionClientes.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
+				var query:Query = new Query();
+				query.where = "created_date >=" + "'" +  dateDesde.text + "'" + "and created_date <=" + "'" + dateHasta.text + "'  AND (ESTADO IS NULL OR ESTADO ='NO CARGADO')";
+
+				query.outFields = ['*'];
+				query.orderByFields = ['created_date'];
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{
+					var k:int;
+					
+					
+					for(k=0;k<featureSet.features.length;k++)
+					{
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ){
+							idPosteNuevo = "";
+							rotNuevo = "";
+							idDirNueva = "";
+							dirNueva = "";
+						}
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
+							idPosteNuevo = "";
+							rotNuevo = "";
+							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
+							
+						}
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ) {
+							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
+							rotNuevo = "";
+							idDirNueva = "";
+							dirNueva = "";
+						}
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
+							//buscarRotulo(featureSet.features[k].attributes["ID_POSTE_CAMARA"]);
+							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
+							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
+							
+							
+						}
+						
+						var recordGraphic:Graphic = featureSet.features[k];
+						coleccionClientes.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+							NIS:recordGraphic.attributes["NIS"],
+							NUMERO_MEDIDOR:recordGraphic.attributes["NUMERO_MEDIDOR"],
+							TIPO_POSTE_CAMARA:recordGraphic.attributes["TIPO_POSTE_CAMARA"],
+							TIPO_EMPALME:recordGraphic.attributes["TIPO_EMPALME"],
+							TIPO_MEDIDOR:recordGraphic.attributes["TIPO_MEDIDOR"],
+							ID_POSTE_CAMARA:String(idPosteNuevo),
+							TIPO_DIRECCION:recordGraphic.attributes["TIPO_DIRECCION"],
+							created_user:recordGraphic.attributes["created_user"],
+							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
+							ID_DIRECCION:String(idDirNueva),
+							ESTADO:recordGraphic.attributes["ESTADO"],
+							gra:recordGraphic});			
+					}
+					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","Carga de Clientes");
+				}
+			}
+			
+			protected function basewidget1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				DataClientesNuevos.dataProvider = coleccionClientes;
+			}
+			
+			public var myGraphic:Graphic;
+			
+			public var acPolyline:ArrayCollection = new ArrayCollection;
+			public function DataClientesNuevos_itemClickHandler(event:ListEvent):void
+			{
+				anexo1="";
+				anexo2="";
+				tipoEdificacion="";
+				//buscar datos de detalle
+				buscarDetalle(DataClientesNuevos.selectedItem['NIS']);
+				
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
+				var query:Query = new Query();
+				query.where = "NIS="+ DataClientesNuevos.selectedItem['NIS'];
+				query.outFields = ['*'];
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery2, onFaultQuery2));
+				
+				function onResultQuery2(featureSet2:FeatureSet, token:Object = null):void {
+					/*	map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
+					myGraphicsLayer.remove(graphicNuevaDireccion);
+					direccion.geom_ubicacionNuevaDireccion = event.mapPoint;
+					graphicNuevaDireccion = new Graphic (event.mapPoint,sms);
+					myGraphicsLayer.add(graphicNuevaDireccion);
+					map.addLayer(myGraphicsLayer);*/	
+					
+					myGraphicsLayer.clear();
+					map.level = 20;
+					var mp:MapPoint=featureSet2.features[0].geometry as MapPoint;
+					
+					var g:Graphic = new Graphic(mp,smsIdentify);
+					
+					
+					myGraphicsLayer.add(g);
+					map.addLayer(myGraphicsLayer);
+					map.zoomTo(featureSet2.features[0].geometry);	
+				}
+				function onFaultQuery2(info:Object, token:Object = null):void
+				{   
+					
+					
+				}
+			}
+			
+			public function buscarDetalle(nis:int):void{
+				
+				
+				nisBuscado = String(nis);
+				
+				
+				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
+				var query:Query = new Query();
+				query.where = "NIS="+ nis;
+				query.outFields = ['*'];
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				function onResultQuery(featureSet2:FeatureSet, token:Object = null):void {
+					
+					buscarDireccion(featureSet2.features[0].attributes['ID_DIRECCION']);
+					buscarRotulo(featureSet2.features[0].attributes['ID_POSTE_CAMARA']);
+					
+					
+					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					
+					
+				}
+			}
+			
+			public function buscarDireccion(idDir:int):void {
+				var queryTask2:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_DIRECCIONES);
+				var query2:Query = new Query();
+				query2.where = "id_direccion="+ idDir;
+				query2.outFields = ['*'];
+				query2.returnGeometry = false;
+				queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
+				
+				function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
+					
+					if (featureSet3.attributes.length>0){
+						direccionCompleta = featureSet3.features[0].attributes['nombre_calle'] + " "+ featureSet3.features[0].attributes['numero'] + " - Según SW"  ;
+					}else{
+						buscarEnExternosDir(idDir);
+					}
+				}
+				function onFaultQuery3(info:Object, token:Object = null):void
+				{   
+					
+					
+				}
+			}
+			
+			public function buscarEnExternosDir(idD:int):void{
+				
+				var queryTask2:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_CREAR_DIRECCION);
+				var query2:Query = new Query();
+				query2.where = "OBJECTID="+ idD;
+				query2.outFields = ['*'];
+				query2.returnGeometry = false;
+				queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
+				
+				function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
+					direccionCompleta = featureSet3.features[0].attributes['CALLE'] + " " + featureSet3.features[0].attributes['NUMERO'] + " - Según TECNORED" ;
+					tipoEdificacion = featureSet3.features[0].attributes['TIPO_EDIFICACION'];
+					
+					if (featureSet3.features[0].attributes['ANEXO1']=="") {
+						anexo1 = ""; 
+						
+						if(featureSet3.features[0].attributes['ANEXO2']==""){
+							anexo2 = ""; 
+						}
+						
+						
+					}else{
+						anexo1 = featureSet3.features[0].attributes['ANEXO1'] + " - Según TECNORED"; 
+						if (featureSet3.features[0].attributes['ANEXO2']==""){
+							anexo2 = ""; 
+						}else {
+							anexo2 =  featureSet3.features[0].attributes['ANEXO2'] + " - Según TECNORED"; 
+						}
+						
+					}
+					
+				}
+				function onFaultQuery3(info:Object, token:Object = null):void
+				{   
+				}
+			}
+			
+			public function buscarRotulo(ipc:int):void{
+				var queryTask2:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ROTULOS);
+				var query2:Query = new Query();
+				query2.where = "id_nodo="+ ipc;
+				query2.outFields = ['rotulo'];
+				query2.returnGeometry = false;
+				queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
+				
+				function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
+					
+					if (featureSet3.attributes.length>0){
+						rotuloEncontrado = featureSet3.features[0].attributes['rotulo'] + "  - Según SW";
+					}else{
+						buscarEnExternos(ipc);
+					}
+				}
+				function onFaultQuery3(info:Object, token:Object = null):void
+				{   
+					
+					
+				}
+			}
+			
+			public function buscarEnExternos(idpEx:int):void{
+				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_CREAR_POSTES);
+				var query:Query = new Query();
+				query.where = "OBJECTID="+ idpEx;
+				query.outFields = ['*'];
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				function onResultQuery(featureSet2:FeatureSet, token:Object = null):void {
+					rotuloEncontrado = featureSet2.features[0].attributes['ROTULO'] + " - Según TECNORED";
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					
+					
+				}
+			}
+			private var ef:ExcelFile;
+			private var ba:ByteArray;
+			private var fr:FileReference;
+			private var frSave:FileReference;
+			protected function btnExportarDatosClientes_clickHandler(event:MouseEvent):void
+			{
+				
+				// TODO Auto-generated method stub
+				switch(event.currentTarget.id)
+				{
+					case "btnExportarDatosClientes":
+					{
+						
+						var s:Sheet = new Sheet();
+						s.resize(coleccionClientes.length+1,11);
+						s.setCell(0,0,"NUMERO MEDIDOR");
+						s.setCell(0,1,"TIPO MEDIDOR");
+						s.setCell(0,2,"NIS");
+						s.setCell(0,3,"TIPO POSTE");
+						s.setCell(0,4,"ID POSTE/CAMARA ");
+						s.setCell(0,5,"TIPO EMPALME");
+						s.setCell(0,6,"TIPO DIRECCION");
+						s.setCell(0,7,"ID DIRECCION");
+						s.setCell(0,8,"CREADO POR");
+						s.setCell(0,9,"FECHA CREACION");
+						s.setCell(0,10,"ESTADO");
+						for(var j:int=0;j<coleccionClientes.length;j++)
+						{
+							s.setCell(j+1,0,coleccionClientes[j].NUMERO_MEDIDOR);
+							s.setCell(j+1,1,coleccionClientes[j].TIPO_MEDIDOR);
+							s.setCell(j+1,2,coleccionClientes[j].NIS);
+							s.setCell(j+1,3,coleccionClientes[j].TIPO_POSTE_CAMARA);
+							s.setCell(j+1,4,coleccionClientes[j].ID_POSTE_CAMARA);
+							s.setCell(j+1,5,coleccionClientes[j].TIPO_EMPALME);
+							s.setCell(j+1,6,coleccionClientes[j].TIPO_DIRECCION);
+							s.setCell(j+1,7,coleccionClientes[j].ID_DIRECCION);
+							s.setCell(j+1,8,coleccionClientes[j].created_user);
+							s.setCell(j+1,9,coleccionClientes[j].created_date);
+							s.setCell(j+1,10,coleccionClientes[j].ESTADO);
+						}
+						
+						try {
+							var fileTosave:ExcelFile = new ExcelFile();
+							fileTosave.sheets.addItem(s);
+							
+							var fileBytes:ByteArray = fileTosave.saveToByteArray();
+							frSave = new FileReference();
+							frSave.save(fileBytes,"ExportacionClientesMobile.xls");
+							frSave.addEventListener(Event.COMPLETE,grabadoListo);
+							
+						}catch(e:ErrorMessage){
+							Alert.show("Error al guardar archivo" + e);
+							
+						}
+						
+						break;
+					}
+						
+						
+					default:
+					{
+						//Alert.show("Ningun archivo ha sido generado");
+						break;
+					}
+				}			
+			}
+			
+			public function grabadoListo(event:Event):void{
+				Alert.show("Listo");
+			}
+			
+			protected function wTemplate_initializeHandler(event:FlexEvent):void
+			{
+				coleccionEstados.removeAll();
+				coleccionEstados = new ArrayCollection(				
+					[ {item:"CARGADO"},
+						{item:"NO CARGADO"}]);
+				
+				
+				DDLEstadoCliente.dataProvider = coleccionEstados;
+			}
+			
+			protected function btnCambiarEstadoCliente_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if (DataClientesNuevos.selectedIndex>=0){
+					//Layer que se ocupa para las actividades
+					var myActLayer:FeatureLayer = new FeatureLayer(urls.URL_ADD_CLIENTE);
+					//cambiar estado
+					var ModClientesNuevos:* = new Object;
+					
+					ModClientesNuevos["OBJECTID"]= DataClientesNuevos.selectedItem['OBJECTID'];
+					//Alert.show(String(DDLEstadoCliente.selectedItem.item));
+					ModClientesNuevos["ESTADO"]= DDLEstadoCliente.selectedItem.item;
+					
+					
+					var graficoEditadoActual:Graphic = new Graphic;
+					
+					graficoEditadoActual = new Graphic(null,null,ModClientesNuevos);
+					
+					myActLayer.applyEdits(null,[graficoEditadoActual],null, false,new AsyncResponder(onResult, onFault));
+					
+					
+					function onResult():void
+					{      
+						Alert.show("Cliente NIS: " + DataClientesNuevos.selectedItem['NIS'] + " modificado" );
+						cargarListaClientesNuevos();
+						
+					}
+					
+					function onFault(info:Object, token:Object = null):void
+					{
+						Alert.show("Error al modificar el cliente.  Contáctese con el administrador de GISRED. "+info.toString());
+					}
+					
+					
+				}else{
+					Alert.show("Debe seleccionar un cliente de la tabla para cambiar su estado");
+				}
+			}
+			
+			protected function bkmInit_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				var verImageGISRED:Image = new Image;
+				
+				//imagen configuraciones
+				verImageGISRED.scaleContent = true;
+				verImageGISRED.maintainAspectRatio =false;
+				verImageGISRED.percentWidth = 850;
+				verImageGISRED.percentHeight = 500;
+				verImageGISRED.source =  "assets/images/128x128.png";
+				pbGisred.addChild(verImageGISRED);
+				
+			}
+			
+			protected function btnRangoFecha_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				cargarListaClientesNuevosRango();
+			}
+			private function dateChooser_init(dt:DateField):void {
+				dt.text = "Desde";
+				dt.dayNames=['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+				dt.monthNames=[	'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+					'Julio', 'Agosto', 'Septiembre', 'Octubre',
+					'Noviembre', 'Diciembre'];
+				dt.firstDayOfWeek = 1;
+				dt.formatString = "DD/MM/YYYY";
+			}
+			private function dateChooser2_init(dt:DateField):void {
+				dt.text = "Hasta";
+				dt.dayNames=['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+				dt.monthNames=[	'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+					'Julio', 'Agosto', 'Septiembre', 'Octubre',
+					'Noviembre', 'Diciembre'];
+				dt.firstDayOfWeek = 1;
+				dt.formatString = "DD/MM/YYYY";
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<viewer:WidgetTemplate id="wTemplate"                      
+						   width="850" height="500"
+						   visible="true" initialize="wTemplate_initializeHandler(event)">
+		
+		<s:Group id="bkmInit" width="100%" height="100%" initialize="bkmInit_initializeHandler(event)"
+				 visible="false" visible.bkmInit="true">	
+			<s:VGroup horizontalAlign="center" height="100%" width="100%" verticalAlign="middle">
+				<mx:Canvas width="200" height="200" id="pbGisred" color="0x000000" horizontalScrollPolicy="off"
+						   verticalScrollPolicy="off" visible="false"/>                                           
+				<s:Label id="lblwarning" text="No tiene permisos para acceder a este módulo." 
+						 fontSize="16" visible="false" paddingTop="10"/>
+				<s:Label id="lblwarning2" text="Comuniquese con el administrador de GISRED" 
+						 fontSize="16" visible="false" paddingTop="10"/>
+			</s:VGroup>
+		</s:Group> 
+		
+		<s:Group id="bkmConsulta"
+				 width="100%" height="100%"
+				 visible="false"
+				 visible.bkmConsulta="true">
+			
+			
+			
+			<mx:Canvas id="ListadoClientes" label="Lista Clientes Nuevos" width="100%" height="100%">
+				<s:VGroup width="100%" top="5" bottom="5" height="50%">
+					<mx:Label id="Lblclie" text="Listado de Inspecciones CNR" fontSize="18"/>
+					<s:HGroup width="100%" verticalAlign="middle">
+						<mx:TextInput x="10" id="txtFilterClientes" width="100%" height="30" fontSize="14" fontWeight="bold" />
+						<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png"/>
+					</s:HGroup>
+					<mx:DataGrid id="DataClientesNuevos" resizableColumns="true" sortableColumns="true" editable="false"  
+								 width="100%" height="100%" visible="true" selectable="true" itemClick="DataClientesNuevos_itemClickHandler(event)">
+						<mx:columns>        
+							<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID" width="30" visible="false"/>                                                         
+							
+							<mx:DataGridColumn dataField="NUMERO_MEDIDOR" headerText="NUM.MEDIDOR" width="50" /> 
+							<mx:DataGridColumn dataField="TIPO_MEDIDOR" headerText="TIPO MEDIDOR" visible="true" width="50" />
+							<mx:DataGridColumn dataField="NIS" headerText="NIS" width="50"/>
+							<mx:DataGridColumn dataField="TIPO_POSTE_CAMARA" headerText="TIPO P/C" visible="true" width="50" />
+							<mx:DataGridColumn dataField="ID_POSTE_CAMARA" headerText="ID P/C" visible="true" width="50" />
+							<mx:DataGridColumn dataField="TIPO_EMPALME" headerText="TIPO EMPALME" visible="true" width="50" />
+							<mx:DataGridColumn dataField="TIPO_DIRECCION" headerText="TIPO DIR." visible="true" width="50" />
+							<mx:DataGridColumn dataField="ID_DIRECCION" headerText="ID DIRECCION" visible="true" width="50" />
+							<mx:DataGridColumn dataField="ESTADO" headerText="ESTADO" visible="true" width="50" />
+							<mx:DataGridColumn dataField="created_user" headerText="CREADO POR" visible="true" width="50" />
+							<mx:DataGridColumn dataField="created_date" headerText="FECHA CREACION" visible="true" width="50" />
+							
+						</mx:columns>
+					</mx:DataGrid> 
+					
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					<s:HGroup width="100%">
+						<s:HGroup horizontalAlign="left" width="100%">
+							<mx:DateField id="dateDesde" formatString="DD/MM/YYYY" creationComplete="dateChooser_init(dateDesde)"/>
+							<mx:DateField id="dateHasta" formatString="DD/MM/YYYY" creationComplete="dateChooser2_init(dateHasta)"/>
+							<s:Button id="btnRangoFecha" label="Consultar" click="btnRangoFecha_clickHandler(event)"/> <!--click="btnRangoFecha_clickHandler(event)"-->
+						</s:HGroup>
+						<s:HGroup horizontalAlign="right" width="100%">
+							<s:DropDownList id="DDLEstadoCliente"  prompt="Seleccione Estado del Cliente" width="150" labelField="item" dataProvider="{coleccionEstados}"/>
+							<s:Button id="btnCambiarEstadoCliente" label="Cambiar" click="btnCambiarEstadoCliente_clickHandler(event)"/>
+							<s:Button id="btnExportarDatosClientes" label="Exportar Listado" click="btnExportarDatosClientes_clickHandler(event)"/>
+						</s:HGroup>
+					</s:HGroup>
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					<mx:Form id="FormDetalleNIS" width="100%" height="15%">
+						<s:Label text="Detalle de NIS: " fontSize="18" fontWeight="bold"></s:Label>
+						<s:HGroup width="100%" paddingTop="5">
+							<mx:VBox width="50%" paddingLeft="1">
+								<mx:FormItem label="NIS" fontWeight="bold">
+									<s:Label id="lblNIS" text="{nisBuscado}" fontWeight="normal" />
+								</mx:FormItem>
+								<mx:FormItem label="ROTULO" fontWeight="bold">
+									<s:Label id="lblRotulo" text="{rotuloEncontrado}" fontWeight="normal" />
+								</mx:FormItem>
+								<mx:FormItem label="DIRECCION" fontWeight="bold">
+									<s:Label id="lblDireccionCompleta" text="{direccionCompleta}"  fontWeight="normal"/>
+								</mx:FormItem>
+							</mx:VBox>
+							<mx:VBox width="50%" paddingRight="1">
+								<mx:FormItem label="ANEXO 1" fontWeight="bold">
+									<s:Label id="lblAnexo1" text="{anexo1}"  fontWeight="normal"/>
+								</mx:FormItem>
+								<mx:FormItem label="ANEXO 2" fontWeight="bold">
+									<s:Label id="lblAnexo2" text="{anexo2}"  fontWeight="normal"/>
+								</mx:FormItem>
+								<mx:FormItem label="TIPO EDIF." fontWeight="bold">
+									<s:Label id="lblTipoEdificacion" text="{tipoEdificacion}"  fontWeight="normal"/>
+								</mx:FormItem>
+							</mx:VBox>
+						</s:HGroup>
+					</mx:Form>
+					
+				</s:VGroup>
+				
+				
+			</mx:Canvas>
+			
+			
+			
+		</s:Group>
+		
+		
+		
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

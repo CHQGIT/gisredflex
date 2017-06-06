@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("widgets.Interrupciones.busqueda.MenuPrincipal")]
+	</fx:Metadata>
+	
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>
+	
+	<s:Form>
+		<s:FormItem label="Seleccione Formulario: ">
+			<s:DropDownList prompt="Seleccione" id="listaFormularios" width="200" />		
+		</s:FormItem>
+		
+		<s:HGroup horizontalAlign="center">
+			<s:Button label="Entrar" id="ingresaFormularioBtn" width="100%" />
+		</s:HGroup>
+	</s:Form>
+</s:Skin>

@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"
+				   xmlns:filtros="widgets.Buscador.filtros.*"
+				   widgetConfigLoaded="init()">
+	
+	<fx:Declarations>
+		<s:DateTimeFormatter id="dateFormatter" dateTimePattern="dd/MM/yyyy '-' HH:mm"/>
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.components.IdentityManager;
+			import com.esri.ags.events.IdentityManagerEvent;
+			import com.esri.ags.geometry.Extent;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.symbols.SimpleMarkerSymbol;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.rpc.AsyncResponder;
+			
+			import spark.components.CheckBox;
+			import spark.events.IndexChangeEvent;
+			
+			import comun.util.ZExportarTablaXLSUtil;
+			import comun.util.zalerta.ZAlerta;
+			
+			import widgets.Buscador.busqueda.BuscarInterrupcion;
+			import widgets.Interrupciones.global.Global;
+			import widgets.Interrupciones.urls.Urls;
+			import widgets.PowerOn.GlobalPowerOn;
+			
+			[Bindable]
+			public var listaBusqueda:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var checksAnio:Object = new Object;
+			
+			[Bindable]
+			public var checksCausa:Object = new Object;
+			
+			[Bindable]
+			public var checksClasificacion:Object = new Object;
+			
+			private var graphicsLayer2:GraphicsLayer;
+			
+			private function init():void
+			{				
+				map.removeLayer(graphicsLayer2); //AGREGAR CAPA ITEM BUSCADO AL MAPA...
+				graphicsLayer2 = new GraphicsLayer();
+				graphicsLayer2.name = "CapaSEL";
+				graphicsLayer2.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+				graphicsLayer2.visible=true;
+				
+				Global.map=map;
+				map.addLayer(graphicsLayer2);
+				Global.capaSeleccionado = graphicsLayer2;
+				Global.capaSeleccionado.clear();
+				
+				buscadorClasificacion.addEventListener(KeyboardEvent.KEY_DOWN,eventoEnter);
+			}
+			
+			public function eventoEnter(event:KeyboardEvent):void
+			{
+				if (event.keyCode == Keyboard.ENTER && tabBar.selectedIndex == 0)
+					btnBuscar_clickHandler(null);
+			}
+		
+			private function causaFault(info:Object, token:Object = null):void
+			{
+				Alert.show("No se pudo cargar lista de Causas:\n"+ info.toString());
+			}  
+			
+			private function clasificacionFault(info:Object, token:Object = null):void
+			{
+				Alert.show("No se pudo cargar lista de Clasificaciones:\n"+ info.toString());
+			}
+			
+			protected function btnBuscar_clickHandler(event:MouseEvent):void
+			{
+				var accionBuscar:BuscarInterrupcion = new  BuscarInterrupcion(radioCliente,radioSED,textoBusqueda,listaBusqueda,dateFormatter);					
+				accionBuscar.buscar();
+			}
+			
+			public function filtro(item:Object):Boolean
+			{
+				if(checksAnio != null && !checksAnio[item.anio].selected){
+					return false;
+				}
+				
+				if(checksCausa != null && !checksCausa[item.descripcion].selected){
+					return false;
+				}
+				
+				if(checksClasificacion != null && !checksClasificacion[item.clasificacion].selected){
+					return false;
+				}
+					
+				return true;
+			}
+			
+			private function graphicsLayer_hideHandler(event:FlexEvent):void
+			{
+				
+			}
+			
+			private function widgetClosedHandler(event:Event):void
+			{
+				Global.capaSeleccionado.clear();
+				
+				if(Global.capaClientes != null)
+				{
+					Global.capaClientes.visible = false;
+				}
+				if(Global.capaTransformadores != null)
+				{				
+					Global.capaTransformadores.visible = false;
+				}
+				if(Global.capaSeleccionado != null)
+				{
+					Global.capaSeleccionado.visible = false;
+				}				
+				
+				reiniciarWidget();
+			}
+			
+			private function widgetOpenedHandler(event:Event):void
+			{
+				Global.mostrarCapas();
+				if(Global.capaClientes!=null)
+				{
+					Global.capaClientes.visible = true;
+				}
+				if(Global.capaTransformadores != null)
+				{
+					Global.capaTransformadores.visible = true;
+				}
+				if(Global.capaSeleccionado != null)
+				{
+					Global.capaSeleccionado.visible = true;
+				}
+			}
+			
+			protected function exportarExcel(event:MouseEvent):void
+			{
+				var datos:ArrayCollection = new ArrayCollection();																						
+				var elementos:ArrayCollection = datagridResultado.dataProvider as ArrayCollection;
+				
+				for(var i:int ; i < elementos.length ; i++)
+				{	
+					var objeto:Object = elementos[i];
+					var fila:ArrayCollection = new ArrayCollection();
+					fila.addItem(objeto["id_interrupcion"]);
+					fila.addItem(objeto["descripcion"]);
+					fila.addItem(objeto["clasificacion"]);
+					fila.addItem(objeto["alimentador"]);
+					fila.addItem(objeto["ssee"]);
+					fila.addItem(objeto["comuna"]);
+					fila.addItem(objeto["provincia"]);
+					fila.addItem(objeto["zona"]);
+					fila.addItem(objeto["bloque"]);
+					fila.addItem(objeto["fecha_inicio"]);
+					fila.addItem(objeto["fecha_fin"]);
+					fila.addItem(objeto["duracion"]);
+					fila.addItem(objeto["tipo_emp"]);
+					fila.addItem(objeto["tipo_sec"]);
+					fila.addItem(objeto["ruralidad"]);
+					fila.addItem(objeto["tension"]);
+					fila.addItem(objeto["tipoFalla"]);
+					
+					datos.addItem(fila);									
+				}	 
+				
+				var exportar:ZExportarTablaXLSUtil = new ZExportarTablaXLSUtil(datagridResultado,datos,"ResultadoBuscador");				
+				exportar.generarExcel();
+			}
+			
+			protected function eventoCambioTab(event:IndexChangeEvent):void
+			{
+				if(tabBar.selectedIndex != 1)
+				{
+					componenteFiltros.limpiarComponente();
+					listaBusqueda.filterFunction = null;					 
+					listaBusqueda.refresh();
+					return;
+				}
+					
+								
+				componenteFiltros.iniciarComponente(this);
+			}
+			
+			public function reiniciarWidget():void
+			{
+				datagridResultado.dataProvider = null;
+				radioCliente.selected = false;
+				radioSED.selected = false;
+				filtros.selectedIndex = 0;
+				textoBusqueda.text = "";
+			}
+			
+		]]>
+	</fx:Script>	
+	
+	<viewer:WidgetTemplate id="buscador" width="900" height="525" 
+						   closed="widgetClosedHandler(event)" open="widgetOpenedHandler(event)">
+	
+	<viewer:layout>
+		<s:VerticalLayout horizontalAlign="left" verticalAlign="top"/>
+	</viewer:layout>
+	
+		
+			<s:VGroup height="210"> 
+					<s:TabBar id="tabBar" left="5" top="2" change="eventoCambioTab(event)"
+							  dataProvider="{filtros}">						
+					</s:TabBar>	
+				
+					<mx:ViewStack id="filtros" x="10" y="10" width="100%" height="95%"
+								  creationPolicy="all">
+						<s:NavigatorContent label="Clasificación" id="buscadorClasificacion">
+						
+							<s:Form>
+								<s:layout>
+									<s:FormLayout gap="-14" horizontalAlign="left"
+												  verticalAlign="top"/>
+								</s:layout>
+								
+								<s:FormItem label="Ingrese Búsqueda:">
+									<s:HGroup>
+										<s:TextInput id="textoBusqueda" width="160"
+													 prompt="NIS o SED..."/>	
+										<s:Button id="btnBuscar" width="38" height="38"
+												  label="Buscar" chromeColor="#CCCCCC"
+												  click="btnBuscar_clickHandler(event)"
+												  cornerRadius="{btnBuscar.height/2}"
+												  icon="@Embed('assets/images/GenericSearch32.png')"/>
+									</s:HGroup>
+										
+								</s:FormItem>
+								
+								<s:FormItem label="Seleccionar Tipo:">
+									<s:HGroup>
+										<s:RadioButton id="radioCliente" width="80" label="Cliente"
+													   groupName="tipoBusqueda" selected="true"/>
+										<s:RadioButton id="radioSED" width="80" label="SED"
+													   groupName="tipoBusqueda"/>
+									</s:HGroup>	
+								</s:FormItem>
+								
+							</s:Form>
+							
+						</s:NavigatorContent>
+						
+						<s:NavigatorContent label="Filtros">
+							<filtros:FiltrosBuscador id="componenteFiltros"/>
+						</s:NavigatorContent>
+					</mx:ViewStack>
+			</s:VGroup>
+		
+			<s:VGroup width="100%" height="95%">
+					<mx:DataGrid id="datagridResultado" width="100%" height="100%"
+								 dataProvider="{listaBusqueda}" horizontalScrollPolicy="on"
+								 rowHeight="25">
+						<mx:columns>
+							<mx:DataGridColumn id="idInterrupcion" dataField="id_interrupcion"
+											   headerText="ID Interrupcion"/>
+							<mx:DataGridColumn id="causa" width="150" dataField="descripcion"
+											   headerText="Causa"/>
+							<mx:DataGridColumn id="clasificacion" width="150"
+											   dataField="clasificacion" headerText="Clasificación"/>
+							<mx:DataGridColumn id="alimentador" dataField="alimentador"
+											   headerText="Alimentador"/>
+							<mx:DataGridColumn id="SSEE" dataField="ssee" headerText="SSEE"/>
+							<mx:DataGridColumn id="comuna" dataField="comuna" headerText="Comuna"/>
+							<mx:DataGridColumn id="provincia" dataField="provincia"
+											   headerText="Provincia"/>
+							<mx:DataGridColumn id="zona" dataField="zona" headerText="Zona"/>
+							<mx:DataGridColumn id="bloque" dataField="bloque" headerText="Bloque"/>
+							<mx:DataGridColumn id="fechaInicio" width="120" dataField="fecha_inicio"
+											   headerText="Fecha Inicio"/>
+							<mx:DataGridColumn id="fechaFin" width="120" dataField="fecha_fin"
+											   headerText="Fecha Fin"/>
+							<mx:DataGridColumn id="duracion" dataField="duracion"
+											   headerText="Duración"/>
+							<mx:DataGridColumn id="tipoEmp" dataField="tipo_emp"
+											   headerText="Tipo Emp"/>
+							<mx:DataGridColumn id="tipoSec" dataField="tipo_sec" headerText="Tip Sec"/>
+							<mx:DataGridColumn id="ruralidad" dataField="ruralidad"
+											   headerText="Ruralidad"/>
+							<mx:DataGridColumn id="tension" dataField="tension" headerText="Tensión"/>
+							<mx:DataGridColumn id="tipoFalla" dataField="tipoFalla"
+											   headerText="Tipo Falla"/>
+						</mx:columns>
+					</mx:DataGrid>		
+					
+					<s:Image id="imagenExcel" click="exportarExcel(event)"
+							 source="@Embed(source='assets/images/excel.png')" useHandCursor="true"/>
+			</s:VGroup>
+		
+		
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

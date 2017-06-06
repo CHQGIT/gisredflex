@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>{nombre}</title>
+   
+    <showattachments>true</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

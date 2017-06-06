@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2010-2011 Esri. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+///////////////////////////////////////////////////////////////////////////
+-->
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"
+				   widgetConfigLoaded="init()">
+	
+	<fx:Declarations>
+		<s:DateTimeFormatter id="dateFormatter" dateTimePattern="dd/MM/yy '-' HH:mm"/>
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.Map;
+			import com.esri.ags.geometry.Extent;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.symbols.SimpleMarkerSymbol;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import comun.util.ZExportarTablaXLSUtil;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.rpc.AsyncResponder;
+			
+			import spark.events.IndexChangeEvent;
+			
+			import widgets.PowerOn.busqueda.BusquedaCliente;
+			import widgets.PowerOn.busqueda.BusquedaEventoMapa;
+			import widgets.PowerOn.busqueda.EventoTimer;
+			import widgets.PowerOn.busqueda.ManagerOrdenes;
+			import widgets.PowerOn.busqueda.Ordenes;
+			import widgets.PowerOn.conversion.ConversionXY;
+			
+			[Bindable]
+			private var listaSeleccionado:ArrayCollection;
+			
+			[Bindable]
+			private var dropEstadoOrden:ArrayList;
+			
+			[Bindable]
+			private var dropAfectado:ArrayList;
+			
+			[Bindable]
+			private var arr:ArrayCollection = new ArrayCollection();
+			
+			private var capaClientes:GraphicsLayer;
+			private var capaTransformadores:GraphicsLayer;
+			private var capaOrigenFalla:GraphicsLayer;
+			private var capaOrdenes:GraphicsLayer;
+			private var graphicsLayer2:GraphicsLayer;
+			
+			private var clientes_transformador:Number;
+			private var XG0Conv:Number;
+			private var YG0Conv:Number;
+			private var X1:Number;
+			private var Y1:Number;
+			
+			private function init():void
+			{
+				dropAfectado = new ArrayList([
+					{label:"Todos...", data: 0},
+					{label:"Cliente", data:"Cliente"}, 
+					{label:"Transformador", data:"Transformador"},
+					{label:"Origen Falla", data:"Origen Falla"}
+				]);
+				
+				dropEstadoOrden = new ArrayList([
+					{label:"Todas...", data: 0},
+					{label:"Arrived", data:"arrived"},
+					{label:"Dispatched", data:"dispatched"},
+					{label:"En Ruta", data:"en_route"}, 
+					{label:"En Progreso", data:"in_progress"},
+					{label:"Nueva", data:"new"},
+					{label:"Ready", data:"ready"}					
+				]);
+				
+				ddlAfectado.selectedIndex = 0;
+				ddlEstado.selectedIndex = 0;
+				
+				//AGREGAR CAPA CLIENTES AL MAPA.... 
+				capaClientes = new GraphicsLayer();
+				capaClientes.name = "CapaClientes";
+				capaClientes.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+				capaClientes.visible=true;
+				
+				GlobalPowerOn.map=map;
+				map.addLayer(capaClientes);
+				GlobalPowerOn.capaClientes = capaClientes;
+				GlobalPowerOn.capaClientes.clear();
+				
+				//AGREGAR CAPA TRANSFORMADORES AL MAPA....
+				capaTransformadores = new GraphicsLayer();
+				capaTransformadores.name = "CapaTransformadores";
+				capaTransformadores.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+				capaTransformadores.visible=true;
+				
+				map.addLayer(capaTransformadores);
+				GlobalPowerOn.capaTransformadores = capaTransformadores;
+				GlobalPowerOn.capaTransformadores.clear();
+				
+				//AGREGAR CAPA ORIGEN FALLA...
+				capaOrigenFalla = new GraphicsLayer();
+				capaOrigenFalla.name = "capaOrigenFalla";
+				capaOrigenFalla.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+				
+				map.addLayer(capaOrigenFalla);
+				GlobalPowerOn.capaOrigenFalla = capaOrigenFalla;
+				GlobalPowerOn.capaOrigenFalla.clear();
+				capaOrigenFalla.visible=true;
+				
+				//AGREGAR CAPA ITEM CLICK SELECCIONADO AL MAPA...
+				map.removeLayer(graphicsLayer2);
+				graphicsLayer2 = new GraphicsLayer();
+				graphicsLayer2.name = "CapaSEL";
+				graphicsLayer2.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+				graphicsLayer2.visible=true;
+				
+				map.addLayer(graphicsLayer2);
+				
+				
+				GlobalPowerOn.capaSeleccionado = graphicsLayer2;
+				GlobalPowerOn.capaSeleccionado.clear();
+				
+				var busquedaCliente:BusquedaCliente=new BusquedaCliente();
+				busquedaCliente.listarClientes();
+				
+				GlobalPowerOn.managerOrdenes.gridOrdenes = gridOrdenes;
+				GlobalPowerOn.managerOrdenes.eventoTimer.funcionCargar = actualizar_clickHandler;
+			}
+			
+			//==========SELECCIONAR ELEMENTO==============================================================================================================			
+			protected function gridOrdenes_itemClickHandler(event:ListEvent):void
+			{
+				var eventoMapa:BusquedaEventoMapa =  new BusquedaEventoMapa(gridOrdenes);
+				var tipoAfectado:String = gridOrdenes.selectedItem["afectado"];
+				eventoMapa.ejecturar(tipoAfectado);				
+			}
+			
+			private function graphicsLayer_hideHandler(event:FlexEvent):void
+			{	
+				
+			}
+			
+			private function widgetClosedHandler(event:Event):void
+			{
+				if(GlobalPowerOn.capaClientes != null)
+				{
+					GlobalPowerOn.capaClientes.visible = false;
+				}
+				if(GlobalPowerOn.capaTransformadores != null)
+				{				
+					GlobalPowerOn.capaTransformadores.visible = false;
+				}
+				if(GlobalPowerOn.capaSeleccionado != null)
+				{
+					GlobalPowerOn.capaSeleccionado.visible = false;
+				}
+				if(GlobalPowerOn.capaOrigenFalla!= null)
+				{
+					GlobalPowerOn.capaOrigenFalla.visible = false;
+				}
+				
+				GlobalPowerOn.managerOrdenes.eventoTimer.apagarTimer();
+				reiniciarWidget();
+			}
+			
+			private function widgetOpenedHandler(event:Event):void
+			{
+				GlobalPowerOn.mostrarCapas();
+				if(GlobalPowerOn.capaClientes!=null)
+				{
+					GlobalPowerOn.capaClientes.visible = true;
+				}
+				if(GlobalPowerOn.capaTransformadores != null)
+				{
+					GlobalPowerOn.capaTransformadores.visible = true;
+				}
+				if(GlobalPowerOn.capaSeleccionado != null)
+				{
+					GlobalPowerOn.capaSeleccionado.visible = true;
+				}
+				
+			  	GlobalPowerOn.managerOrdenes.eventoTimer.iniciarTimer();
+			}			
+			
+			protected function actualizar_clickHandler(event:MouseEvent):void
+			{
+				try{
+					GlobalPowerOn.managerOrdenes.eventoTimer.activo = false;
+					(gridOrdenes.dataProvider as ArrayCollection).removeAll();			
+					GlobalPowerOn.capaClientes.clear();
+					GlobalPowerOn.capaTransformadores.clear();
+					GlobalPowerOn.capaSeleccionado.clear();
+					
+					var busquedaCliente:BusquedaCliente = new BusquedaCliente();
+					busquedaCliente.listarClientes();
+					
+				} catch(e:Error){
+					Alert.show(e.message);
+				}
+			}
+			
+			protected function filtro_changeHandler(event:IndexChangeEvent):void
+			{
+				GlobalPowerOn.managerOrdenes.listaOrdenes.filterFunction = null;
+				GlobalPowerOn.managerOrdenes.listaOrdenes.filterFunction = filtro;
+				GlobalPowerOn.managerOrdenes.listaOrdenes.refresh();
+				
+			}		
+		
+			public function filtro(item:Object):Boolean{
+				var filtroAfectado:Boolean = item.afectado == ddlAfectado.selectedItem.data;
+				var filtroEstado:Boolean = item.estado_orden == ddlEstado.selectedItem.data;
+			
+				var mostrarAfectado:Boolean = false;
+				var mostrarEstado:Boolean = false;
+				
+				var ignorarAfectado:Boolean = ddlAfectado.selectedItem.data == 0;
+				var ignorarEstado:Boolean = ddlEstado.selectedItem.data == 0;
+				
+				if(ignorarAfectado){
+					filtroAfectado = item.afectado != "Todos...";
+				}
+				
+				if(ignorarEstado){
+					filtroEstado = item.estado_orden != "Todas...";
+				}
+				
+				if(filtroAfectado){
+					mostrarAfectado = true;
+				}
+				
+				if(filtroEstado){
+					mostrarEstado = true;
+				}
+				
+			 	var mostrarCliente:Boolean=false;
+				
+				if (checkCliente.selected && item.afectado=="Cliente"){
+					mostrarCliente=true;					
+				}
+				
+				if (checkTransformador.selected && item.afectado=="Transformador" ){
+					mostrarCliente=true;					
+				}
+				
+				if(checkOrigenFalla.selected && item.afectado=="Origen Falla"){
+					mostrarCliente = true;
+				}
+				
+				return mostrarAfectado && mostrarEstado && mostrarCliente ;
+			} 
+			
+			private function buildToolTip(item:Object):String {
+				var myString:String = "";
+				if(item != null) {
+					myString = item.comentario;
+				}
+				return myString;
+			}			
+			
+			protected function checkCliente_changeHandler(event:Event):void
+			{
+				if(checkCliente.selected){
+					capaClientes.visible = true;
+				} else {
+					capaClientes.visible = false;
+				}
+				
+				filtro_changeHandler(null);
+			}
+			
+			protected function checkTransformador_changeHandler(event:Event):void
+			{
+				if(checkTransformador.selected){
+					capaTransformadores.visible = true;
+				} else {
+					capaTransformadores.visible = false;
+				}
+				filtro_changeHandler(null);
+			}	
+			
+			protected function checkOrigenFalla_changeHandler(event:Event):void
+			{
+				if(checkOrigenFalla.selected){
+					capaOrigenFalla.visible = true;
+				} else {
+					capaOrigenFalla.visible = false;
+				}
+				filtro_changeHandler(null);
+			}	
+			
+			protected function exportarExcel(event:MouseEvent):void
+			{
+				var datos:ArrayCollection = new ArrayCollection();																						
+				var elementos:ArrayCollection = gridOrdenes.dataProvider as ArrayCollection;
+				
+				for(var i:int ; i < elementos.length ; i++)
+				{	
+					var objeto:Object = elementos[i];
+					var fila:ArrayCollection = new ArrayCollection();
+					fila.addItem(objeto["afectado"]);
+					fila.addItem(objeto["total_afectados"]);
+					fila.addItem(objeto["clientes_afectados"]);
+					fila.addItem(objeto["id_orden"]);
+					fila.addItem(objeto["tipo_orden"]);
+					fila.addItem(objeto["estado_orden"]);
+					fila.addItem(objeto["fecha_creacion"]);
+					fila.addItem(objeto["fecha_asignacion"]);
+					fila.addItem(objeto["fecha_despacho"]);
+					fila.addItem(objeto["fecha_ruta"]);
+					fila.addItem(objeto["fecha_llegada"]);
+					fila.addItem(objeto["causa"]);
+					fila.addItem(objeto["subcausa"]);
+					fila.addItem(objeto["comentario"]);
+					fila.addItem(objeto["tipo_equipo"]);
+					fila.addItem(objeto["fc_termino_t"]);
+					fila.addItem(objeto["fc_cierre"]);
+					fila.addItem(objeto["fc_ult_modif"]);
+					datos.addItem(fila);									
+				}		
+				
+				var exportar:ZExportarTablaXLSUtil = new ZExportarTablaXLSUtil(gridOrdenes,datos,"ResultadoBuscador");				
+				exportar.generarExcel();
+			}
+			
+			private function reiniciarWidget():void
+			{
+				ddlAfectado.selectedIndex = 0;
+				ddlEstado.selectedIndex = 0;
+				checkCliente.selected = true;
+				checkOrigenFalla.selected = true;
+				checkTransformador.selected = true;
+			}
+
+		]]>
+	</fx:Script>	
+	
+	<viewer:WidgetTemplate id="poweron" width="925" height="525" closed="widgetClosedHandler(event)"
+						   open="widgetOpenedHandler(event)">
+		
+		<viewer:layout>
+			<s:VerticalLayout horizontalAlign="center" verticalAlign="top"/>
+		</viewer:layout>
+		
+		<s:VGroup width="100%" height="95%" horizontalAlign="center">
+			
+			<mx:ViewStack id="vs" x="10" y="10" width="100%" height="95%" selectedIndex="0" resizeToContent="true">
+				
+				<s:NavigatorContent width="100%">
+					
+					<s:Button id="btnActualizar" y="5" width="36" height="36" label="Actualizar"
+							  chromeColor="#CCCCCC" click="actualizar_clickHandler(event)"
+							  cornerRadius="{btnActualizar.height/2}"
+							  icon="@Embed('assets/images/refresh_1.png')"/>
+					
+					<s:Form x="25" y="-10">
+						<s:layout>
+							<s:FormLayout gap="-14" horizontalAlign="left" verticalAlign="top"/>
+						</s:layout>
+						
+						<s:FormItem label="Filtrar por Tipo Afectado:">
+							<s:DropDownList id="ddlAfectado" width="150"
+											change="filtro_changeHandler(event)"
+											dataProvider="{dropAfectado}"/>
+						</s:FormItem>
+					
+						<s:FormItem label="Filtrar por Estado Orden:">
+							<s:DropDownList id="ddlEstado" width="150"
+											change="filtro_changeHandler(event)"
+											dataProvider="{dropEstadoOrden}"/>
+						</s:FormItem>
+					</s:Form>
+					
+					<s:BitmapImage id="simbologia" x="370" source="@Embed('assets/images/simbologia.png')"/>
+					
+						<s:CheckBox id="checkCliente" change="checkCliente_changeHandler(event)"
+									selected="true" x="470" y="25"/>
+						
+						<s:CheckBox id="checkTransformador"
+									change="checkTransformador_changeHandler(event)" selected="true"  x="470" y="48"/>
+						
+						<s:CheckBox id="checkOrigenFalla"
+									change="checkOrigenFalla_changeHandler(event)" selected="true"  x="470" y="70"/>
+					
+					<s:VGroup  y="150" width="100%" height="95%">
+						<mx:DataGrid id="gridOrdenes" width="100%" height="95%" 
+									 dataProvider="{GlobalPowerOn.managerOrdenes.listaOrdenes}"
+									 dataTipFunction="buildToolTip" horizontalScrollPolicy="on"
+									 itemClick="gridOrdenes_itemClickHandler(event)" rowHeight="25">
+							
+							<mx:columns>
+								<mx:DataGridColumn id="tipoAfectado" dataField="afectado" headerText="Tipo Afectado"/>
+								<mx:DataGridColumn id="totalAfectados" dataField="total_afectados" headerText="Afectados"/>
+								<mx:DataGridColumn id="clientesTransformadores" dataField="clientes_afectados" headerText="Clientes Afectados"/>
+								<mx:DataGridColumn id="idOrden_Orden" dataField="id_orden" headerText="ID Orden"/>
+								<mx:DataGridColumn id="estadoOrden" dataField="estado_orden" headerText="Estado Orden"/>
+								<mx:DataGridColumn id="fechaCreacion" dataField="fecha_creacion" headerText="Fecha Creacion"/>
+								<mx:DataGridColumn id="fechaAsignacion" dataField="fecha_asignacion" headerText="Fecha Asignacion"/>
+								<mx:DataGridColumn id="fechaDespacho" dataField="fecha_despacho" headerText="Fecha Despacho"/>
+								<mx:DataGridColumn id="fechaRuta" dataField="fecha_ruta" headerText="Fecha Ruta"/>
+								<mx:DataGridColumn id="fechaLlegada" dataField="fecha_llegada" headerText="Fecha Llegada"/>
+								<mx:DataGridColumn id="causa" dataField="causa" headerText="Causa"/>
+								<mx:DataGridColumn id="subCausa" dataField="subcausa" headerText="Subcausa"/>
+								<mx:DataGridColumn id="comentario" dataField="comentario" headerText="Comentario" showDataTips="true"/>
+								<mx:DataGridColumn id="tipoEquipo" dataField="tipo_equipo" headerText="Tipo Equipo"/>
+								<mx:DataGridColumn id="fechaUltimaMod" dataField="fc_ult_modif" headerText="Fecha Ultima Mod"/>
+							</mx:columns>
+						</mx:DataGrid>		
+						<s:Image id="imagenExcel" click="exportarExcel(event)" source="@Embed(source='assets/images/excel.png')" useHandCursor="true"/>
+					</s:VGroup>
+							 
+				</s:NavigatorContent>
+				
+			</mx:ViewStack>
+			
+		</s:VGroup>
+		
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

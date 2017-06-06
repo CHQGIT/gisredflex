@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+| Version 10.2
+| Copyright 2012 Esri
+|
+| Licensed under the Apache License, Version 2.0 (the "License");
+| you may not use this file except in compliance with the License.
+| You may obtain a copy of the License at
+|
+|    http://www.apache.org/licenses/LICENSE-2.0
+|
+| Unless required by applicable law or agreed to in writing, software
+| distributed under the License is distributed on an "AS IS" BASIS,
+| WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+| See the License for the specific language governing permissions and
+| limitations under the License.
+-->
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   width="100%" height="50%"
+				   cornerRadius="10"
+				   creationComplete="htmlPopup_creationCompleteHandler(event)"
+				   xmlns:containers="widgets.ConfigSelectSplash.utils.containers.*" xmlns:Component="widgets.ConfigSelectSplash.Component.*" >
+	<s:filters>
+		<s:GlowFilter alpha="0.8"
+					  blurX="50"
+					  blurY="50"
+					  color="0xFFFFFF"
+					  strength="1"/>
+	</s:filters>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.esri.viewer.components.HTMLPopupManager;
+			
+			import mx.containers.Panel;
+			import mx.controls.Alert;
+			import mx.controls.Image;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			
+			import widgets.ConfigSelectSplash.skins.HSliderSkin;
+			import widgets.ConfigSelectSplash.utils.DataParserUtils;
+			
+			
+			[Bindable]
+			public var content:String;
+			
+			[Bindable]
+			public var txtareaWidth:Number = 700;
+			
+			[Bindable]
+			public var txtareaHeight:Number = 700;
+			[Bindable]
+			public var _dataParserUtil:DataParserUtils = DataParserUtils.getInstance();
+			
+			public var roleName:String='';
+			
+			private function onMouseWheel(event:MouseEvent):void
+			{
+				if(event.delta > 0)
+				{
+					if(coverflow.selectedIndex < _dataParserUtil.esfRolesArr.length-1)
+						coverflow.selectedIndex += 1;
+					
+				}
+				else if(event.delta < 0)
+				{
+					if(coverflow.selectedIndex  > 0)
+						coverflow.selectedIndex -= 1;
+				}
+			}
+			
+			private function htmlPopup_creationCompleteHandler(event:FlexEvent):void
+			{
+				scrollbar.setStyle("skinClass",HSliderSkin);
+				scrollbar.addEventListener("incrementButtonClicked",incrementButton_ClickHandler);
+				scrollbar.addEventListener("decrementButtonClicked",decrementButton_ClickHandler);
+				setStyle("backgroundColor", getStyle("contentBackgroundColor"));
+				setStyle("backgroundAlpha", FlexGlobals.topLevelApplication.getStyle("backgroundAlpha"));
+			}
+			
+			private function incrementButton_ClickHandler(event:Event):void
+			{
+				if(coverflow.selectedIndex < _dataParserUtil.esfRolesArr.length-1)
+					coverflow.selectedIndex += 1;
+			}
+			
+			private function decrementButton_ClickHandler(event:Event):void
+			{
+				if(coverflow.selectedIndex > 0)
+					coverflow.selectedIndex -= 1;
+			}
+			
+			private function CloseBtn_clickHandler(event:MouseEvent):void
+			{
+				roleName= (coverflow.selectedChild as Panel).title;
+				if(roleName != '')
+				{
+					HTMLPopupManager.removePopUp(this);
+					dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+					var requestUrl:URLRequest= new URLRequest();
+					var queryString:String;
+					queryString=(_dataParserUtil.esfRolesArr.getItemAt(coverflow.selectedIndex) as Object).configFileName;
+					requestUrl.url=_dataParserUtil.windowsUrl+"?config="+queryString;
+					navigateToURL(requestUrl,'_self');
+				}
+				
+			}
+			
+			private function CancelBtn_clickHandler(event:MouseEvent):void
+			{
+				scrollbar.removeEventListener("incrementButtonClicked",incrementButton_ClickHandler);
+				scrollbar.removeEventListener("decrementButtonClicked",decrementButton_ClickHandler);
+				rept.dataProvider=null;
+				coverflow.removeEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
+				this.removeAllElements();
+				HTMLPopupManager.removePopUp(this);
+				System.gc();
+				System.gc();
+				dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+			}
+			
+			protected function coverflow_creationCompleteHandler(event:FlexEvent):void
+			{
+				coverflow.addEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:RectangularDropShadow id="dropShadow"
+							 left="0" right="0" top="0" bottom="0"
+							 alpha="0.32"
+							 angle="90"
+							 blRadius="10"
+							 blurX="20"
+							 blurY="20"
+							 brRadius="10"
+							 distance="25"/>
+	
+	
+	
+	<s:VGroup horizontalAlign="center" width="{txtareaWidth}" gap="10"  paddingBottom="10">
+		<s:Spacer height="8%"/>
+		<mx:Image id="img_logo" source="assets/images/logo_chilquinta3.png" horizontalAlign="center" height="50%" width="50%"/>	
+		
+		<!--<s:Label text="{_dataParserUtil.widgetTitle}" width="100%" textAlign="center" top="10" fontSize="14"  fontWeight="bold"/>-->
+		<s:VGroup width="370" height="100%" horizontalAlign="left">
+			<s:Label text="{_dataParserUtil.eventGroupTitle}"  width="100%" textAlign="left" />			
+			<mx:VBox id="box" verticalGap="0" horizontalAlign="center" height="220" width="370" left="3" right="3">
+				<containers:CoverFlowContainer id="coverflow" width="100%" height="100%" creationComplete="coverflow_creationCompleteHandler(event)"  
+											   horizontalGap="20" borderStyle="solid" backgroundColor="{getStyle('contentBackgroundColor')}"
+											   segments="6" reflectionEnabled="true" >
+					
+					<mx:Repeater id="rept"  dataProvider="{_dataParserUtil.esfRolesArr}">
+						
+						<mx:Panel id="ESF" width="150" height="150" title="{rept.currentItem.efsname}" horizontalAlign="center" verticalAlign="middle">
+							<mx:Image width="100%" height="100%" autoLoad="true" scaleContent="true" horizontalAlign="center" verticalAlign="middle"
+									  source="{rept.currentItem.imgsrc}"/>
+						</mx:Panel>
+					</mx:Repeater>
+					
+					
+					
+				</containers:CoverFlowContainer>
+				<s:Spacer height="2"/>
+				<Component:mySlider id="scrollbar" width="100%"
+									minimum="0"
+									maximum="{coverflow.numChildren-1}"
+									stepSize="1"
+									liveDragging="true"
+									value="@{coverflow.selectedIndex}"
+									/>
+				
+			</mx:VBox>
+			
+			<s:HGroup horizontalAlign="center" width="100%">
+				<s:Button label="OK" useHandCursor="true" buttonMode="true"   id="CloseBtn" click="CloseBtn_clickHandler(event)" />
+				<s:Button label="Cancel" useHandCursor="true" buttonMode="true"  id="CancelBtn" click="CancelBtn_clickHandler(event)" />
+			</s:HGroup>
+		</s:VGroup>
+	</s:VGroup>
+</s:BorderContainer>

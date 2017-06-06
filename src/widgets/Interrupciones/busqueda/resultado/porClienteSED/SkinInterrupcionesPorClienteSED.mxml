@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:filtroCausaSed="widgets.Interrupciones.busqueda.resultado.filtroCausaSed.*">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("widgets.Interrupciones.busqueda.resultado.porClienteSED.InterrupcionesPorClienteSED")]
+	</fx:Metadata>
+	
+	<s:layout>
+		<s:VerticalLayout  />
+	</s:layout>
+	
+	<mx:ViewStack id="stackFiltros" creationPolicy="all" width="100%"  >
+		<s:NavigatorContent width="100%">
+			<s:VGroup paddingLeft="200" paddingTop="50"  width="100%"  >
+				<mx:ProgressBar id="barraProgreso" indeterminate="true" labelPlacement="top" label="BUSCANDO ..." />
+			</s:VGroup>
+		</s:NavigatorContent>
+		<s:NavigatorContent width="100%">
+			<s:VGroup horizontalAlign="left" width="100%" >
+				<s:DropDownList id="comboZona" width="250"  />
+				
+				<filtroCausaSed:FiltroCausaSed id="filtroCausaSed" />
+				
+				<s:HGroup width="100%">
+					<mx:DataGrid id="tablaInterrupciones" width="65%" height="190">
+						<mx:columns>
+							<mx:DataGridColumn headerText="Nis" id="columnaNis" dataField="id"  />
+							<mx:DataGridColumn headerText="Duracion" id="columnaDuracion" dataField="duracionNis"  />
+							<mx:DataGridColumn headerText="Frecuencia" id="columnaFrecuencia" dataField="frecuenciaNis" />
+						</mx:columns>
+					</mx:DataGrid>
+					
+					<s:VGroup width="35%">
+						<s:Button id="botonVerDuracion" label="Ver por Duración"  width="140"/>
+						<s:Button id="botonVerFrecuencia" label="Ver por Frecuencia" width="140"/>
+						
+						<s:Button id="botonVerDuracionAgrupado" label="Duración Agrupado" width="140"/>
+						<s:Button id="botonVerFrecuenciaAgrupado" label="Frecuencia Agrupado" width="140"/>
+						<s:Button id="botonVerInterrupcion" label="Ver Interrupciones" width="140"/>
+						<s:Image id="imagenExcel" source="@Embed(source='assets/images/excel.png')" />
+					</s:VGroup >
+					
+				</s:HGroup>
+				
+			</s:VGroup>
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent>
+			<s:HGroup horizontalAlign="center" width="100%" paddingLeft="150" paddingTop="50" >
+				<s:Label text="No se ha encontrado resultados" paddingTop="30" textAlign="center" fontSize="15" fontWeight="bold" />
+			</s:HGroup>
+		</s:NavigatorContent>
+	</mx:ViewStack>
+</s:Skin>

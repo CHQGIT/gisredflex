@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("widgets.Interrupciones.wizard.pasos.Paso1")]
+	</fx:Metadata>
+	<s:VGroup verticalAlign="middle" height="100%" width="100%" horizontalAlign="center">
+		<s:Label text="Seleccione el tipo de Búsqueda:">
+		</s:Label>
+		
+		<s:VGroup width="100%" horizontalAlign="center" paddingTop="30">
+			<s:ToggleButton id="botonClienteSed" label="Clientes/SED" width="150">
+			</s:ToggleButton>
+			<s:ToggleButton id="botonInterrupciones" label="Interrupciones" width="150">
+			</s:ToggleButton>
+		</s:VGroup>
+		
+	</s:VGroup>
+</s:Skin>

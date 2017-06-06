@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+
+<configuration>
+    <style>
+        <colors>0xFFFFFF,0x333333,0x101010,0x000000,0xFFD700</colors>
+        <alpha>0.8</alpha>
+    </style>
+   
+    <splashpage url="widgets/ConfigSelectSplash/ConfigSelectSplashWidget.swf" label="FlexViewer 3.4" config="widgets/ConfigSelectSplash/ConfigSelectSplashWidget.xml"/>
+    
+ 
+   <map esrilogovisible="false" />
+  
+</configuration>

@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="utf-8"?>
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"
+				   xmlns:esri="http://www.esri.com/2008/ags"
+				   layout="vertical"
+				   initialize="basewidget1_initializeHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<mx:WipeUp id="myWU" duration="300"/>
+		<mx:WipeDown id="myWD" duration="300"/>
+		<mx:WipeRight id="myWR" duration="300"/>
+		<esri:GraphicsLayer id="graphicsLayer" /><!-- click="graphicsLayer_clickHandler(event)"-->
+		<esri:GraphicsLayer id="graphicsLayer2" />
+		
+		
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.as3xls.xls.ExcelFile;
+			import com.as3xls.xls.Sheet;
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.SpatialReference;
+			import com.esri.ags.components.ContentNavigator;
+			import com.esri.ags.components.IdentityManager;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.layers.FeatureLayer;
+			import com.esri.ags.portal.PopUpRenderer;
+			import com.esri.ags.portal.supportClasses.PopUpInfo;
+			import com.esri.ags.symbols.SimpleMarkerSymbol;
+			import com.esri.ags.symbols.Symbol;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			import com.esri.ags.utils.GraphicUtil;
+			
+			import mx.charts.CategoryAxis;
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.messaging.messages.ErrorMessage;
+			import mx.rpc.AsyncResponder;
+			private var frSave:FileReference;
+			private var frSave2:FileReference;
+			
+			import spark.events.GridSelectionEvent;
+			
+			import widgets.TrazadoBT.TransparentButtonSkin;
+			
+			public var contentNavigator:ContentNavigator = new ContentNavigator();
+			import com.esri.ags.portal.supportClasses.PopUpFieldFormat;
+			import com.esri.ags.portal.supportClasses.PopUpFieldInfo;
+			import com.esri.ags.portal.supportClasses.PopUpInfo;
+			
+			
+			
+			[Bindable] public var coleccion:ArrayCollection = new ArrayCollection;
+			[Bindable] public var coleccion2:ArrayCollection = new ArrayCollection;
+			[Bindable] private var qFeatLayer:FeatureLayer;
+			[Bindable] private var featSethasGeom:Boolean;
+			public var queryTaskEq:QueryTask = new QueryTask();
+			private var popUpRenderer:PopUpRenderer = new PopUpRenderer();
+			private var zoomScale:Number = 50000;
+			private var highlightTimer:uint;
+			public var tGra:Graphic;
+			
+			public var field1:PopUpFieldInfo;
+			public var field2:PopUpFieldInfo;
+			public var field3:PopUpFieldInfo;
+			public var field4:PopUpFieldInfo;
+			public var field5:PopUpFieldInfo;
+			public var field6:PopUpFieldInfo;
+			public var field7:PopUpFieldInfo;
+			public var field8:PopUpFieldInfo;
+			public var field9:PopUpFieldInfo;
+			public var field10:PopUpFieldInfo;
+			public var field11:PopUpFieldInfo;
+			public var field12:PopUpFieldInfo;
+			public var field13:PopUpFieldInfo;
+			public var field14:PopUpFieldInfo;
+			public var field15:PopUpFieldInfo;
+			public var field16:PopUpFieldInfo;
+			
+			
+			protected function basewidget1_initializeHandler(event:FlexEvent):void
+			{
+				var popUpRenderer:ClassFactory = new ClassFactory(PopUpRenderer);
+				
+				
+				// Create the pop-up field infos for each field you want in the pop-up
+				field1 = new PopUpFieldInfo();
+				field1.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_estado_suministro";
+				field1.label = "Estado Suministro: ";
+				field1.visible = true;
+				
+				field2 = new PopUpFieldInfo();
+				field2.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.zona";
+				field2.format = new PopUpFieldFormat();
+				field2.label = "Zona: ";
+				field2.visible = true;
+				
+				field3 = new PopUpFieldInfo();
+				field3.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_tarifa";
+				field3.format = new PopUpFieldFormat();
+				field3.label = "Tarifa: ";
+				field3.visible = true;
+				
+				field4 = new PopUpFieldInfo();
+				field4.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.categoria";
+				field4.format = new PopUpFieldFormat();
+				field4.label = "Categoria: ";
+				field4.visible = true;
+				
+				field5 = new PopUpFieldInfo();
+				field5.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.oficina";
+				field5.format = new PopUpFieldFormat();
+				field5.label = "Oficina: ";
+				field5.visible = true;
+				
+				field6 = new PopUpFieldInfo();
+				field6.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.empalme";
+				field6.format = new PopUpFieldFormat();
+				field6.label = "Empalme: ";
+				field6.visible = true;
+				
+				field7 = new PopUpFieldInfo();
+				field7.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_area_tipica";
+				field7.format = new PopUpFieldFormat();
+				field7.label = "Area Tipica: ";
+				field7.visible = true;
+				
+				field8 = new PopUpFieldInfo();
+				field8.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_sector";
+				field8.format = new PopUpFieldFormat();
+				field8.label = "Sector: ";
+				field8.visible = true;
+				
+				field9 = new PopUpFieldInfo();
+				field9.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_area";
+				field9.format = new PopUpFieldFormat();
+				field9.label = "Area: ";
+				field9.visible = true;
+				
+				field10 = new PopUpFieldInfo();
+				field10.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.consumidor";
+				field10.format = new PopUpFieldFormat();
+				field10.label = "Consumidor: ";
+				field10.visible = true;
+				
+				field11 = new PopUpFieldInfo();
+				field11.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_tipo_suministro";
+				field11.format = new PopUpFieldFormat();
+				field11.label = "Tipo Suministro: ";
+				field11.visible = true;
+				
+				field12 = new PopUpFieldInfo();
+				field12.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.direccion_resu";
+				field12.format = new PopUpFieldFormat();
+				field12.label = "Direccion Resuminda: ";
+				field12.visible = true;
+				
+				field13= new PopUpFieldInfo();
+				field13.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.id_dir_dmps";
+				field13.format = new PopUpFieldFormat();
+				field13.label = "ID DMPS: ";
+				field13.visible = true;
+				
+				field14 = new PopUpFieldInfo();
+				field14.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.tipo_cliente";
+				field14.format = new PopUpFieldFormat();
+				field14.label = "Tipo Cliente: ";
+				field14.visible = true;
+				
+				field15= new PopUpFieldInfo();
+				field15.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.tipo_cnx";
+				field15.format = new PopUpFieldFormat();
+				field15.label = "Tipo Conexion: ";
+				field15.visible = true;
+				
+				field16 = new PopUpFieldInfo();
+				field16.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.estado_final";
+				field16.format = new PopUpFieldFormat();
+				field16.label = "Estado Final: ";
+				field16.visible = true;
+				
+				
+				
+				
+				// Create the pop-up info
+				var popUpInfo:PopUpInfo = new PopUpInfo();
+				// Tell the pop-up info about the field name template
+				popUpInfo.title = "NIS: " + "{ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis}";
+				popUpInfo.popUpFieldInfos = [ field1, field2, field3, field4, field5, field6, field7, field8, field9, field10, field11, field12, field13, field14, field15, field16,  ];
+				popUpInfo.showZoomToButton = false;
+				
+				// Create the class factory
+				
+				// Set the "popUpInfo" key
+				popUpRenderer.properties = { "popUpInfo": popUpInfo };
+				
+				// Set the info window renderer to use the pop-up renderer
+				graphicsLayer.infoWindowRenderer = popUpRenderer;
+				
+			}
+			
+			protected function BtnBuscar_clickHandler(event:MouseEvent):void
+			{
+				//	text1.text = IdentityManager.instance.currentSignInInfo.resourceName;
+				// TODO Auto-generated method stub
+				if(TxtArea.text ==""){
+					Alert.show("El area no puede estar en blanco")
+				}
+				else if (CboSector.selectedIndex == -1){
+					Alert.show("Seleccione un sector")
+				}				
+				else{
+					BusquedaRuta();
+				}
+				
+			}
+			private function setBusyCursor():void{            
+				map.cursorManager.setBusyCursor();                    
+			}
+			private function removeBusyCursor():void{
+				//CursorManager.setBusyCursor();
+				map.cursorManager.removeBusyCursor();                 
+			}
+			
+			public function BusquedaRuta():void{        
+				
+				Resultado.enabled = true;
+				//graphicsLayer.clear();
+				//graphicsLayer2.clear();
+				map.infoWindow.hide();
+				
+				
+				var queryTaskRuta:QueryTask = new QueryTask();                     
+				queryTaskRuta.showBusyCursor = true;
+				queryTaskRuta.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0";
+				queryTaskRuta.useAMF = false;
+				var queryRutaSelected:Query = new Query();
+				queryRutaSelected.returnGeometry = true;
+				queryRutaSelected.outFields = ["*"];
+				queryRutaSelected.where = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_sector ='" + CboSector.selectedItem + "' and ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_area= '" + TxtArea.text + "'"
+				
+				queryTaskRuta.execute(queryRutaSelected, new AsyncResponder(onResult, onFault));
+				
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void {      
+					if (featureSet.features.length == 0){
+						Alert.show("Ruta no encontrada","Busqueda de Rutas");
+					}
+					else{
+						try{
+							setBusyCursor();
+							var color:Number = Math.random()*0xFFFFFF;
+							for (var x:Number=0; x < featureSet.features.length; x++){
+								var mp:MapPoint=featureSet.features[x].geometry as MapPoint;  
+								var myGraphic:Graphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol("circle",8,color), featureSet.features[x].attributes);   
+								
+								coleccion.addItem(featureSet.attributes[x]);
+								
+								myGraphic.toolTip = "NIS: " + String(featureSet.features[x].attributes["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis"]); 
+								graphicsLayer.add(myGraphic);
+								graphicsLayer.moveToTop(myGraphic);
+								map.addLayer(graphicsLayer);
+							}
+							//coleccion = new ArrayCollection(featureSet.attributes); 
+							
+						}catch(err:Error){
+							Alert.show("Error al graficar","Busqueda de Direcciones");
+						}
+						myViewStack.selectedIndex = 1;
+						removeBusyCursor();						
+					}
+					//Realiza zoom a los graficos creados.
+					map.extent = GraphicUtil.getGraphicsExtent(featureSet.features);
+				}
+				function onFault(info:Object, token:Object = null):void{   
+					Alert.show("Ruta No existe","Busqueda de Rutas");
+					removeBusyCursor();
+				}
+				
+			}
+			
+			protected function Resultado_tabEnabledChangeHandler(event:Event):void{
+				// TODO Auto-generated method stub
+				gridTest.dataProvider = coleccion;
+				
+			}
+			
+			
+			
+			protected function gridTest_selectionChangeHandler(event:GridSelectionEvent):void{
+				
+				graphicsLayer2.clear();
+				map.infoWindow.hide();
+				
+				var seleccionado:String = new String(event.currentTarget.selectedItem["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis"]);  
+				
+				for (var g:int = 0; g < graphicsLayer.numGraphics; g++){  
+					tGra = graphicsLayer.graphicProvider[g] as Graphic;  
+					
+					
+					
+					if (tGra.attributes["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis"] == seleccionado){  
+						map.zoomTo(tGra.geometry); 
+						var mp:MapPoint= graphicsLayer.graphicProvider[g].geometry as MapPoint;
+						
+						var popUpInfo:PopUpInfo = new PopUpInfo;
+						popUpInfo.popUpFieldInfos = [ field1, field2, field3, field4, field5, field6, field7, field8, field9, field10, field11, field12, field13, field14, field15, field16,  ];
+						popUpInfo.title = "NIS: " + seleccionado;
+						
+						//	Configuración ventana infoWindow con graphic
+						popUpRenderer.popUpInfo = popUpInfo;
+						popUpRenderer.graphic = tGra;
+						
+						
+						map.infoWindow.content = popUpRenderer;
+						map.infoWindow.contentOwner = popUpRenderer.graphic;
+						map.infoWindow.show(mp);
+						
+						//showHighlightCurrentGraphic(tGra);
+						
+						var myGraphicMarker:Graphic = new Graphic(new MapPoint(mp.x, mp.y),new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 13, 0x00FFFF,0.5));				
+						graphicsLayer2.add(myGraphicMarker);
+						
+						map.addLayer(graphicsLayer2);
+						
+						break;
+						
+					}  
+					
+				}  
+			}
+			
+			protected function showHighlightCurrentGraphic(tGra:Graphic):void
+			{
+				
+				var myGraphicMarker:Graphic = new Graphic(new MapPoint(tGra.x, tGra.y, new SpatialReference(102100)),new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 20, 0x00FFFF,0.5));				
+				graphicsLayer2.add(myGraphicMarker);
+				
+			}
+			
+			private function getLabel(item:Object,column:GridColumn):String{  
+				return item[column.dataField];  
+			}  		
+			
+			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				graphicsLayer.clear();
+				graphicsLayer2.clear();
+				coleccion.removeAll();
+				myViewStack.selectedIndex = 0;
+				TxtArea.text= "";
+				CboSector.selectedIndex = -1;
+				Resultado.enabled = false;
+				map.infoWindow.hide();
+			}
+			
+			protected function BtnLimpiar_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				graphicsLayer.clear();
+				graphicsLayer2.clear();
+				coleccion.removeAll();
+				myViewStack.selectedIndex = 0;
+				TxtArea.text= "";
+				CboSector.selectedIndex = -1;
+				Resultado.enabled = false;
+				map.infoWindow.hide();
+			}
+			
+			protected function TxtArea_enterHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				// TODO Auto-generated method stub
+				if(TxtArea.text ==""){
+					Alert.show("El area no puede estar en blanco")
+				}
+				else if (CboSector.selectedIndex == -1){
+					Alert.show("Sellecciones un sector")
+				}				
+				else{
+					BusquedaRuta();
+				}
+			}	
+			
+			
+			protected function Exportar_clickHandler(event:MouseEvent):void
+			{
+				
+				// TODO Auto-generated method stub
+				var s:Sheet =  new Sheet();
+				s.resize(coleccion.length+1,27);
+				s.setCell(0,0,"Nis");
+				s.setCell(0,1,"Estado Suministro");
+				s.setCell(0,2,"Zona");
+				s.setCell(0,3,"Tarifa");
+				s.setCell(0,4,"Categoria");
+				s.setCell(0,5,"Oficina");
+				s.setCell(0,6,"Empalme");
+				s.setCell(0,7,"Area Tipica");
+				s.setCell(0,8,"Sector");
+				s.setCell(0,9,"Area");
+				s.setCell(0,10,"Consumidor");
+				s.setCell(0,11,"Tipo Suministro");
+				s.setCell(0,12,"Resp Tipo Cliente");
+				s.setCell(0,13,"Resp Tipo Nodo");
+				s.setCell(0,14,"Resp Rotulo");
+				s.setCell(0,15,"Resp ID Nodo");
+				s.setCell(0,16,"Resp ID SED");
+				s.setCell(0,17,"Direccion Resumida");
+				s.setCell(0,18,"ID DMPS");
+				s.setCell(0,19,"Cliente BT");
+				s.setCell(0,20,"Cliente MT");
+				s.setCell(0,21,"Tipo Cliente");
+				s.setCell(0,22,"Estado Direccion");
+				s.setCell(0,23,"Estado Poste");
+				s.setCell(0,24,"Estado Comuna");
+				s.setCell(0,25,"Tipo Conexion");
+				s.setCell(0,26,"Estado Final");
+				
+				var j:int;
+				
+				for (j=0;j<coleccion.length;j++)
+				{	
+					//6.6.2017: reparado problema con exportacioón de clientes.
+					s.setCell(j+1,0,coleccion[j]["ARCGIS.DBO.CLIENTES_XY_006.nis"]);
+					s.setCell(j+1,1,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_estado_suministro"]);
+					s.setCell(j+1,2,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.zona"]);
+					s.setCell(j+1,3,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_tarifa"]);
+					s.setCell(j+1,4,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.categoria"]);
+					s.setCell(j+1,5,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.oficina"]);
+					s.setCell(j+1,6,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.empalme"]);
+					s.setCell(j+1,7,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_area_tipica"]);
+					s.setCell(j+1,8,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_sector"]);
+					s.setCell(j+1,9,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_area"]);
+					s.setCell(j+1,10,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.consumidor"]);
+					s.setCell(j+1,11,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_tipo_suministro"]);
+					s.setCell(j+1,12,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_tipo_cliente"]);
+					s.setCell(j+1,13,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.res_tipo_nodo"]);
+					s.setCell(j+1,14,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_rotulo_nodo"]);
+					s.setCell(j+1,15,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_id_nodo"]);
+					s.setCell(j+1,16,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_id_sed"]);
+					s.setCell(j+1,17,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.direccion_resu"]);
+					s.setCell(j+1,18,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.id_dir_dmps"]);
+					s.setCell(j+1,19,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cliente_bt"]);
+					s.setCell(j+1,20,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cliente_mt"]);
+					s.setCell(j+1,21,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.tipo_cliente"]);
+					s.setCell(j+1,22,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.estado_direccion"]);
+					s.setCell(j+1,23,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.estado_poste"]);
+					s.setCell(j+1,24,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.estado_comuna"]);
+					s.setCell(j+1,25,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.tipo_cnx"]);
+					s.setCell(j+1,26,coleccion[j]["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.estado_final"]);
+					
+				}
+				
+				try
+				{
+					
+					var fileToSave:ExcelFile= new ExcelFile;
+					fileToSave.sheets.addItem(s);
+					var fileBytes:ByteArray = fileToSave.saveToByteArray();
+					frSave= new FileReference;
+					frSave.save(fileBytes,"Ruta_clientes.xls");
+					Alert.show("Finalizada exportacion");
+				}
+				catch(e:ErrorMessage)
+				{
+					Alert.show("Error al guardar archivo" + e);			
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<viewer:WidgetTemplate id="wTemplate" width="440" height="320" closed="wTemplate_closedHandler(event)">
+		
+		<s:VGroup width="100%" height="100%">
+			<mx:LinkBar dataProvider="{myViewStack}" 
+						borderStyle="solid"
+						backgroundColor="#EEEEFF"/>
+			
+			<mx:ViewStack id="myViewStack" width="100%" height="100%" borderStyle="solid"
+						  creationCompleteEffect="{myWR}">
+				
+				
+				
+				<mx:Canvas id="search" 
+						   label="Busqueda"
+						   hideEffect="{myWD}" 
+						   showEffect="{myWU}"
+						   width="100%"
+						   height="100%">
+					<s:VGroup x="10" y="10" width="100%" height="100%" gap="5" paddingTop="20">
+						<s:Label width="100%" height="16" text="Seleccione Sector"/>
+						<s:DropDownList id="CboSector" width="40%">
+							<s:dataProvider>
+								<s:ArrayList source="[01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20]" />
+							</s:dataProvider>
+						</s:DropDownList>
+						<!--<s:TextInput id="TxtNomCalle" width="100%" restrict="a-z A-Z^ñÑ"/>-->
+						<s:Label text="Ingrese Área"/>
+						<s:TextInput id="TxtArea" width="100%" restrict="0-9" enter="TxtArea_enterHandler(event)"/>                         
+						
+						<s:HGroup width="100%" height="33" horizontalAlign="center" verticalAlign="middle">
+							<s:Button id="BtnBuscar" label="Buscar" toolTip="Busca ruta" click="BtnBuscar_clickHandler(event)" />
+							<s:Button id="BtnLimpiar" label="Limpiar" toolTip="Limpiar" click="BtnLimpiar_clickHandler(event)" />												
+							
+						</s:HGroup>
+						
+					</s:VGroup>
+				</mx:Canvas>
+				
+				<mx:Canvas id="Resultado" 
+						   label="Resultado"
+						   hideEffect="{myWD}" 
+						   showEffect="{myWU}"
+						   width="100%"
+						   height="100%"
+						   tabEnabledChange="Resultado_tabEnabledChangeHandler(event)">	
+					<s:VGroup id="Vg1" width="100%" height="100%">
+						
+						
+						<s:DataGrid  id="gridTest" resizableColumns="true" width="100%" rowHeight="25" horizontalScrollPolicy="on" height="90%" visible="true" dataProvider="{coleccion}" selectionChange="gridTest_selectionChangeHandler(event)"> 
+							<s:columns>  
+								<s:ArrayList> 
+									<s:GridColumn headerText="Nis" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis" labelFunction="getLabel" id="zona"/>
+									<s:GridColumn headerText="Estado Suministro" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_estado_suministro" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Zona" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.zona" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Tarifa" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_tarifa" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Categoria" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.categoria" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Oficina" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.oficina" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Empalme" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.empalme" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Area Tipica" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_area_tipica" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Sector" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_sector" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Area" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_area" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Consumidor" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.consumidor" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Tipo Suministr" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_tipo_suministro" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Resp Tipo Cliente" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_tipo_cliente" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Resp Tipo Nodo" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.res_tipo_nodo" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Resp Rotulo" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_rotulo_nodo" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Resp ID Nodo" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_id_nodo" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Resp ID SED" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_id_sed" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Direccion Resuminda" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.direccion_resu" labelFunction="getLabel"/>
+									<s:GridColumn headerText="ID DMPS" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.id_dir_dmps" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Cliente BT" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cliente_bt" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Cliente MT" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cliente_mt" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Tipo Cliente" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.tipo_cliente" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Estado Direccion" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.estado_direccion" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Estado Poste" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.estado_poste" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Estado Comuna" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.estado_comuna" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Tipo Conexion" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.tipo_cnx" labelFunction="getLabel"/>
+									<s:GridColumn headerText="Estado Final" dataField="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.estado_final" labelFunction="getLabel"/>
+								</s:ArrayList>
+							</s:columns>  
+						</s:DataGrid>
+						<s:Button id="Exportar" bottom="1" right="1" icon="assets/images/excel.png" click="Exportar_clickHandler(event)" skinClass="widgets.Busqueda_Rutas.TransparentButtonSkin"/>	
+					</s:VGroup>		
+				</mx:Canvas>
+				
+				
+				
+			</mx:ViewStack>
+		</s:VGroup>
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

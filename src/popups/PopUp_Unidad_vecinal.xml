@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>NUMERO UNIDAD: {NUMERO}</title>
+    <fields>
+        <field name="NOMBRE" alias="Nombre unidad: " visible="true"/>   
+      
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

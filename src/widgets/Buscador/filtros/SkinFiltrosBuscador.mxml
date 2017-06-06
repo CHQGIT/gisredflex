@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("widgets.Buscador.filtros.FiltrosBuscador")]
+	</fx:Metadata>
+	
+	<s:HGroup horizontalAlign="left">
+		
+		<s:VGroup>
+			<mx:DataGrid id="grillaAnios" width="130"  y="130" horizontalScrollPolicy="on" rowCount="5" height="150"> 					 					 					 
+				<mx:columns>
+					<mx:DataGridColumn headerText="Años" id="columnaAnios" textAlign="left"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:CheckBox label="Seleccionar todo" selected="true" id="todoAnios" />
+		</s:VGroup>
+		
+		<s:VGroup>
+			<mx:DataGrid id="grillaCausa" width="300"  y="130" horizontalScrollPolicy="on" rowCount="5" height="150"> 					 					 					 
+				<mx:columns>
+					<mx:DataGridColumn headerText="Causa" id="columnaCausa" textAlign="left"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:CheckBox label="Seleccionar todo" selected="true" id="todoCausa"  />
+		</s:VGroup>
+		
+		<s:VGroup>
+			<mx:DataGrid id="grillaClasificacion" width="300"  y="130" horizontalScrollPolicy="on" rowCount="5" height="150"> 					 					 					 
+				<mx:columns>
+					<mx:DataGridColumn headerText="Clasificación" id="columnaClasificacion" textAlign="left"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:CheckBox label="Seleccionar todo"  selected="true" id="todoClasificacion" />
+		</s:VGroup>
+
+	</s:HGroup>
+
+</s:Skin>

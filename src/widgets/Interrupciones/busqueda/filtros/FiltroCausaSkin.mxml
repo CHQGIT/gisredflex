@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("widgets.Interrupciones.busqueda.filtros.FiltroCausa")]
+	</fx:Metadata>
+	
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>
+	
+	<s:HGroup>
+		<s:Label text="Causa: " width="150" textAlign="right" />
+		<s:DropDownList prompt="Total" id="listaCausaInterrupcion" labelField="Nombre_Causa" width="200" />
+	</s:HGroup>
+
+</s:Skin>

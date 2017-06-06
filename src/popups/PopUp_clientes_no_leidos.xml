@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>NIS: {ARCGIS.DBO.CLIENTES_XY_006.nis}</title>
+    <fields>
+        <field name="ARCGIS.dbo.TEMP_NL.cantidad" alias="Cantidad:" visible="true"/>
+        
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+
+<configuration>
+    <exportwidgetstoo>true</exportwidgetstoo>
+    <exportinfowindow>true</exportinfowindow>
+	<jpegquality>100</jpegquality>
+	<maplogovisible>false</maplogovisible>
+	<mapscalebarvisible>false</mapscalebarvisible>
+	<zoomslidervisible>false</zoomslidervisible>
+	<mapbackgroundcolor>0xffffff</mapbackgroundcolor>
+	<imageurl>widgets/ExportMap/assets/images/i_exportmap.png</imageurl>
+	<tooltip>Export Map</tooltip>
+    <exportbtnlabel>Export...</exportbtnlabel>
+    <cancelbtnlabel>Cancel</cancelbtnlabel>
+    <incmapinfowinlabel>Include Map Info Window (if it does not contain image medias).</incmapinfowinlabel>
+    <incwidgetslabel>Include Widgets</incwidgetslabel>
+	<!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	!!!!!!!!!!!! USING FLASH PLAYER YOU CAN NOT SPECIFY THE OUTPUT LOCATION!!!!!!!!!!!!!!
+	!!!!!!!!!!!! JUST THE FILE NAME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!--> 
+	<defaultexportfilename>myMap.jpg</defaultexportfilename>
+</configuration>

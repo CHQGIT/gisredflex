@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Poligonal de concesion: {poligono_id}</title>
+    <fields>
+        <field name="concesion_id" alias="ID Concesion:" visible="true"/>
+        <field name="poligono_id" alias="ID Poligonal:" visible="true"/>
+        <field name="tipo" alias="Tipo:" visible="true"/>
+        <field name="clase" alias="Clase:" visible="true"/>
+        <field name="estado" alias="Estado:" visible="true"/>
+        <field name="n_doc" alias="Numero Documento:" visible="true"/>
+        <field name="tipo_doc" alias="Tipo Documento:" visible="true"/>
+        <field name="fecha" alias="Fecha:" visible="true"/>
+        <field name="times" alias="Caso Times:" visible="true"/>
+        <field name="SHAPE.STArea()" alias="SHAPE.STArea()"/>
+        <field name="SHAPE.STLength()" alias="SHAPE.STLength()"/>
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

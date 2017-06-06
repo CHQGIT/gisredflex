@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:porClienteSED="widgets.Interrupciones.busqueda.resultado.porClienteSED.*"
+		>
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("widgets.Interrupciones.wizard.pasos.PasoResultadoInterrupciones")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import widgets.Interrupciones.busqueda.resultado.ClasificadorResultados;
+		]]>
+	</fx:Script>
+	
+	<s:HGroup>
+		
+		<s:VGroup paddingTop="40" paddingRight="30">
+			
+			<s:Label text="Detalle Interrupción" fontWeight="bold" paddingBottom="15" width="170" textAlign="right">
+			</s:Label>
+			<s:HGroup>
+				<s:Label text="Interrupcion:" width="170" textAlign="right">
+				</s:Label>
+				<s:Label id="labelInterrupcion">
+				</s:Label>	
+			</s:HGroup>
+			
+			<s:HGroup>
+				<s:Label text="Bloque:" width="170" textAlign="right">
+				</s:Label>
+				<s:Label id="labelBloque">
+				</s:Label>
+			</s:HGroup>
+			
+			<s:HGroup>
+				<s:Label text="Clientes Afectados:" width="170" textAlign="right">
+				</s:Label>
+				<s:Label id="labelClientesAfectados">
+				</s:Label>
+			</s:HGroup>
+			
+			<s:HGroup>
+				<s:Label text="Duración:" width="170" textAlign="right">
+				</s:Label>
+				<s:Label id="labelDuracion">
+				</s:Label>
+			</s:HGroup>
+			
+			<s:HGroup>
+				<s:Label text="Alimentador:" width="170" textAlign="right">
+				</s:Label>
+				<s:Label id="labelAlimentador">
+				</s:Label>
+			</s:HGroup>
+			
+			<s:HGroup>
+				<s:Label text="SSEE:" width="170" textAlign="right">
+				</s:Label>
+				<s:Label id="labelSSEE">
+				</s:Label>
+			</s:HGroup>
+			
+			<s:HGroup>
+				<s:Label text="Causa 1:" width="170" textAlign="right">
+				</s:Label>
+				<s:Label id="labelClasificacion1">
+				</s:Label>
+			</s:HGroup>
+			
+			<s:HGroup>
+				<s:Label text="Causa 2:" width="170" textAlign="right">
+				</s:Label>
+				<s:Label id="labelClasificacion2">
+				</s:Label>
+			</s:HGroup>
+			
+			<s:HGroup>
+				<s:Label text="Causa 3:" width="170" textAlign="right">
+				</s:Label>
+				<s:Label id="labelClasificacion3">
+				</s:Label>
+			</s:HGroup>
+			
+			<s:HGroup>
+				<s:Label text="Transformador:" width="170" textAlign="right">
+				</s:Label>
+				<s:Label id="labelTransformador">
+				</s:Label>
+			</s:HGroup>
+				
+		</s:VGroup>
+		
+		<porClienteSED:InterrupcionesPorClienteSED id="interrupciones" tipoResultados="{ClasificadorResultados.TIPO_INTERRUPCION}" width="100%">
+		</porClienteSED:InterrupcionesPorClienteSED>	
+	</s:HGroup>
+	
+	
+</s:Skin>

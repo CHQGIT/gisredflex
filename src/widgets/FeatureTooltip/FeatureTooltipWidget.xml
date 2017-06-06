@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<configuration>
+	<layers>
+        <layer>
+            <name>SSEE</name>
+            <fields>nombre</fields>
+            <datefields></datefields>
+            <dateformat>MM/DD/YYYY</dateformat>
+        </layer>
+       
+      
+    </layers>
+    <!-- The length of time, in milliseconds, that Flex waits to hide the ToolTip box after it appears. -->
+    <!-- This setting affects all tooltips in the application so use with caution -->
+    <hidedelay>3000</hidedelay>
+    <showfieldnames>false</showfieldnames>
+</configuration>

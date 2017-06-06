@@ -1,0 +1,19 @@
+<configuration>
+    <width>400</width>
+    <height>200</height>
+    <title>CHILQUINTA ENERGIA S.A.</title>
+    <eventtitle>Seleccione ROL</eventtitle>
+    <userroles>
+    <!-- <userrole  username="Estandar" configfile="config-test.xml"  imagesrc='widgets/ConfigSelectSplash/assets/images/esf17.png' /> -->
+        <userrole  username="Estandar" configfile="config-Standard.xml"  imagesrc='widgets/ConfigSelectSplash/assets/images/esf17.png' />
+        <userrole  username="Ingreso clientes" configfile="config-IngClientes.xml" imagesrc='widgets/ConfigSelectSplash/assets/images/clientes_icono.png' />
+       <!--  <userrole  username="Alumbrado Publico" configfile="config-AdminAP.xml"  imagesrc='widgets/ConfigSelectSplash/assets/images/postegris.png' /> -->
+        <userrole  username="Manejo Vegetacion" configfile="config-vegetacion.xml"  imagesrc='widgets/ConfigSelectSplash/assets/images/vegetacion_icon.png' />
+        <userrole  username="Planificación" configfile="config-planificacion.xml"  imagesrc='widgets/ConfigSelectSplash/assets/images/esf20.png' />
+         <userrole  username="Perdidas" configfile="config-perdidas.xml"  imagesrc='widgets/ConfigSelectSplash/assets/images/esf16.png' />
+        <userrole  username="Interrupciones" configfile="config-interrupciones.xml"  imagesrc='widgets/ConfigSelectSplash/assets/images/inter_principal3.png' />                             
+       <!--  <userrole  username="Clima (Beta)" configfile="config-Clima.xml" imagesrc='widgets/ConfigSelectSplash/assets/images/clima_f.png' /> -->
+       <!--<userrole  username="Mantenimiento (Beta)" configfile="config-mantenimiento.xml" imagesrc='widgets/ConfigSelectSplash/assets/images/mantenimiento2.jpg' /> -->
+        <userrole  username="Administrador" configfile="config-Admin.xml" imagesrc='widgets/ConfigSelectSplash/assets/images/esf13.png'/>  		  
+    </userroles>
+</configuration>

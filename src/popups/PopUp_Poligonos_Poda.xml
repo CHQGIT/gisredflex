@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Nombre: {NOMBRE_SOLICITUD}</title>
+    <fields>
+        <field name="ALIMENTADOR" alias="Alimentador:" visible="true"/>
+        <field name="SOLICITANTE" alias="Solicitante:" visible="true"/>
+        <field name="SED" alias="SED:" visible="true"/>
+        <field name="FECHA_SOLICITUD_CREACION" alias="Fecha:" visible="true"/>
+        <field name="NOMBRE_CALLE" alias="Calle:" visible="true"/>
+        <field name="ID_SEGMENTO" alias="id Segmento:" visible="true"/>
+        <field name="COMUNA" alias="comuna:" visible="true"/>
+        <field name="ARRANQUE" alias="Arranque:" visible="true"/>
+        <field name="ID_ARRANQUE" alias="id Arranque:" visible="true"/>
+        <field name="ESTADO" alias="Estado:" visible="true"/>
+        
+        
+        
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

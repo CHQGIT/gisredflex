@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Especie: {Especie}</title>
+    <fields>
+        <field name="OBJECTID" alias="OBJECTID" visible="true"/>
+        <field name="Especie" alias="Especie:" visible="true"/>
+        <field name="Desarrollo" alias="Desarrollo:" visible="true"/>
+        <field name="D_linea" alias="Distancia linea: " visible="true"/>
+        <field name="Alturatota" alias="Altura total:" visible="true"/>
+        <field name="AlturaLibr" alias="Altura Libre:" visible="true"/>
+        <field name="DAP" alias="DAP:" visible="true"/>
+        <field name="DiametroDe" alias="Diametro De Copa:" visible="true"/>
+        <field name="RectitudFu" alias="Rectitud Fuste:" visible="true"/>
+        <field name="M_Actual" alias="M Actual:" visible="true"/>
+        <field name="M_Propuest" alias="M Propuesto:" visible="true"/>
+        <field name="Ejecucion" alias="Ejecucion:" visible="true"/>
+        <field name="Distancia_" alias="Distancia_:" visible="true"/>
+        <field name="Pertenenci" alias="Pertenencia arbol:" visible="true"/>
+        <field name="Pertenen_1" alias="Pertenencia Linea:" visible="true"/>
+        <field name="ConflictoI" alias="Conflicto Infraestructura:" visible="true"/>
+        <field name="PresenciaI" alias="Presencia Insectos:" visible="true"/>
+        <field name="plantasPar" alias="Plantas Parasitas:" visible="true"/>
+        <field name="OBS_1" alias="OBS_1:" visible="true"/>
+        <field name="OBS_2" alias="OBS_2:" visible="true"/>
+        <field name="FOTO_1" alias="FOTO_1:" visible="true"/>
+        <field name="FOTO_2" alias="FOTO_2:" visible="true"/>
+        <field name="Actualizac" alias="Actualizacion:" visible="true"/>
+        <field name="Hora" alias="Hora:" visible="true"/>
+        <field name="CRITERIOS_" alias="Criterios_MP:" visible="true"/>
+        <field name="PERIODICID" alias="Periodicidad:" visible="true"/>
+        <field name="TEMPORADA" alias="Temporada:" visible="true"/>
+    </fields>
+    <medias>
+        <media type="image" title="Imagen 1" imagelink="http://gisred.chilquinta/images/{FOTO_1}" imagesource="http://gisred.chilquinta/images/{FOTO_1}"/>
+        <media type="image" title="Imagen 2" imagelink="http://gisred.chilquinta/images/{FOTO_2}" imagesource="http://gisred.chilquinta/images/{FOTO_2}"/>
+    </medias>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

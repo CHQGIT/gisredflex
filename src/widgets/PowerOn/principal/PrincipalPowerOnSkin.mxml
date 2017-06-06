@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300">
+
+	<fx:Metadata>
+		[HostComponent("widgets.PowerOn.principal.PrincipalPowerOn")]
+	</fx:Metadata>
+
+	<viewer:WidgetTemplate id="poweron"
+						   width="925" height="525"
+						   open="widgetOpenedHandler(event)" 
+						   closed="widgetClosedHandler(event)" >
+		
+		<viewer:layout>
+			<s:VerticalLayout horizontalAlign="center" verticalAlign="top"/>
+		</viewer:layout>
+		
+		<s:VGroup horizontalAlign="center" width="100%" height="95%">
+			
+			<mx:ViewStack id="vs"
+						  x="10" y="10"
+						  width="100%" height="95%"
+						  selectedIndex="0">
+				
+				<s:NavigatorContent width="100%">
+					
+					<s:Button id="btnActualizar"
+							  label="Actualizar"
+							  cornerRadius="{btnActualizar.height/2}" 
+							  width="36" height="36" y="5"
+							  icon="@Embed('assets/images/refresh_1.png')"
+							  click="actualizar_clickHandler(event)" chromeColor="#CCCCCC" />
+					
+					<s:Button id="btnTest"
+							  label="TEST"
+							  cornerRadius="{btnActualizar.height/2}" 
+							  width="36" height="36" y="5" x="800" 
+							  click="btnTest_clickHandler(event)"
+							  chromeColor="#CCCCCC" />
+					
+					<s:Form x="25" y="-10">
+						<s:layout>
+							<s:FormLayout verticalAlign="top" horizontalAlign="left" gap="-14"/>
+						</s:layout>
+						<s:FormItem label="Filtrar por Tipo Orden:">
+							<s:DropDownList id="ddlOrden"
+											width="150"
+											prompt="Todas..." 
+											change="filtro_changeHandler(event)"
+											dataProvider="{dropTipoOrden}"/>
+						</s:FormItem>
+						<s:FormItem label="Filtrar por Estado Orden:">
+							<s:DropDownList id="ddlEstado" 
+											width="150"
+											prompt="Todas..." 
+											change="filtro_changeHandler(event)"
+											dataProvider="{dropEstadoOrden}" />
+						</s:FormItem>
+						<s:FormItem label="Filtrar por Tipo Afectado:">
+							<s:DropDownList id="ddlAfectado"
+											width="150"
+											prompt="Todos..."
+											change="filtro_changeHandler(event)"
+											dataProvider="{dropAfectado}" />
+						</s:FormItem>
+						<s:FormItem label="terrible texto de prueba:">
+							<s:Label id="selIndex"/>
+						</s:FormItem>
+					</s:Form>
+					
+					<mx:Image id="simbologia" 
+							  x="370" y="8" 
+							  source="@Embed('assets/images/simbologia.png')"/>
+					
+					<mx:DataGrid id="gridOrdenes" 
+								 width="100%" height="95%" y="110"
+								 rowHeight="25"
+								 horizontalScrollPolicy="on"
+								 dataProvider="{listaOrdenes}" 
+								 dataTipFunction="buildToolTip"
+								 itemClick="gridOrdenes_itemClickHandler(event)" >
+						
+						<mx:columns>
+							<mx:DataGridColumn headerText="Tipo Afectado" dataField="afectado" id="tipoAfectado"/>
+							<mx:DataGridColumn headerText="Total Afectados" dataField="total_afectos" id="totalAfectos"/>
+							<mx:DataGridColumn headerText="Clientes por Transformador" dataField="clientes_transformador" id="clientesTransformadores"/>
+							<mx:DataGridColumn headerText="ID Orden" dataField="id_orden" id="idOrden_Orden"/>
+							<mx:DataGridColumn headerText="Tipo Orden" dataField="tipo_orden" id="tipoOrden"/>
+							<mx:DataGridColumn headerText="Estado Orden" dataField="estado_orden" id="estadoOrden"/>
+							<mx:DataGridColumn headerText="Fecha Creacion" dataField="fecha_creacion" id="fechaCreacion"/>
+							<mx:DataGridColumn headerText="Fecha Asignacion" dataField="fecha_asignacion" id="fechaAsignacion"/>
+							<mx:DataGridColumn headerText="Fecha Despacho" dataField="fecha_despacho" id="fechaDespacho"/>
+							<mx:DataGridColumn headerText="Fecha Ruta" dataField="fecha_ruta" id="fechaRuta"/>
+							<mx:DataGridColumn headerText="Fecha Llegada" dataField="fecha_llegada" id="fechaLlegada"/>
+							<mx:DataGridColumn headerText="Causa" dataField="causa" id="causa"/>
+							<mx:DataGridColumn headerText="Subcausa" dataField="subcausa" id="subCausa"/>
+							<mx:DataGridColumn headerText="Comentario" dataField="comentario" id="comentario" showDataTips="true"/>
+							<mx:DataGridColumn headerText="Tipo Equipo" dataField="tipo_equipo" id="tipoEquipo"/>
+							<mx:DataGridColumn headerText="Fecha Termino T" dataField="fc_termino_t" id="fechaTerminot"/>
+							<mx:DataGridColumn headerText="Fecha Cierre" dataField="fc_cierre" id="fechaCierre"/>
+							<mx:DataGridColumn headerText="Fecha Ultima Mod" dataField="fc_ult_modif" id="fechaUltimaMod"/>
+						</mx:columns>
+					</mx:DataGrid>		
+					
+				</s:NavigatorContent>
+				
+			</mx:ViewStack>
+			
+		</s:VGroup>
+		
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>
+	
+	
+</s:Skin>

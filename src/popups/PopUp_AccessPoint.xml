@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <title>Nombre: {NOMBRE}</title>
+    <fields>
+        <field name="TIPO" alias="Tipo:" visible="true"/>
+        <field name="UBICACION" alias="Ubicacion:" visible="true"/>
+       
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

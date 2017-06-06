@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2010-2011 Esri. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+///////////////////////////////////////////////////////////////////////////
+-->
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx" 
+                   xmlns:viewer="com.esri.viewer.*"
+                   widgetConfigLoaded="init()" 
+				   xmlns:principal="widgets.Interrupciones.principal.*">
+	
+	<fx:Style source="Style.css" />
+	
+    <fx:Script>
+        <![CDATA[
+			import com.esri.ags.layers.FeatureLayer;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.viewer.AppEvent;
+			import com.esri.viewer.ViewerContainer;
+			
+			import comun.util.zalerta.ZAlerta;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			
+			import widgets.Interrupciones.busqueda.filtros.FiltroPeriodo;
+			import widgets.Interrupciones.global.Global;
+			import widgets.Interrupciones.principal.Principal;
+			import widgets.Interrupciones.wizard.SelectorEtapa;
+			
+			private var graphicsLayer:GraphicsLayer;
+			private var graphicsLayer2:GraphicsLayer;
+			
+            private function init():void
+            {	
+				try{
+				
+	              if (configXML) // checking for valid content in the configuration file
+	                {
+		               //     lbl.text = configXML.content || getDefaultString("helloContent");
+		               
+					  	var puntos:String="";
+					  
+					  	puntos+="1";
+					  //	interrupciones.addElement(principal);
+						puntos+="2";
+						Global.principal=principal;
+						Global.pasos = new SelectorEtapa;
+						Global.baseWidget=this;
+						
+						graphicsLayer = new GraphicsLayer();
+						graphicsLayer.name = "CapaInterrupciones";
+						//graphicsLayer.symbol = resultMarkerSymbol;
+						graphicsLayer.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+						graphicsLayer.visible=true;
+						Global.map=map;
+						map.addLayer(graphicsLayer);
+						Global.graphicsLayer=graphicsLayer;
+						
+						graphicsLayer2 = new GraphicsLayer();
+						graphicsLayer2.name = "CapaInterrupciones2";
+						//graphicsLayer.symbol = resultMarkerSymbol;
+						graphicsLayer2.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+						graphicsLayer2.visible=true;
+						
+						map.addLayer(graphicsLayer2);
+						Global.capaSeleccionado=graphicsLayer2;
+						
+						////////////////////
+						var gl:GraphicsLayer= new GraphicsLayer();
+						gl.name = "Rango1";
+						//graphicsLayer.symbol = resultMarkerSymbol;
+						gl.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+						gl.visible=true;
+						Global.map=map;
+						map.addLayer(gl);
+						Global.graphicsLayerRango1=gl;
+						
+						gl= new GraphicsLayer();
+						gl.name = "Rango2";
+						//graphicsLayer.symbol = resultMarkerSymbol;
+						gl.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+						gl.visible=true;
+						Global.map=map;
+						map.addLayer(gl);
+						Global.graphicsLayerRango2=gl;
+						
+						gl= new GraphicsLayer();
+						gl.name = "Rango3";
+						//graphicsLayer.symbol = resultMarkerSymbol;
+						gl.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+						gl.visible=true;
+						Global.map=map;
+						map.addLayer(gl);
+						Global.graphicsLayerRango3=gl;
+						
+						ViewerContainer.addEventListener("INTERRUPCION", mensajeOtroWidget);
+				   	}
+				}
+				catch (e:Error){
+					
+					 ZAlerta.show("error al iniciar ");
+				}
+            }
+			
+			public function creationComplete():void{
+			}
+			
+			public function mensajeOtroWidget(event:AppEvent):void
+			{
+				principal.stackPrincipal.selectedIndex = 3;
+				principal.selectorEtapa.seleccionar(2);
+				var query:String=event.data as String;
+				principal.mostrarInterrupcion(query);
+			}
+			
+			private function graphicsLayer_hideHandler(event:FlexEvent):void
+			{
+			}
+			
+			private function widgetClosedHandler(event:Event):void
+			{
+				Global.limpiarYOcultarCapas();
+				principal.reiniciarWidget();
+			}
+			
+			private function widgetOpenedHandler(event:Event):void
+			{
+				Global.mostrarCapas();
+			}
+			
+			protected function interrupciones_minimizedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+		]]>
+    </fx:Script>
+    <viewer:WidgetTemplate id="interrupciones"
+                           width="1000" height="600"
+						   closed="widgetClosedHandler(event)"
+						   minimized="interrupciones_minimizedHandler(event)"
+						   open="widgetOpenedHandler(event)">
+        <viewer:layout>
+            <s:VerticalLayout horizontalAlign="left" verticalAlign="middle" />
+        </viewer:layout>
+  
+		<principal:Principal id="principal" width="100%" height="95%" >
+		</principal:Principal>
+	 
+    </viewer:WidgetTemplate>
+</viewer:BaseWidget>

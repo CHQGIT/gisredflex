@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ | Version 10.2
+ | Copyright 2010 Esri
+ |
+ | Licensed under the Apache License, Version 2.0 (the "License");
+ | you may not use this file except in compliance with the License.
+ | You may obtain a copy of the License at
+ |
+ |    http://www.apache.org/licenses/LICENSE-2.0
+ |
+ | Unless required by applicable law or agreed to in writing, software
+ | distributed under the License is distributed on an "AS IS" BASIS,
+ | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ | See the License for the specific language governing permissions and
+ | limitations under the License.
+-->
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   xmlns:viewer="com.esri.viewer.*"
+                   widgetConfigLoaded="init()">
+    <fx:Script>
+        <![CDATA[
+			import com.esri.viewer.components.HTMLPopupManager;
+			//import com.esri.viewer.utils.QueryString;
+
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+
+			import widgets.ConfigSelectSplash.Component.SplashComponent;
+			import widgets.ConfigSelectSplash.utils.DataParserUtils;
+            private var content:String;
+            private var btnLabel:String
+            private var txtareaWidth:Number;
+            private var txtareaHeight:Number;
+
+			public var _dataParser:DataParserUtils= DataParserUtils.getInstance();
+            private function init():void
+            {
+                if(configXML)
+                {
+                    content = configXML.content || "...";
+                    btnLabel = configXML.btnlabel || getDefaultString("okLabel");
+                    txtareaWidth = configXML.width ;
+                    txtareaHeight = configXML.height ;
+
+					_dataParser.widgetTitle=configXML.title;
+					_dataParser.saveBtnLabel=configXML.savebtnlabel;
+					_dataParser.eventGroupTitle=configXML.eventtitle;
+
+					var esfRoleList:XMLList= configXML..userrole;
+					var obj:Object;
+					for each (var esfRole:XML in esfRoleList)
+					{
+						obj=new Object();
+						//obj.efsno = esfRole.@esfno[0];
+						obj.efsname =esfRole.@username[0];
+						obj.imgsrc=esfRole.@imagesrc[0];
+						obj.configFileName =esfRole.@configfile[0];
+						_dataParser.esfRolesArr.addItem(obj);
+					}
+					var eventList:XMLList= configXML..event;
+					var eventObjs:Object;
+
+					_dataParser.windowsUrl = ExternalInterface.call("function(){ return window.location.href;}");
+                   
+					createSplashScreen("","OK",txtareaWidth,txtareaHeight);
+
+
+                }
+				else
+				{
+					Alert.show('Config not found');
+				}
+            }
+
+			public static function createSplashScreen(content:String = "",
+										btnLabel:String = "OK",
+										width:Number = 500,
+										height:Number = 100,
+										modal:Boolean = true,
+										closeHandler:Function = null):void
+			{
+
+				var splashScreen:SplashComponent= new SplashComponent();
+				var parent:Sprite = Sprite(FlexGlobals.topLevelApplication);
+
+				if (closeHandler != null)
+				{
+					splashScreen.CloseBtn.addEventListener(CloseEvent.CLOSE, closeHandler);
+					splashScreen.CancelBtn.addEventListener(CloseEvent.CLOSE, closeHandler);
+				}
+
+
+				splashScreen.txtareaWidth = width;
+				splashScreen.txtareaHeight = height;
+
+				HTMLPopupManager.addPopUp(splashScreen, parent, modal);
+
+
+			}
+
+			private function close(event:Event):void
+			{
+				HTMLPopupManager.removePopUp(this);
+				dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+			}
+
+
+
+
+		]]>
+    </fx:Script>
+
+
+
+
+</viewer:BaseWidget>

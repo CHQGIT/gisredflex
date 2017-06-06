@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <title>Id Dirección: {id_direccion}</title>
+    <fields>
+        <field name="nombre_calle" alias="Nombre de Calle:" visible="true"/>
+        <field name="numero" alias="Numero:" visible="true"/>
+        <field name="comuna" alias="Comuna:" visible="true"/>
+        <field name="tipo_edificacion" alias="Edificación:" visible="true"/>
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

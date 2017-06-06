@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"
+				   xmlns:esri="http://www.esri.com/2008/ags"
+				   x="600" y="300" initialize="basewidget1_initializeHandler(event)" creationComplete="basewidget1_creationCompleteHandler(event)"
+				   isResizeable="false">
+	
+	<fx:Script>
+		<![CDATA[
+			
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.components.IdentityManager;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.symbols.PictureMarkerSymbol;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import flash.net.navigateToURL;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.rpc.AsyncResponder;
+			
+			import comun.url.URL;
+			
+			import skins.TransparentButtonSkin;
+			
+			import widgets.GISRED360.Clases.ConvertCoords;
+			import widgets.GISRED360.Clases.savedToken;
+			public var zoomColeccion:ArrayCollection;
+			public var lat:Number;
+			public var long:Number;
+			public var ssee:String;
+			public var token:String;
+			[Bindable]public var acSSEE:ArrayCollection = new ArrayCollection;
+			public var graphicslayer1:GraphicsLayer;
+			public var zoom:Number;
+			public var disponibilidad:String = "NO DISPONIBLE";
+			public var featureSetSSEE:FeatureSet = new FeatureSet;
+			
+			[Bindable]public var sseeSelected:String = "SELECCIONE UNA SUBESTACION";
+			
+			protected function abrirHTML():void
+			{
+				
+				//extraerZOOM(sseeSelected);
+				//URL DE ACCESO A LA WEB
+				var url:String = "http://gisred.chilquinta/chilquinta/widgets/GISRED360/Website/index.html";
+				
+				var variables:URLVariables = new URLVariables();
+				//variables.numeroFoto = nFoto;
+				variables.latSSEE = lat;
+				variables.lonSSEE = long;
+				variables.nombreSSEE = sseeSelected;
+				variables.zoom = zoom;
+				variables.token = savedToken.tkn as String;
+				var request:URLRequest = new URLRequest(url);
+				request.data = variables;
+				try {            
+					navigateToURL(request, url);
+				}
+				catch (e:Error) {
+					// handle error here
+					Alert.show("Error procesando URLRequest: " + e.toString());
+				}
+				
+			}
+			
+			protected function cargarSSEE():void
+			{
+				// TODO Auto-generated method stub
+				//Cargar dgrid con SSEE;
+				acSSEE.removeAll();
+				var qtSSEE:QueryTask = new QueryTask();
+				qtSSEE.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/0";
+				qtSSEE.useAMF = false;
+				var querySSEE:Query = new Query();
+				querySSEE.where = "1=1";
+				querySSEE.orderByFields = ["nombre"];
+				querySSEE.outFields=["*"];
+				qtSSEE.token = savedToken.tkn as String;
+				querySSEE.returnGeometry=true;
+				
+				querySSEE.spatialRelationship ="esriSpatialRelIntersects";
+				querySSEE.outSpatialReference = map.spatialReference;
+				qtSSEE.execute(querySSEE, new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					try{
+						acSSEE.addAll(new ArrayCollection(featureSet.attributes));	
+						featureSetSSEE = featureSet;
+					}catch(err:Error){
+						Alert.show("No se pudo cargar los datos de la SSEEs");
+					}
+				}
+				
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					Alert.show("SSEE no encontradas");
+				}
+			}
+			
+			protected function basewidget1_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				cargarSSEE();
+			}
+			
+			public var myGraphic:Graphic;
+			
+			protected function dgSSEE_clickHandler(event:MouseEvent):void
+				
+			{
+				
+				sseeSelected = String(dgSSEE.selectedItem.nombre);
+				hacerZoom(sseeSelected);
+				extraerZOOM(sseeSelected);
+				 
+			}
+		
+		
+			public function hacerZoom(s:String):void{
+				
+				var queryTaskEquipoSelected:QueryTask = new QueryTask();
+				queryTaskEquipoSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/0";
+				queryTaskEquipoSelected.useAMF = false;
+				var queryEquipoSelected:Query = new Query();
+				queryEquipoSelected.outFields = ["*"];
+				queryEquipoSelected.returnGeometry = true;
+				queryTaskEquipoSelected.token = savedToken.tkn;
+				queryEquipoSelected.where = "nombre='" + s + "'";
+				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryEquipoSelected.outSpatialReference = map.spatialReference;
+				queryTaskEquipoSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{ 
+					
+					try{
+						var mapPoint:MapPoint = featureSet.features[0].geometry as MapPoint;
+							var convert:ConvertCoords = new ConvertCoords;
+							convert.ToGeographic(mapPoint.x,mapPoint.y);
+							lat = convert.Y_lat;
+							long =convert.X_lon;
+							map.zoomTo(featureSet.features[0].geometry);
+							//Alert.show("punto: " + mapPoint.x.toString() + " "  +mapPoint.y.toString()+ " "+  "lat: " + convert.Y_lat.toString()+ " "+convert.X_lon.toString() );
+							map.level = 16;
+							
+												
+					}catch(err:Error){
+						Alert.show("no se pudo hacer zoom a la SSEE seleccionada");
+					}
+					
+						
+				}
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					Alert.show("SSEE no encontrada");
+				}
+						
+				
+			}
+			
+			public function extraerZOOM(subestacion:String):void{
+				abrirVentanaExterna.visible = false;
+				var queryTaskEquipoSelected:QueryTask = new QueryTask();
+				queryTaskEquipoSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Varios/360/MapServer/0";
+				queryTaskEquipoSelected.useAMF = false;
+				var queryEquipoSelected:Query = new Query();
+				queryEquipoSelected.outFields = ["*"];
+				queryEquipoSelected.returnGeometry = true;
+				queryTaskEquipoSelected.token = savedToken.tkn;
+				queryEquipoSelected.where = "SSEE='" + subestacion + "'";
+				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryEquipoSelected.outSpatialReference = map.spatialReference;
+				queryTaskEquipoSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{ 
+					//CUANDO HAY SUBESTACION EN 360
+					try{
+						
+						zoom = featureSet.features[0].attributes["ZOOM"];
+						disponibilidad360.text = "DISPONIBLE";
+						
+						abrirVentanaExterna.visible = true;
+						
+						
+					}//CUANDO NO HAY SUBESTACION EN 360
+					catch(err:Error){
+						disponibilidad360.text = "NO DISPONIBLE";
+						abrirVentanaExterna.visible = false;
+					}
+					
+					
+					
+				}
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					Alert.show("SSEE no encontrada PARA 360");
+				
+				}
+				
+				
+				
+			}
+			
+			
+			protected function basewidget1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				wTemplate.widgetWidth = 350;
+				wTemplate.widgetHeight = 550;
+				IdentityManager.instance.enabled = true;
+			}
+			
+			protected function abrirVentanaExterna_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				//Alert.show("oa");
+				abrirHTML();
+					
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+	<esri:PictureMarkerSymbol id="redglow" width="60" height="60"
+								  source="assets/images/Red_glow.swf"
+								  xoffset="-17"
+								  yoffset="18"/>
+		
+	</fx:Declarations>
+<viewer:WidgetTemplate id="wTemplate">
+		<mx:VBox width="100%">
+			
+			<mx:HBox width="100%">
+				<s:DataGrid id="dgSSEE" width="100%" dataProvider="{acSSEE}" click="dgSSEE_clickHandler(event)"  >
+					<s:columns>
+						<s:ArrayList>
+							<s:GridColumn dataField="nombre" headerText="SSEE"/>
+						</s:ArrayList>
+					</s:columns>
+				</s:DataGrid>
+			</mx:HBox>
+			<mx:HBox width="100%">
+				
+				<mx:VBox width="100%" verticalAlign="middle" paddingTop="20" horizontalAlign="center">
+					<s:Label text="SSEE: {sseeSelected}" fontSize="12" alignmentBaseline="useDominantBaseline"></s:Label>
+					<s:Label fontSize="12" alignmentBaseline="useDominantBaseline" id="disponibilidad360"></s:Label>
+				</mx:VBox>
+				
+				
+			</mx:HBox>
+			<mx:HBox width="100%">
+			<mx:VBox width="100%"  verticalAlign="middle" paddingTop="20" horizontalAlign="center">
+				<s:Button visible="false" id="abrirVentanaExterna" alignmentBaseline="useDominantBaseline" click="abrirVentanaExterna_clickHandler(event)" skinClass="skins.TransparentButtonSkin" icon="widgets/GISRED360/imagenes/vista360_icon.png" />
+			</mx:VBox>
+			</mx:HBox>
+			
+		</mx:VBox>
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

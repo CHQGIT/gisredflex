@@ -1,0 +1,712 @@
+<?xml version="1.0" encoding="utf-8"?>
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"
+				   creationComplete="init()">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.as3xls.xls.ExcelFile;
+			import com.as3xls.xls.Sheet;
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.formatters.DateFormatter;
+			import mx.messaging.management.Attribute;
+			import mx.messaging.messages.ErrorMessage;
+			import mx.rpc.AsyncResponder;
+			
+			import spark.formatters.DateTimeFormatter;
+			
+		
+			import comun.Planificacion.User;
+			private var frSave:FileReference;
+			
+			import widgets.Busqueda_Rutas.TransparentButtonSkin;
+			import comun.Planificacion.User;
+				
+			public var idNodo:Number;
+			public var retVal:String = "";  
+			private var dateFormatter:DateTimeFormatter = new DateTimeFormatter;
+		
+			[Bindable]
+			
+			private var coleccionFecha:ArrayCollection = new ArrayCollection;
+			private var coleccion:ArrayCollection = new ArrayCollection;
+			private var coleccion2:ArrayCollection = new ArrayCollection;
+			public var cuenta:String;
+		
+			
+			
+			private function init():void{
+							
+				GetUser()
+				FechaActualizacion()
+			}
+			
+			private function FechaActualizacion():void{
+				
+				var queryTaskCapexSelected:QueryTask = new QueryTask();
+				queryTaskCapexSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/3/query";
+				queryTaskCapexSelected.useAMF = false;
+				var queryEquipoSelected:Query = new Query();
+				queryEquipoSelected.outFields = ["fc_evento"];
+				queryEquipoSelected.returnGeometry = true;
+				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryEquipoSelected.outSpatialReference = map.spatialReference;
+				queryEquipoSelected.where = "1=1";
+				queryTaskCapexSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
+				
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					 idNodo = featureSet.features[0].attributes["fc_evento"];	
+					 var dateFormatStr:String;  
+				
+					 dateFormatStr = "MM/dd/yy hh:mm a"; 
+					 retVal = msToDate(idNodo, dateFormatStr, true);  
+					 fecha_actualizacion.text = "Fecha última actualización: " + retVal; 
+				}		
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					//	Alert.show("Error en consulta");
+				}
+				
+			}
+			
+		/*	private function getDateLbl(item:Object,column:GridColumn):String  
+			{  
+				var dateMS:Number = Number(item[column.dataField]);  
+				var retVal:String = "";  
+				var rVal:String = item[column.dataField];  
+				var dateFormatStr:String;  
+				var cuseUTC:Boolean;  
+				if(rVal == null){  
+					//do nothing  
+				}else{  
+					if (!isNaN(dateMS)){  
+						
+						retVal = msToDate(dateMS, dateFormatStr, true);  
+					}  
+				}  
+				return retVal;  
+			}  */
+			
+			private function msToDate(ms:Number, dateFormat:String, useUTC:Boolean):String  
+			{  
+				var date:Date = new Date(ms);  
+				if (date.milliseconds == 999){ // workaround for REST bug  
+					date.milliseconds++;  
+				}  
+				if (useUTC){  
+					date.minutes += date.timezoneOffset;  
+				}  
+				if (dateFormat){		
+					
+					dateFormatter.dateTimePattern = dateFormat;  
+					var result:String = dateFormatter.format(date);  
+					if (result){  
+						return result;  
+					}else{  
+						return dateFormatter.errorText;  
+					}  
+				}else{  
+					return date.toLocaleString(); 
+					
+				}  
+			}  
+			
+			private function GetUser():void
+			{
+				
+				//graphicsLayer= null
+				var queryTaskCapexSelected:QueryTask = new QueryTask();
+				queryTaskCapexSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/0/query";
+				queryTaskCapexSelected.useAMF = false;
+				var queryEquipoSelected:Query = new Query();
+				queryEquipoSelected.outFields = ["*"];
+				queryEquipoSelected.returnGeometry = true;				
+				queryEquipoSelected.where = "USUARIO = '" + User.Usuario + "'";
+				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryEquipoSelected.outSpatialReference = map.spatialReference;
+				queryTaskCapexSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
+				
+			
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					if(featureSet.features.length == 0 ){
+						Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador")
+					}
+					else{			
+						coleccion2.addAll(new ArrayCollection(featureSet.attributes));
+						
+						for(var i:int=0;i<=coleccion2.length;i++){
+							//text1.text = coleccion2[i].ACCESO;
+							switch (coleccion2[i].ACCESO) {
+								case "GC" :
+									GC.enabled = true;
+									GC.selected = true;
+									break;
+								case "GT" :
+									GT.enabled = true;
+									GT.selected = true;
+									break;
+								case "GO" :
+									GO.enabled = true;
+									GO.selected = true;
+									break;
+								case "GF" :
+									GF.enabled = true;
+									GF.selected = true;
+									break;
+								case "GP" :
+									GP.enabled = true;
+									GP.selected = true;
+									break;
+								case "SGRyP" :
+									SGRyP.enabled = true;
+									SGRyP.selected = true;
+									break;
+								case "SGC" :
+								//	SGC.enabled = true;
+								//	SGC.selected = true;
+									break;
+								case "SGEHyS" :
+									SGEHyS.enabled = true;
+									SGEHyS.selected = true;
+									break;
+								case "Innovacion" :
+									Innovacion.enabled = true;
+									Innovacion.selected = true;
+									break;
+								case "Full" :
+									GC.enabled = true;
+									GC.selected = true;
+									GT.enabled = true;
+									GT.selected = true;
+									GO.enabled = true;
+									GO.selected = true;
+									GF.enabled = true;
+									GF.selected = true;
+									GP.enabled = true;
+									GP.selected = true;
+									SGRyP.enabled = true;
+									SGRyP.selected = true;
+									SGEHyS.enabled = true;
+									SGEHyS.selected = true;
+									//SGC.enabled = true;
+									//SGC.selected = true;
+									Innovacion.enabled = true;
+									Innovacion.selected = true;
+									break;
+							}
+						}
+						
+					}
+				}		
+				
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
+				}
+				
+			}
+			
+		
+			private function Consulta():void
+			{
+				DataCapex.visible = true;
+				coleccion.removeAll();
+				
+					if (GO.selected == true){
+					
+							var queryTaskCapexSelected:QueryTask = new QueryTask();
+							queryTaskCapexSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/1/query";
+							queryTaskCapexSelected.useAMF = false;
+							var queryEquipoSelected:Query = new Query();
+							queryEquipoSelected.outFields = ["*"];
+							queryEquipoSelected.returnGeometry = true;
+							queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+							queryEquipoSelected.outSpatialReference = map.spatialReference;
+							queryEquipoSelected.where = "gerencia='GO' AND ano_ejecucion = " + txtAnio.text;
+							queryTaskCapexSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
+							
+							
+							function onResult(featureSet:FeatureSet, token:Object = null):void
+							{
+								
+								if(featureSet.features.length == 0 ){
+									Alert.show("No existen datos para la gerencia GO.")
+								}
+								else{		
+									coleccion.addAll(new ArrayCollection(featureSet.attributes));
+														
+									
+								}
+							}		
+														
+							function onFault(info:Object, token:Object = null):void
+							{   
+							//	Alert.show("Error en consulta");
+							}
+					}
+							if (GC.selected == true){
+								
+							
+								
+								var queryTaskCapexSelected2:QueryTask = new QueryTask();
+								queryTaskCapexSelected2.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/1/query";
+								queryTaskCapexSelected2.useAMF = false;
+								var queryEquipoSelected2:Query = new Query();
+								queryEquipoSelected2.outFields = ["*"];
+								queryEquipoSelected2.returnGeometry = true;
+								queryEquipoSelected2.spatialRelationship ="esriSpatialRelIntersects";
+								queryEquipoSelected2.outSpatialReference = map.spatialReference;
+								queryEquipoSelected2.where = "gerencia='GC' AND ano_ejecucion = " + txtAnio.text;
+								queryTaskCapexSelected2.execute(queryEquipoSelected2, new AsyncResponder(onResult1, onFault1));
+								
+								
+								function onResult1(featureSet:FeatureSet, token:Object = null):void
+								{
+									
+									if(featureSet.features.length == 0 ){
+										Alert.show("No existen datos para la Gerencia Comercial.")
+									}
+									else{		
+										coleccion.addAll(new ArrayCollection(featureSet.attributes));
+																			
+										
+									}
+								}		
+								
+								function onFault1(info:Object, token:Object = null):void
+								{   
+									//	Alert.show("Error en consulta");
+								}
+							}
+							
+							if (GF.selected == true){
+								
+								
+								
+								var queryTaskCapexSelected3:QueryTask = new QueryTask();
+								queryTaskCapexSelected3.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/1/query";
+								queryTaskCapexSelected3.useAMF = false;
+								var queryEquipoSelected3:Query = new Query();
+								queryEquipoSelected3.outFields = ["*"];
+								queryEquipoSelected3.returnGeometry = true;
+								queryEquipoSelected3.spatialRelationship ="esriSpatialRelIntersects";
+								queryEquipoSelected3.outSpatialReference = map.spatialReference;
+								queryEquipoSelected3.where = "gerencia='GF' AND ano_ejecucion = " + txtAnio.text;
+								queryTaskCapexSelected3.execute(queryEquipoSelected3, new AsyncResponder(onResult2, onFault2));
+								
+								
+								function onResult2(featureSet:FeatureSet, token:Object = null):void
+								{
+									
+									if(featureSet.features.length == 0 ){
+										Alert.show("No existen datos para la gerencia GF.")
+									}
+									else{		
+										coleccion.addAll(new ArrayCollection(featureSet.attributes));
+										
+										
+									}
+								}		
+								
+								function onFault2(info:Object, token:Object = null):void
+								{   
+									//	Alert.show("Error en consulta");
+								}
+							}
+							
+							if (GT.selected == true){
+								
+								
+								
+								var queryTaskCapexSelected4:QueryTask = new QueryTask();
+								queryTaskCapexSelected4.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/1/query";
+								queryTaskCapexSelected4.useAMF = false;
+								var queryEquipoSelected4:Query = new Query();
+								queryEquipoSelected4.outFields = ["*"];
+								queryEquipoSelected4.returnGeometry = true;
+								queryEquipoSelected4.spatialRelationship ="esriSpatialRelIntersects";
+								queryEquipoSelected4.outSpatialReference = map.spatialReference;
+								queryEquipoSelected4.where = "gerencia='GT' AND ano_ejecucion = " + txtAnio.text;
+								queryTaskCapexSelected4.execute(queryEquipoSelected4, new AsyncResponder(onResult3, onFault3));
+								
+								
+								function onResult3(featureSet:FeatureSet, token:Object = null):void
+								{
+									
+									if(featureSet.features.length == 0 ){
+										Alert.show("No existen datos para la gerencia GT.")
+									}
+									else{		
+										coleccion.addAll(new ArrayCollection(featureSet.attributes));
+										
+										
+									}
+								}		
+								
+								function onFault3(info:Object, token:Object = null):void
+								{   
+									//	Alert.show("Error en consulta");
+								}
+							}
+							
+							if (SGRyP.selected == true){							
+								
+								
+								var queryTaskCapexSelected5:QueryTask = new QueryTask();
+								queryTaskCapexSelected5.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/1/query";
+								queryTaskCapexSelected5.useAMF = false;
+								var queryEquipoSelected5:Query = new Query();
+								queryEquipoSelected5.outFields = ["*"];
+								queryEquipoSelected5.returnGeometry = true;
+								queryEquipoSelected5.spatialRelationship ="esriSpatialRelIntersects";
+								queryEquipoSelected5.outSpatialReference = map.spatialReference;
+								queryEquipoSelected5.where = "gerencia='SGRyP' AND ano_ejecucion = " + txtAnio.text;
+								queryTaskCapexSelected5.execute(queryEquipoSelected5, new AsyncResponder(onResult4, onFault4));
+								
+								
+								function onResult4(featureSet:FeatureSet, token:Object = null):void
+								{
+									
+									if(featureSet.features.length == 0 ){
+										Alert.show("No existen datos para la Subgerencia SGRyP.")
+									}
+									else{		
+										coleccion.addAll(new ArrayCollection(featureSet.attributes));
+										
+										
+									}
+								}		
+								
+								function onFault4(info:Object, token:Object = null):void
+								{   
+									//	Alert.show("Error en consulta");
+								}
+							}
+							
+							
+							if (GP.selected == true){							
+								
+								
+								var queryTaskCapexSelected6:QueryTask = new QueryTask();
+								queryTaskCapexSelected6.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/1/query";
+								queryTaskCapexSelected6.useAMF = false;
+								var queryEquipoSelected6:Query = new Query();
+								queryEquipoSelected6.outFields = ["*"];
+								queryEquipoSelected6.returnGeometry = true;
+								queryEquipoSelected6.spatialRelationship ="esriSpatialRelIntersects";
+								queryEquipoSelected6.outSpatialReference = map.spatialReference;
+								queryEquipoSelected6.where = "gerencia='GP' AND ano_ejecucion = " + txtAnio.text;
+								queryTaskCapexSelected6.execute(queryEquipoSelected6, new AsyncResponder(onResult5, onFault5));
+								
+								
+								function onResult5(featureSet:FeatureSet, token:Object = null):void
+								{
+									
+									if(featureSet.features.length == 0 ){
+										Alert.show("No existen datos para la gerencia GP.")
+									}
+									else{		
+										coleccion.addAll(new ArrayCollection(featureSet.attributes));
+										
+										
+									}
+								}		
+								
+								function onFault5(info:Object, token:Object = null):void
+								{   
+									//	Alert.show("Error en consulta");
+								}
+							}
+							
+							if (SGEHyS.selected == true){							
+								
+								
+								var queryTaskCapexSelected7:QueryTask = new QueryTask();
+								queryTaskCapexSelected7.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/1/query";
+								queryTaskCapexSelected7.useAMF = false;
+								var queryEquipoSelected7:Query = new Query();
+								queryEquipoSelected7.outFields = ["*"];
+								queryEquipoSelected7.returnGeometry = true;
+								queryEquipoSelected7.spatialRelationship ="esriSpatialRelIntersects";
+								queryEquipoSelected7.outSpatialReference = map.spatialReference;
+								queryEquipoSelected7.where = "gerencia='SGEHyS' AND ano_ejecucion = " + txtAnio.text;
+								queryTaskCapexSelected7.execute(queryEquipoSelected7, new AsyncResponder(onResult6, onFault6));
+								
+								
+								function onResult6(featureSet:FeatureSet, token:Object = null):void
+								{
+									
+									if(featureSet.features.length == 0 ){
+										Alert.show("No existen datos para la Subgerencia SGRyP.")
+									}
+									else{		
+										coleccion.addAll(new ArrayCollection(featureSet.attributes));
+										
+										
+									}
+								}		
+								
+								function onFault6(info:Object, token:Object = null):void
+								{   
+									//	Alert.show("Error en consulta");
+								}
+							}
+							
+							
+							
+							
+							if (Innovacion.selected == true){							
+								
+								
+								var queryTaskCapexSelected8:QueryTask = new QueryTask();
+								queryTaskCapexSelected8.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/1/query";
+								queryTaskCapexSelected8.useAMF = false;
+								var queryEquipoSelected8:Query = new Query();
+								queryEquipoSelected8.outFields = ["*"];
+								queryEquipoSelected8.returnGeometry = true;
+								queryEquipoSelected8.spatialRelationship ="esriSpatialRelIntersects";
+								queryEquipoSelected8.outSpatialReference = map.spatialReference;
+								queryEquipoSelected8.where = "gerencia='SGG' AND ano_ejecucion = " + txtAnio.text;
+								queryTaskCapexSelected8.execute(queryEquipoSelected8, new AsyncResponder(onResult7, onFault7));
+								
+								
+								function onResult7(featureSet:FeatureSet, token:Object = null):void
+								{
+									
+									if(featureSet.features.length == 0 ){
+										Alert.show("No existen datos para Innovacion.")
+									}
+									else{		
+										coleccion.addAll(new ArrayCollection(featureSet.attributes));
+										
+										
+									}
+								}		
+								
+								function onFault7(info:Object, token:Object = null):void
+								{   
+									//	Alert.show("Error en consulta");
+								}
+							}
+							
+						/*	if (SGC.selected == true){							
+								
+								
+								var queryTaskCapexSelected9:QueryTask = new QueryTask();
+								queryTaskCapexSelected9.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/1/query";
+								queryTaskCapexSelected9.useAMF = false;
+								var queryEquipoSelected9:Query = new Query();
+								queryEquipoSelected9.outFields = ["*"];
+								queryEquipoSelected9.returnGeometry = true;
+								queryEquipoSelected9.spatialRelationship ="esriSpatialRelIntersects";
+								queryEquipoSelected9.outSpatialReference = map.spatialReference;
+								queryEquipoSelected9.where = "gerencia='SGC' AND ano_ejecucion = " + txtAnio.text;
+								queryTaskCapexSelected9.execute(queryEquipoSelected9, new AsyncResponder(onResult8, onFault8));
+								
+								
+								function onResult8(featureSet:FeatureSet, token:Object = null):void
+								{
+									
+									if(featureSet.features.length == 0 ){
+										Alert.show("No existen datos para la Subgerencia SGC.")
+									}
+									else{		
+										coleccion.addAll(new ArrayCollection(featureSet.attributes));
+										
+										
+									}
+								}		
+								
+								function onFault8(info:Object, token:Object = null):void
+								{   
+									//	Alert.show("Error en consulta");
+								}
+							}*/
+							
+							DataCapex.dataProvider = coleccion;	
+							wTemplate.width = 1100;
+							wTemplate.height = 330;
+							
+				}
+							
+			
+			
+			protected function Exp_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				var s:Sheet = new Sheet();
+				s.resize(coleccion.length+1,25);					
+				s.setCell(0,0,"Gerencia");
+				s.setCell(0,1,"Sociedad");
+				s.setCell(0,2,"Clasificacion");
+				s.setCell(0,3,"Clasi Reporte");
+				s.setCell(0,4,"Item");
+				s.setCell(0,5,"Grupo");
+				s.setCell(0,6,"Area Ejecutora");
+				s.setCell(0,7,"Codigo Proyecto");
+				s.setCell(0,8,"Nombre Proyecto");
+				s.setCell(0,9,"Año Ejecucion");
+				s.setCell(0,10,"Ppto. Inicial");
+				s.setCell(0,11,"Ppto Actual");
+				s.setCell(0,12,"Enero");
+				s.setCell(0,13,"Febrero");
+				s.setCell(0,14,"Marzo");
+				s.setCell(0,15,"Abril");
+				s.setCell(0,16,"Mayo");
+				s.setCell(0,17,"Junio");
+				s.setCell(0,18,"Julio");
+				s.setCell(0,19,"Agosto");
+				s.setCell(0,20,"Septiembre");
+				s.setCell(0,21,"Octubre");
+				s.setCell(0,22,"Noviembre");
+				s.setCell(0,23,"Diciembre");				
+				
+				
+				for(var j:int=0;j<coleccion.length;j++)
+				{
+					
+					s.setCell(j+1,0,coleccion[j].gerencia);
+					s.setCell(j+1,1,coleccion[j].sociedad);
+					s.setCell(j+1,2,coleccion[j].clasificacion);
+					s.setCell(j+1,3,coleccion[j].clasificacion_reporte);
+					s.setCell(j+1,4,coleccion[j].item);
+					s.setCell(j+1,5,coleccion[j].grupo);		
+					s.setCell(j+1,6,coleccion[j].area_ejecutora);
+					s.setCell(j+1,7,coleccion[j].codigo_proyecto);
+					s.setCell(j+1,8,coleccion[j].nombre_proyecto);
+					s.setCell(j+1,9,coleccion[j].ano_ejecucion);
+					s.setCell(j+1,10,coleccion[j].ppto_inicial);
+					s.setCell(j+1,11,coleccion[j].ppto_actual);
+					s.setCell(j+1,12,coleccion[j].enero);
+					s.setCell(j+1,13,coleccion[j].febrero);
+					s.setCell(j+1,14,coleccion[j].marzo);
+					s.setCell(j+1,15,coleccion[j].abril);
+					s.setCell(j+1,16,coleccion[j].mayo);
+					s.setCell(j+1,17,coleccion[j].junio);
+					s.setCell(j+1,18,coleccion[j].julio);
+					s.setCell(j+1,19,coleccion[j].agosto);
+					s.setCell(j+1,20,coleccion[j].septiembre);
+					s.setCell(j+1,21,coleccion[j].octubre);
+					s.setCell(j+1,22,coleccion[j].noviembre);
+					s.setCell(j+1,23,coleccion[j].diciembre);			
+					
+				}
+				
+				try {
+					
+					var fileTosave:ExcelFile = new ExcelFile();
+					fileTosave.sheets.addItem(s);
+					var fileBytes:ByteArray = fileTosave.saveToByteArray();
+					frSave = new FileReference();
+					frSave.save(fileBytes, "GISRED_Planificacion_" + txtAnio.text + ".xls");
+					frSave.addEventListener(Event.COMPLETE,GuardadoCompleto,false,0,false);
+					
+							
+				}
+				catch(e:ErrorMessage)
+				{
+					Alert.show("Error al guardar archivo" + e);						
+				}
+					
+			}
+			protected function GuardadoCompleto(event:Event):void{
+				Alert.show("Archivo guardado correctamente");
+			}
+			
+			protected function wTemplate_closedHandler(event:Event):void{
+			
+			coleccion.removeAll();
+			DataCapex.visible = false;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<viewer:WidgetTemplate id="wTemplate" width="380" height="350" closed="wTemplate_closedHandler(event)" >  
+		<viewer:layout>
+			<s:VerticalLayout paddingLeft="5" paddingTop="10"/>
+		</viewer:layout>
+		<s:VGroup>
+				<s:VGroup>
+					<s:HGroup>
+						
+						<s:Label id="fecha_actualizacion" text="Fecha última actualización: "   verticalAlign="middle" color="red"></s:Label>
+					</s:HGroup>	
+					<s:HGroup>						  
+						<s:Label text="Ingrese Año:" verticalAlign="middle" ></s:Label>
+						<s:TextInput id="txtAnio" width="35%" restrict="0-9" maxChars="4"/> 				
+						<s:Button id="Consultar" toolTip="Ejecutar Consulta."  icon="assets/images/Lupa_40x40.png" click="Consulta()" skinClass="widgets.Busqueda_Rutas.TransparentButtonSkin"/>
+						<s:Button id="Exportar" toolTip="Exportar a excel."  icon="assets/images/excel40x40.png" click="Exp_clickHandler(event)" skinClass="widgets.Busqueda_Rutas.TransparentButtonSkin"/>			
+					</s:HGroup>					
+				</s:VGroup>
+		</s:VGroup>		
+		<s:HGroup width="100%" height="100%">
+			<s:VGroup>
+				<s:CheckBox id="GC" width="200" label="Gerencia Comercial" selected="false" enabled="false"/>
+				<s:CheckBox id="GT" width="140" label="Gerencia Técnica" selected="false" enabled="false"/> 
+				<s:CheckBox id="GO" width="160" label="Gerencia Operación" selected="false" enabled="false"/>
+				<s:CheckBox id="GF" width="140" label="Gerencia Finanzas" selected="false" enabled="false"/>
+				<s:CheckBox id="GP" width="140" label="Gerencia Personas" selected="false" enabled="false"/>
+				<s:CheckBox id="SGRyP" width="200" label="Subgerencia Regulación" selected="false" enabled="false"/>
+				<s:CheckBox id="SGEHyS" width="200" label="Subgerencia EHyS" selected="false" enabled="false"/>
+				<!--<s:CheckBox id="SGC" width="200" label="Subgerencia Comercial" selected="false" enabled="false"/>-->
+				<s:CheckBox id="Innovacion" width="200" label="Innovación" selected="false" enabled="false"/>				
+			</s:VGroup>
+		
+		<s:VGroup height="100%" width="80%">
+			<s:DataGrid id="DataCapex"  resizableColumns="true"  sortableColumns="true" contentBackgroundAlpha="1"  width="100%" height="100%" visible="false" editable="false" bottom="1"  >
+				<s:columns>
+					<s:ArrayList>								
+						<s:GridColumn dataField="gerencia" width="70" headerText="Gerencia"></s:GridColumn>
+						<s:GridColumn dataField="sociedad" width="70" headerText="Sociedad"></s:GridColumn>
+						<s:GridColumn dataField="clasificacion" width="70" headerText="Clasificacion"></s:GridColumn>
+						<s:GridColumn dataField="clasificacion_reporte" width="70" headerText="Clas. Reporte"></s:GridColumn>
+						<s:GridColumn dataField="item" width="70" headerText="Item"></s:GridColumn>
+						<s:GridColumn dataField="grupo" width="70" headerText="Grupo"></s:GridColumn>
+						<s:GridColumn dataField="area_ejecutora" width="70" headerText="Area Ejecutora"></s:GridColumn>
+						<s:GridColumn dataField="codigo_proyecto" width="70" headerText="Codigo Proyecto"></s:GridColumn>
+						<s:GridColumn dataField="nombre_proyecto" width="70" headerText="Nombre Proyecto"></s:GridColumn>
+						<s:GridColumn dataField="ano_ejecucion" width="70" headerText="Año Ejecucion"></s:GridColumn>
+						<s:GridColumn dataField="ppto_inicial" width="70" headerText="Ppto. Inicial"></s:GridColumn>
+						<s:GridColumn dataField="ppto_actual" width="70" headerText="Ppto Actual"></s:GridColumn>
+						<s:GridColumn dataField="enero" width="70" headerText="Enero"></s:GridColumn>
+						<s:GridColumn dataField="febrero" width="70" headerText="Febrero"></s:GridColumn>
+						<s:GridColumn dataField="marzo" width="70" headerText="Marzo"></s:GridColumn>
+						<s:GridColumn dataField="abril" width="70" headerText="Abril"></s:GridColumn>
+						<s:GridColumn dataField="mayo" width="70" headerText="Mayo"></s:GridColumn>
+						<s:GridColumn dataField="junio" width="70" headerText="Junio"></s:GridColumn>
+						<s:GridColumn dataField="julio" width="70" headerText="Julio"></s:GridColumn>
+						<s:GridColumn dataField="agosto" width="70" headerText="Agosto"></s:GridColumn>
+						<s:GridColumn dataField="septiembre" width="70" headerText="Septiembre"></s:GridColumn>
+						<s:GridColumn dataField="octubre" width="70" headerText="Octubre"></s:GridColumn>
+						<s:GridColumn dataField="noviembre" width="70" headerText="Noviembre"></s:GridColumn>
+						<s:GridColumn dataField="diciembre" width="70" headerText="Diciembre"></s:GridColumn>	
+						
+					</s:ArrayList>
+				</s:columns>
+			</s:DataGrid>
+		</s:VGroup>
+		</s:HGroup>	
+		
+	</viewer:WidgetTemplate>
+	
+</viewer:BaseWidget>
+
+
+
+
+

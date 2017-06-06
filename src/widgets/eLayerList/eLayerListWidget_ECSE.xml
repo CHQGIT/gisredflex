@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<configuration>
+    <labels>
+        <visibilitylabel>Visibilidad de Capas</visibilitylabel>
+        <expandall>Expand All Layers</expandall>
+        <collapseall>Collapse All Layers</collapseall>
+        <zoomtomakevisible>Zoom To Make Visible</zoomtomakevisible>
+        <generatinglegendmsg>Generating TOC Legend</generatinglegendmsg>
+    </labels>
+    <tocsettings>
+        <expanded everything="false">true</expanded>
+        <collapselegends>true</collapselegends>
+        <disablezoomtomenuoption>false</disablezoomtomenuoption>
+    </tocsettings>
+    <excludelayers>
+        <excludelayer mapservice="SSEE">2</excludelayer>
+        <excludelayer mapservice="Vistas"></excludelayer>
+        <excludelayer mapservice="Postes_chocados"></excludelayer>
+        <excludelayer mapservice="Clientes1"></excludelayer>
+        <excludelayer mapservice="Clientes1"></excludelayer>
+        <excludelayer mapservice="Reportes Planificacion"></excludelayer>
+        <excludelayer mapservice="Vialidad"></excludelayer>
+        <excludelayer mapservice="Luminarias"></excludelayer>
+        <excludelayer mapservice="Linea Gas"></excludelayer>
+        <excludelayer mapservice="Clientes"></excludelayer>
+        <excludelayer mapservice="Direcciones"></excludelayer>
+        <excludelayer mapservice="Concesiones"></excludelayer>
+        <excludelayer mapservice="Electricidad"></excludelayer>
+        <excludelayer mapservice="STx"></excludelayer>
+        <excludelayer mapservice="Vistas"></excludelayer>
+        <excludelayer mapservice="Cobertura Antena"></excludelayer>
+        <excludelayer mapservice="Equipos linea"></excludelayer>
+        <excludelayer mapservice="Equipos Pto"></excludelayer>
+        <excludelayer mapservice="Tramos"></excludelayer>
+        <excludelayer mapservice="Nodos"></excludelayer>
+        <excludelayer mapservice="Unidad vecinal"></excludelayer>
+        <excludelayer mapservice="Postes sin apoyos mutuos"></excludelayer>
+        <excludelayer mapservice="Capacidad Conductores"></excludelayer>
+        <excludelayer mapservice="Clientes No Leidos"></excludelayer>
+    </excludelayers>
+    <excludegraphiclayers>true</excludegraphiclayers>
+    <excludebasemaplayers>true</excludebasemaplayers>
+    <usenewesridescription>false</usenewesridescription>
+</configuration>

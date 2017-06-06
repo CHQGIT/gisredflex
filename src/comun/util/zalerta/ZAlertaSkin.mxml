@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("comun.util.zalerta.ZAlerta")]
+	</fx:Metadata>
+	
+	<s:BorderContainer backgroundColor="0xffffff" width="100%" cornerRadius="5">
+		
+		<s:VGroup width="100%"  paddingBottom="10" paddingTop="10" paddingLeft="10" paddingRight="10" verticalAlign="middle" horizontalAlign="center">
+			<s:Label text="Información" fontWeight="bold" color="black" paddingBottom="10">
+			</s:Label>
+			<s:Label id="mensaje" text="" paddingBottom="20" color="black" fontSize="12" fontFamily="Arial, Verdana, sans-serif">
+			</s:Label>
+			<s:Button id="cerrar" label="Cerrar" />	
+		</s:VGroup>
+	</s:BorderContainer>
+</s:Skin>

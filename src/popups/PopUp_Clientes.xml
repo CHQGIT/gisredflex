@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <title>Nis: {ARCGIS.DBO.CLIENTES_XY_006.nis}</title>
+    <fields>
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_estado_suministro" alias="Estado :" visible="true"/>
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.zona" alias="Zona: " visible="true"/> 
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_tarifa" alias="Tarifa: " visible="true"/>
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.categoria" alias="Categoria: " visible="true"/>
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.oficina" alias="Oficina: " visible="true"/>
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_comuna" alias="Comuna: " visible="true"/>
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.empalme" alias="Empalme: " visible="true"/>
+        <Field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_area_tipica" alias="Area Tipica: " visible="true"/>        
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_sector" alias="Sector: " visible="true"/>
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_area" alias="Area: " visible="true"/>
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.consumidor" alias="Consumidor: " visible="true"/>
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_rotulo_nodo" alias="Rotulo: " visible="true"/>        
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_id_sed" alias="SED: " visible="true"/>
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.direccion_resu" alias="Dirección: " visible="true"/> 
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

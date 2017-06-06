@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2010 ESRI
+//
+// All rights reserved under the copyright laws of the United States.
+// You may freely redistribute and use this software, with or
+// without modification, provided you include the original copyright
+// and use restrictions.  See use restrictions in the file:
+// <install location>/License.txt
+//
+////////////////////////////////////////////////////////////////////////////////
+-->
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:esri="http://www.esri.com/2008/ags"
+				   xmlns:viewer="com.esri.viewer.*"
+				   widgetConfigLoaded="init()" width="0" height="0"
+				   >
+	<fx:Script>
+		<![CDATA[
+			import com.esri.viewer.AppEvent;
+			import com.esri.viewer.ViewerContainer;
+			import com.google.analytics.AnalyticsTracker;
+			import com.google.analytics.GATracker;
+			
+			import mx.core.FlexGlobals;
+			
+			import widgets.GoogleAnalytics.events.GoogleAnalyticsWidgetEvent;
+			
+			private var tracker:AnalyticsTracker;
+			private var gaAccount:String = "";
+			private var logWidgets:Boolean = false; 
+			private var logBasemaps:Boolean = false; 
+			private var logDrawtools:Boolean = false; 
+			
+			private function init():void
+			{
+				//Get the initial parameters from the config file
+				if (configXML)
+				{
+					gaAccount = configXML.account;
+					logWidgets = configXML.logwidgets == "true";
+					logBasemaps = configXML.logbasemaps == "true";
+					logDrawtools = configXML.logdrawtools == "true";
+				}
+				
+				//only set listeners if there is an account in the config file
+				if (gaAccount != "")
+				{
+					tracker = new GATracker( this, gaAccount, "AS3", false );
+					
+					//Log a visit marked as Home page as this will occur when viewer is first opened.
+					tracker.trackPageview( "/" + configXML.flexviewer);
+					
+					ViewerContainer.addEventListener(AppEvent.WIDGET_RUN, listenHandler);
+					ViewerContainer.addEventListener(AppEvent.BASEMAP_SWITCH, listenHandler);
+					ViewerContainer.addEventListener(AppEvent.SET_MAP_ACTION, listenHandler);
+					systemManager.addEventListener(
+											GoogleAnalyticsWidgetEvent.LOG_PAGE, logPageHandler);
+				}
+				
+			}
+			
+			//Listen for Appevents and Log to Google Analytics if needed.
+			private function listenHandler(event:AppEvent):void
+			{
+				if (event.type == AppEvent.WIDGET_RUN)
+				{
+					if (logWidgets)
+					{
+						trace(this.configData.widgets[event.data].url);
+						trace(this.configData.widgets[event.data].label);
+						tracker.trackPageview( "/" + this.configData.widgets[event.data].url);
+					}
+				}
+				
+				if (event.type == AppEvent.BASEMAP_SWITCH)
+				{
+					if (logBasemaps)
+					{
+						trace(this.configData.basemaps[event.data].label);
+						trace(this.configData.basemaps[event.data].url);
+						tracker.trackPageview( "/" + this.configData.basemaps[event.data].label);
+					}
+				}
+				
+				if (event.type == AppEvent.SET_MAP_ACTION)
+				{
+					if (event.data.status)
+					{
+						if (logDrawtools)
+						{
+							trace(event.data.status + " - " + event.data.tool);
+							tracker.trackPageview( "/" + event.data.tool);
+						}
+					}
+				}
+			}
+			
+			/**
+			 * Listens for a GoogleAnalyticsWidgetEvent. The event.pageName is sent to
+			 * Google Analytics to be logged.
+			 */
+			private function logPageHandler(event:Event):void
+			{
+				var evtObject:Object = event as Object;
+				trace(evtObject.pageName);
+				tracker.trackPageview( "/" + evtObject.pageName);
+			}
+			
+		]]>
+	</fx:Script>
+</viewer:BaseWidget>

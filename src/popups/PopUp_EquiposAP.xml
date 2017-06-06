@@ -1,0 +1,20 @@
+  <?xml version="1.0" ?> 
+ <configuration>
+  <title>ID Medidor: {id_medidor}</title> 
+ <fields>
+  <field name="propiedad" alias="Propiedad:" visible="true" /> 
+  <field name="tipo_conexion" alias="Tipo Conexion:" visible="true" /> 
+  <field name="tipo_equipo" alias="Tipo Equipo:" visible="true" /> 
+  <field name="alimentador" alias="Alimentador:" visible="true" /> 
+  <field name="sed" alias="SED:" visible="true" /> 
+  <field name="catalogo" alias="Catalogo:" visible="true" /> 
+  <field name="descripcion" alias="Descripcion:" visible="true" /> 
+  <field name="luminarias" alias="luminarias:" visible="true" /> 
+  <field name="comuna" alias="Comuna:" visible="true" /> 
+  <field name="numero_medidor" alias="N° Medidor:" visible="true" /> 
+  <field name="nis" alias="NIS:" visible="true" /> 
+  <field name="observaciones" alias="Observaciones:" visible="true" /> 
+  </fields>
+  <showattachments>false</showattachments> 
+  <showrelatedrecords>false</showrelatedrecords> 
+  </configuration>

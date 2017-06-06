@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:wizard="widgets.Interrupciones.wizard.*" xmlns:wizard1="comun.wizard.*">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("widgets.Interrupciones.wizard.SelectorEtapa")]
+	</fx:Metadata>
+	<s:HGroup verticalAlign="top">
+		
+		<wizard1:ControlPasoWizard id="paso1" textoNumeroPaso="1" textoEtiqueta="FILTROS BÁSICOS">
+		</wizard1:ControlPasoWizard>
+		
+		<wizard1:ControlPasoWizard id="paso2" textoNumeroPaso="2" textoEtiqueta="FILTROS AVANZADOS">
+		</wizard1:ControlPasoWizard>
+		
+		<wizard1:ControlPasoWizard id="paso3" textoNumeroPaso="3" textoEtiqueta="RESULTADOS">
+		</wizard1:ControlPasoWizard>
+	</s:HGroup>
+</s:Skin>

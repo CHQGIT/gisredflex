@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>SSEE : {ARCGIS.dbo.PLAN_POLIGONO_SSEE_NOMBRES.NOMBRE}</title>
+    <fields>
+        <field name="ARCGIS.DBO.PLAN_GEO_POLIGONOS_006.OBJECTID" alias="OBJECTID"/>
+        <field name="ARCGIS.DBO.PLAN_GEO_POLIGONOS_006.OBJECT_ID" alias="OBJECT_ID"/>
+        <field name="ARCGIS.DBO.PLAN_GEO_POLIGONOS_006.SHAPE" alias="SHAPE"/>
+        <field name="SHAPE.STArea()" alias="SHAPE.STArea()"/>
+        <field name="SHAPE.STLength()" alias="SHAPE.STLength()"/>
+        <field name="ARCGIS.DBO.PLAN_POLIGONO_SSEE.OBJECTID" alias="OBJECTID"/>
+        <field name="ARCGIS.DBO.PLAN_POLIGONO_SSEE.ID_POLIGONO_SSEE" alias="ID_POLIGONO_SSEE"/>
+        <field name="ARCGIS.dbo.PLAN_POLIGONO_SSEE_NOMBRES.ID_POLIGONO_SSEE" alias="ID_POLIGONO_SSEE"/>
+        <field name="ARCGIS.dbo.PLAN_POLIGONO_SSEE_NOMBRES.NOMBRE" alias="NOMBRE: "/>
+        <field name="ARCGIS.dbo.PLAN_POLIGONO_SSEE_NOMBRES.ID_SSEE" alias="ID_SSEE: " visible="true"/>
+        <field name="ARCGIS.DBO.PLAN_POLIGONO_SSEE.ID_POLIGONO" alias="ID_POLIGONO: " visible="true"/>
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

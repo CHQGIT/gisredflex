@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx" 
+		xmlns:filtros="widgets.Interrupciones.busqueda.filtros.*">
+	<fx:Metadata>
+		[HostComponent("widgets.InterrupcionesClientesSED2.busqueda.FormularioBusquedaClienteSed")]
+	</fx:Metadata>
+	
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>
+	<s:Form>
+		<s:VGroup paddingTop="0" paddingBottom="20">
+			<filtros:FiltroPeriodo id="filtroPeriodo"></filtros:FiltroPeriodo>
+					
+			<s:HGroup>
+				<s:Label text="Tipo Resultado:" width="150" textAlign="right" />
+				<s:DropDownList prompt="Seleccione" id="listaTipoResultado"  width="200" />
+			</s:HGroup>
+			
+			<filtros:FiltroCausa id="filtroCausa" />
+			
+			<s:HGroup>
+				<s:Label text="Orden:" width="150" textAlign="right" />
+				<s:RadioButton id="radioFrecuencia" label="Frecuencia" groupName="orden" selected="true"/>
+				<s:RadioButton id="radioDuracion" label="Duracion" groupName="orden"/>
+			</s:HGroup>
+			
+		</s:VGroup>
+		
+	</s:Form>
+</s:Skin>
