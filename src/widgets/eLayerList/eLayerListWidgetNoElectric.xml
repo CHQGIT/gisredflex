@@ -34,6 +34,7 @@
      	   <excludelayer mapservice="PMGD"></excludelayer>
      	   <excludelayer mapservice="Capacidad Conductores"></excludelayer>
      	    <excludelayer mapservice="Clientes subterraneos"></excludelayer>
+     	     <excludelayer mapservice="Interrupciones Equipos"></excludelayer>
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

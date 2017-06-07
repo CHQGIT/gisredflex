@@ -126,6 +126,17 @@
 			           url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Especiales006/MapServer" 
 			           visible="true">	            
        			</layer>
+       			
+        <layer type="dynamic"
+			           label="Interrupciones Equipos" 
+			           imageformat="png32"
+			           url="http://gisred.chilquinta/arcgis/rest/services/Test/Equipos_int/MapServer" 
+			           visible="false">	            
+       			</layer>
+       						
+       			
+       			
+       			
        		<!--  <layer type="dynamic"
 			           label="Ordenes" 
 			           imageformat="png32"
@@ -166,11 +177,17 @@
             url="widgets/CoordinateMenu/CoordinateMenuWidget_GUI.swf"/>
 		                	  
         </widgetgroup>
-        <widget label="Capas" 
+        <widget label="Capas Eléctricas" 
        		   icon="assets/images/i_layers.png"
                config="widgets/eLayerList/eLayerListWidget.xml"
                url="widgets/eLayerList/eLayerListWidget.swf" 
                preload="close"/>
+               
+        <widget label="Capas no eléctricas" 
+       		   icon="assets/images/varios.png"
+               config="widgets/eLayerList/eLayerListWidgetNoElectric.xml"
+               url="widgets/eLayerList/eLayerListWidget.swf" 
+               preload="close"/>        
                 
        <!-- Grupo de Busqueda Clientes-->
        <widgetgroup label="Búsquedas Clientes" icon="assets/images/Clientes.png">
