@@ -99,7 +99,7 @@
 			
 			protected function ConsultarAcceso():void
 			{
-				
+			
 				var queryTaskUserSelected:QueryTask = new QueryTask();
 				queryTaskUserSelected.url = comun.url.URL.URL_ACCESO;
 				queryTaskUserSelected.useAMF = false;
@@ -116,7 +116,7 @@
 				{
 					
 					if(featureSet.features.length == 0 ){
-						//     Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
+						//Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
 						//currentState = "bkmInit"; 
 						currentState ="bkmInit";
 						lblwarning.visible = true;
@@ -126,7 +126,8 @@
 						wTemplate.width = 800;
 					}
 						//si hay, cuales son los permisos
-					else{               
+					else{   
+						
 						ColeccionUser.addAll(new ArrayCollection(featureSet.attributes));
 						
 						for(var i:int=0;i<=ColeccionUser.length-1;i++){	
@@ -166,7 +167,7 @@
 				
 				function onFault(info:Object, token:Object = null):void
 				{   
-					//Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
+					Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
 					currentState ="bkmInit";
 					lblwarning.visible = true;
 					lblwarning2.visible = true;

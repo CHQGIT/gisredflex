@@ -59,33 +59,39 @@
 
     <fx:Script>
         <![CDATA[
-            import com.esri.ags.Map;
-            import com.esri.ags.layers.supportClasses.LayerInfoWindowRenderer;
-            import com.esri.viewer.AppEvent;
-            import com.esri.viewer.ConfigData;
-            import com.esri.viewer.IBaseWidget;
-            import com.esri.viewer.IInfowindowTemplate;
-            import com.esri.viewer.IWidgetContainer;
-            import com.esri.viewer.WidgetStates;
-            import com.esri.viewer.utils.Hashtable;
-            import com.esri.viewer.utils.LocalizationUtil;
-            import com.esri.viewer.utils.PanelBox;
-            import com.esri.viewer.utils.PanelBoxButtonClickEvent;
-
-            import mx.core.IVisualElement;
-            import mx.core.UIComponent;
-            import mx.events.EffectEvent;
-            import mx.events.ModuleEvent;
-            import mx.events.ResizeEvent;
-            import mx.managers.HistoryManager;
-            import mx.managers.IFocusManagerComponent;
-            import mx.modules.IModuleInfo;
-            import mx.modules.ModuleManager;
-
-            import spark.components.Group;
-            import spark.components.HGroup;
-            import spark.components.VGroup;
-
+			import com.esri.ags.Map;
+			import com.esri.ags.layers.supportClasses.LayerInfoWindowRenderer;
+			import com.esri.viewer.AppEvent;
+			import com.esri.viewer.ConfigData;
+			import com.esri.viewer.IBaseWidget;
+			import com.esri.viewer.IInfowindowTemplate;
+			import com.esri.viewer.IWidgetContainer;
+			import com.esri.viewer.WidgetStates;
+			import com.esri.viewer.utils.Hashtable;
+			import com.esri.viewer.utils.LocalizationUtil;
+			import com.esri.viewer.utils.PanelBox;
+			import com.esri.viewer.utils.PanelBoxButtonClickEvent;
+			
+			import mx.core.IVisualElement;
+			import mx.core.UIComponent;
+			import mx.events.EffectEvent;
+			import mx.events.ModuleEvent;
+			import mx.events.ResizeEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.HistoryManager;
+			import mx.managers.IFocusManagerComponent;
+			import mx.modules.IModuleInfo;
+			import mx.modules.ModuleManager;
+			
+			import spark.components.Group;
+			import spark.components.HGroup;
+			import spark.components.VGroup;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.Map;
+			import com.esri.ags.components.IdentityManager;
+			import com.esri.ags.events.IdentityManagerEvent;
+			import com.esri.ags.layers.FeatureLayer;
+			
             private const WIDGET_MANAGER:String = "WidgetManager";
 
             private var hist:HistoryManager;
@@ -295,8 +301,57 @@
 
                 //TODO: no real time resizing for V2.0
                 //AppEvent.addListener(AppEvent.WIDGET_MGR_RESIZE, resizeManagerView);
+				
+				IdentityManager.instance.addEventListener(IdentityManagerEvent.SIGN_IN,login);
+				
             }
-
+	
+			public function login(e:IdentityManagerEvent):void{
+				//text.text = "aaaa "+e.credential.userId;
+				//Alert.show("aaaa "+e.credential.token);
+				
+				import comun.Planificacion.User;
+				
+				comun.Planificacion.User.Usuario = e.credential.userId;
+				
+				var EdicionRegistro:FeatureLayer = new FeatureLayer;
+				
+				EdicionRegistro.url = "http://gisred.chilquinta/arcgis/rest/services/Admin/LogAccesos/FeatureServer/1";
+				
+				var atributos:* = new Object;				
+				
+				import widgets.GISRED360.Clases.savedToken;
+				
+				var st:widgets.GISRED360.Clases.savedToken = new savedToken;
+				savedToken.tkn = e.credential.token;
+				
+				
+				atributos["usuario"] = e.credential.userId;
+				atributos["fecha"] = CurrentDateTimeString();
+				atributos["pagina"] ="Chilquinta";				
+				atributos["modulo"]= null;
+				atributos["nom_equipo"] = null;
+				atributos["ip"]= null;
+				
+				var nuevoGraphic:Graphic = new Graphic(null, null, atributos);
+				EdicionRegistro.applyEdits([nuevoGraphic],null,null,false,null);
+				
+			}
+			
+			
+			
+			//Funcion pra obtener hora actual en formato indicado.
+			//Nicolos Elgueta Dic-2014		
+			
+			private function CurrentDateTimeString():String
+			{               
+				var CurrentDateTime:Date = new Date();
+				var CurrentDF:DateFormatter = new DateFormatter();
+				CurrentDF.formatString = "DD/MM/YYYY LL:NN:SS A"
+				var DateTimeString:String = CurrentDF.format(CurrentDateTime);
+				return DateTimeString;
+			}
+			
             private function configLoadedHandler(event:AppEvent):void
             {
                 configData = event.data as ConfigData;
