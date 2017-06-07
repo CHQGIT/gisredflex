@@ -135,7 +135,7 @@
 				statuslbl.text = "Filas leidas: "+ tRows;
 				statCollection = new ArrayCollection();
 						
-				if(tRows.valueOf()>500)
+				if(tRows.valueOf()>300)
 				{
 					
 					Alert.show("Demasiados datos a consultar \n             (maximo 3000)");

@@ -137,11 +137,15 @@
         </operationallayers>
     </map>
     <widgetcontainer layout="float">
-         <widget url="widgets/Query/QueryWidget.swf" 
+        <!--   <widget url="widgets/Query/QueryWidget.swf" 
        			config="widgets/Query/QueryWidget_SSEE.xml" 
        			label="SSEE" 
         		icon="assets/images/SSEE.png" preload="close"/>
-        		
+        		-->
+        <widget url="widgets/GISRED360/GISRED360_Widget.swf" 
+       			config="widgets/GISRED360/GISRED360_Widget.xml" 
+       			label="SSEE" 
+        		icon="assets/images/SSEE.png" preload="close"/>
          <widgetgroup label="Herramientas" icon="assets/images/Herramientas.png">
             	<widget label="Dibujar" left="60" top="400"
                 	icon="assets/images/i_draw2.png"
