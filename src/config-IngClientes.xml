@@ -85,24 +85,21 @@
      		</layer>  
     
         	<layer type="dynamic"
-			           label="Luminarias" 
-			           imageformat="png32"
-			           url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Luminarias/MapServer" 
-			           visible="true">       			
+			    label="Luminarias" 
+			    imageformat="png32"
+			    url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Luminarias/MapServer" 
+			    visible="true">       			
        		</layer>
        		
         	<layer type="dynamic"
-			           label="Linea Gas" 
-			           imageformat="png32"
-			           url="http://gisred.chilquinta/arcgis/rest/services/Varios/GAS/MapServer" 
-			           visible="true"
-			           info="widgets/InfoTemplates/AttRelateInfoWinWidget.swf"
-                 	   infoconfig="widgets/InfoTemplates/IWT_Cameras.xml"
-			           >       			
+			    label="Linea Gas" 
+			    imageformat="png32"
+			    url="http://gisred.chilquinta/arcgis/rest/services/Varios/GAS/MapServer" 
+			    visible="true"
+			    info="widgets/InfoTemplates/AttRelateInfoWinWidget.swf"
+                infoconfig="widgets/InfoTemplates/IWT_Cameras.xml">       			
        		</layer> 
-       		
-                 
-       		
+       		     		
        			    
 			<!-- <layer type="dynamic"  imageformat="png32" label="Clientes1" url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Clientes/MapServer" visible="false"/> -->        
             <layer type="dynamic"  imageformat="png32" label="Clientes" url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer" visible="true">
@@ -113,6 +110,7 @@
             	<sublayer id="0" popupconfig="popups/PopUp_Concesion_Distribucion.xml"/>
                 <sublayer id="1" popupconfig="popups/PopUp_Concesion_Transmision.xml"/>
             </layer>
+            
              <layer type="dynamic"
      			label="Nodos"
      			imageformat="png32"
@@ -120,6 +118,7 @@
      			visible="true">
      			 <sublayer id="0" label="Postes" popupconfig="popups/PopUp_Poste.xml"/>
      		</layer>
+     		
             <layer type="dynamic"     		
      			label="Tramos"
      			imageformat="png32"
@@ -130,8 +129,6 @@
      			 <sublayer id="2" label="Tramo AP" popupconfig="popups/PopUp_Tramo_AP.xml"/>
      		</layer>
      		
-     		
-     		     
      		
      		<layer type="dynamic"
      			label="Equipos Pto"
@@ -185,6 +182,13 @@
      			url="http://gisred.chilquinta/arcgis/rest/services/Varios/POSTES_SIN_APOYOS/MapServer"
      			visible="false">
      		</layer>
+       		
+       		<layer type="dynamic"
+                 label="Ingreso Externo"
+                 imageformat="png32"
+                 url="http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/MapServer"
+                 visible="true">
+             </layer>
        		
        			
         </operationallayers>

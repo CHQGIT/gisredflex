@@ -387,7 +387,10 @@
 				// TODO Auto-generated method stub
 				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
 				var query:Query = new Query();
-				query.where = "NIS="+ DataClientesNuevos.selectedItem['NIS'];
+				//7.6.2017: Evelyn Hernández - Arreglando problema de búsqueda de nis con más de una geometría. 
+				//query.where = "NIS="+ DataClientesNuevos.selectedItem['NIS'];
+				
+				query.where = "OBJECTID="+ DataClientesNuevos.selectedItem['OBJECTID'];
 				query.outFields = ['*'];
 				query.returnGeometry = true;
 				queryTask.execute(query, new AsyncResponder(onResultQuery2, onFaultQuery2));
@@ -413,8 +416,7 @@
 				}
 				function onFaultQuery2(info:Object, token:Object = null):void
 				{   
-					
-					
+					Alert.show("Error al buscar NIS, intente nuevamente");
 				}
 			}
 			
