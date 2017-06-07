@@ -643,7 +643,7 @@
 				
 				function onFault(info:Object, token:Object = null):void
 				{   	
-					//Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
+					Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
 					
 				}
 				
