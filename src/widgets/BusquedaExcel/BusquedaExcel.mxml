@@ -118,8 +118,7 @@
 			
 		 
 			
-			public function fileIn():void
-			{   
+			public function fileIn():void {  
 		
 				graphicsLayer1 = null;
 				//Crear objeto graphiclayer 1 
@@ -135,366 +134,361 @@
 				statuslbl.text = "Filas leidas: "+ tRows;
 				statCollection = new ArrayCollection();
 						
-				if(tRows.valueOf()>300)
-				{
-					
-					Alert.show("Demasiados datos a consultar \n             (maximo 3000)");
+				if(tRows.valueOf()>300)	{
+					Alert.show("Demasiados datos a consultar \n             (maximo 300)");
 					return;
-				}			
-			
-				
-				switch(seleccion)
-				{
-					case 0:
+				}else{
+					switch(seleccion)
 					{
-						//Alert.show("SED");
-						for(var i:int=0;i<=tRows-1;i++)
+						case 0:
 						{
-							valor = '0';
-							var statsEnry:Object = new Object();
-							statsEnry.eventLabel = sheet.getCell(i,0).value;
-							statsEnry.totalEvent = sheet.getCell(i,1).value;
-							if(statsEnry.EntryLabel !=""){
-								statCollection.addItem(statsEnry);
-								valor = sheet.getCell(i,0).value;
-								//Obtener ids del servicio
-								var qtID:QueryTask = new QueryTask();
-								qtID.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/1/query";
-								qtID.useAMF = false;
-								var queryID:Query = new Query();
-								queryID.where = "codigo=" + valor;
-								
-								queryID.outFields=["codigo"]
-								queryID.returnGeometry=true;
-								queryID.spatialRelationship ="esriSpatialRelIntersects";
-								queryID.outSpatialReference = map.spatialReference;
-								qtID.execute(queryID, new AsyncResponder(onResult, onFault));
-								
-								function onResult(featureSet:FeatureSet, token:Object = null):void
-								{
-									try{
-										var myGraphicMarker:Graphic = featureSet.features[0] as Graphic;
-										myGraphicMarker.symbol = new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value);
-										graphicsLayer1.add(myGraphicMarker);
-										ac.addItem(graphicsLayer1);
-										
-									}catch(err:Error){
-										//Alert.show(err.message+ "id no encontrada");
-									}
-								}
-								
-								function onFault(info:Object, token:Object = null):void
-								{   
-									//Alert.show("id no encontrada"+ valor);
-								}
-								seleccion = 0;
-								
-								
-							}else {     
-								Alert.show("espacios");
-							}
-						}
-						map.addLayer(graphicsLayer1);
-						break;
-					}
-					case 4:
-					{
-					//	Alert.show("Postes");
-						for(var i2:int=0;i2<=tRows-1;i2++)
-						{
-							valor = '0';
-							var statsEnry2:Object = new Object();
-							statsEnry2.eventLabel = sheet.getCell(i2,0).value;
-							statsEnry2.totalEvent = sheet.getCell(i2,1).value;
-							if(statsEnry2.EntryLabel !=""){
-								statCollection.addItem(statsEnry2);
-								valor = sheet.getCell(i2,0).value;
-								//Alert.show(valor);
-								
-								//  Alert.show("Clientes");
-								//Obtener ids del servicio
-								var qtID2:QueryTask = new QueryTask();
-								qtID2.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0/query";
-								qtID2.useAMF = false;
-								var queryID2:Query = new Query();
-								queryID2.where = "rotulo='" + valor + "'";
-								
-								queryID2.outFields=["rotulo"]
-								queryID2.returnGeometry=true;
-								queryID2.spatialRelationship ="esriSpatialRelIntersects";
-								queryID2.outSpatialReference = map.spatialReference;
-								qtID2.execute(queryID2, new AsyncResponder(onResult1, onFault1));
-								
-								function onResult1(featureSet:FeatureSet, token:Object = null):void
-								{
-									try{
-										var myGraphicMarker:Graphic = featureSet.features[0] as Graphic;
-										myGraphicMarker.symbol = new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value);
-										graphicsLayer1.add(myGraphicMarker);
-										ac.addItem(graphicsLayer1);
-									}catch(err:Error){
-										//Alert.show(err.message+ "id no encontrada");
-									}
-								}
-								
-								function onFault1(info:Object, token:Object = null):void
-								{   
-									//Alert.show("id no encontrada"+ valor);
-								}
-								seleccion = 0;
-								
-								
-							}else {     
-								Alert.show("espacios");
-							}
-						}					
-					 	
-						map.addLayer(graphicsLayer1);
-						break;
-					}
-					case 9:
-					{
-					//	Alert.show("Camaras");
-						for(var i3:int=0;i3<=tRows-1;i3++)
-						{
-							valor = '0';
-							var statsEnry3:Object = new Object();
-							statsEnry3.eventLabel = sheet.getCell(i3,0).value;
-							statsEnry3.totalEvent = sheet.getCell(i3,1).value;
-							if(statsEnry3.EntryLabel !=""){
-								statCollection.addItem(statsEnry3);
-								valor = sheet.getCell(i3,0).value;						
-								//Obtener ids del servicio
-								var qtID3:QueryTask = new QueryTask();
-								qtID3.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0/query";
-								qtID3.useAMF = false;
-								var queryID3:Query = new Query();
-								queryID3.where = "rotulo='" + valor + "'";								
-								queryID3.outFields=["rotulo"]
-								queryID3.returnGeometry=true;
-								queryID3.spatialRelationship ="esriSpatialRelIntersects";
-								queryID3.outSpatialReference = map.spatialReference;
-								qtID3.execute(queryID3, new AsyncResponder(onResult2, onFault2));
-								
-								function onResult2(featureSet:FeatureSet, token:Object = null):void
-								{
-									try{
-										var myGraphicMarker:Graphic = featureSet.features[0] as Graphic;
-										myGraphicMarker.symbol = new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value);
-										graphicsLayer1.add(myGraphicMarker);
-										ac.addItem(graphicsLayer1);
-									}catch(err:Error){
-										//Alert.show(err.message+ "id no encontrada");
-									}
-								}
-								
-								function onFault2(info:Object, token:Object = null):void
-								{   
-									//Alert.show("id no encontrada"+ valor);
-								}
-								seleccion = 0;
-								
-								
-							}else {     
-								Alert.show("espacios");
-							}
-						}
-						map.addLayer(graphicsLayer1);
-						break;
-					}
-						
-						
-					
-						
-					case 1:
-					{
-						//Alert.show("Clientes");
-						for(var i4:int=0;i4<=tRows-1;i4++)
-						{   
-							valor = '0';
-							var statsEnry4:Object = new Object();
-							statsEnry4.eventLabel = sheet.getCell(i4,0).value;
-							statsEnry4.totalEvent = sheet.getCell(i4,1).value;
-							if(statsEnry4.EntryLabel !=""){
-								statCollection.addItem(statsEnry4);
-								valor = sheet.getCell(i4,0).value;								
-								//Obtener ids del servicio
-								var qtID4:QueryTask = new QueryTask();
-								qtID4.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0/query";								
-								qtID4.useAMF = false;
-								var queryID4:Query = new Query();
-								queryID4.where = "ARCGIS.DBO.CLIENTES_XY_006.nis=" + valor;								
-								queryID4.outFields=["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis"]
-								queryID4.returnGeometry=true;
-								queryID4.spatialRelationship ="esriSpatialRelIntersects";
-								queryID4.outSpatialReference = map.spatialReference;
-								qtID4.execute(queryID4, new AsyncResponder(onResult4, onFault4));
-								
-								function onResult4(featureSet:FeatureSet, token:Object = null):void
-								{
-									try{
-										
-										
-										var mp:MapPoint=featureSet.features[0].geometry as MapPoint;  
-										var myGraphic:Graphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value), featureSet.features[0].attributes);
-										
-										
-								
-										myGraphic.toolTip = "NIS: " + String(featureSet.features[0].attributes["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis"]); 
-										graphicsLayer1.add(myGraphic);
-										graphicsLayer1.moveToTop(myGraphic);
-										ac.addItem(graphicsLayer1);
-										map.addLayer(graphicsLayer1);
-									}catch(err:Error){
-										//Alert.show(err.message+ "id no encontrada");
-									}
-								}
-								
-								function onFault4(info:Object, token:Object = null):void
-								{   
-									//Alert.show("id no encontrada"+ valor);
-								}
-								seleccion = 0;
-								
-								
-							}else {     
-								Alert.show("espacios");
-							}
-						}
-						map.addLayer(graphicsLayer1);
-						break;
-						
-					}
-					case 2:
-					{
-						//Alert.show("TramoMT");
-						for(var i6:int=0;i6<=tRows-1;i6++)
-						{   
-							valor = '0';
-							var statsEnry6:Object = new Object();
-							statsEnry6.eventLabel = sheet.getCell(i6,0).value;
-							statsEnry6.totalEvent = sheet.getCell(i6,1).value;
-							if(statsEnry6.EntryLabel !=""){
-								statCollection.addItem(statsEnry6);
-								valor = sheet.getCell(i6,0).value;								
-								//Obtener ids del servicio
-								var queryTaskEquipoSelected:QueryTask = new QueryTask();
-								queryTaskEquipoSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Tramos_006/MapServer/0";
-								queryTaskEquipoSelected.useAMF = false;
-								var queryEquipoSelected:Query = new Query();
-								queryEquipoSelected.outFields = ["*"];
-								queryEquipoSelected.returnGeometry = true;
-								
-								queryEquipoSelected.where = "ARCGIS.DBO.Tramos_MT_006.id=" + valor;
-								queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
-								queryEquipoSelected.outSpatialReference = map.spatialReference;
-								queryTaskEquipoSelected.execute(queryEquipoSelected, new AsyncResponder(onResult6, onFault6));
-								
-								function onResult6(featureSet:FeatureSet, token:Object = null):void
-								{ 
-								
-									try{
-										
-										for each (var myGraphic:Graphic in featureSet.features)
-										{
+							//Alert.show("SED");
+							for(var i:int=0;i<=tRows-1;i++)
+							{
+								valor = '0';
+								var statsEnry:Object = new Object();
+								statsEnry.eventLabel = sheet.getCell(i,0).value;
+								statsEnry.totalEvent = sheet.getCell(i,1).value;
+								if(statsEnry.EntryLabel !=""){
+									statCollection.addItem(statsEnry);
+									valor = sheet.getCell(i,0).value;
+									//Obtener ids del servicio
+									var qtID:QueryTask = new QueryTask();
+									qtID.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/1/query";
+									qtID.useAMF = false;
+									var queryID:Query = new Query();
+									queryID.where = "codigo=" + valor;
+									
+									queryID.outFields=["codigo"]
+									queryID.returnGeometry=true;
+									queryID.spatialRelationship ="esriSpatialRelIntersects";
+									queryID.outSpatialReference = map.spatialReference;
+									qtID.execute(queryID, new AsyncResponder(onResult, onFault));
+									
+									function onResult(featureSet:FeatureSet, token:Object = null):void
+									{
+										try{
+											var myGraphicMarker:Graphic = featureSet.features[0] as Graphic;
+											myGraphicMarker.symbol = new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value);
+											graphicsLayer1.add(myGraphicMarker);
+											ac.addItem(graphicsLayer1);
 											
-											myGraphic.symbol=new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,cpMarker.selectedColor,numMarkerAlpha.value,5);
-											graphicsLayer1.add(myGraphic);
-								
-											
+										}catch(err:Error){
+											//Alert.show(err.message+ "id no encontrada");
 										}
-										map.addLayer(graphicsLayer1);
-									}catch(err:Error){
-										Alert.show("no se pudo hacer zoom al equipo seleccionado");
 									}
 									
+									function onFault(info:Object, token:Object = null):void
+									{   
+										//Alert.show("id no encontrada"+ valor);
+									}
+									seleccion = 0;
 									
+									
+								}else {     
+									Alert.show("espacios");
 								}
-								
-								function onFault6(info:Object, token:Object = null):void
-								{   
-									Alert.show("id de equipo no encontrada");
-								}
-								
-								seleccion = 0;
-								
-								
-							}else {     
-								Alert.show("espacios");
 							}
+							map.addLayer(graphicsLayer1);
+							break;
+						}
+						case 4:
+						{
+							//	Alert.show("Postes");
+							for(var i2:int=0;i2<=tRows-1;i2++)
+							{
+								valor = '0';
+								var statsEnry2:Object = new Object();
+								statsEnry2.eventLabel = sheet.getCell(i2,0).value;
+								statsEnry2.totalEvent = sheet.getCell(i2,1).value;
+								if(statsEnry2.EntryLabel !=""){
+									statCollection.addItem(statsEnry2);
+									valor = sheet.getCell(i2,0).value;
+									//Alert.show(valor);
+									
+									//  Alert.show("Clientes");
+									//Obtener ids del servicio
+									var qtID2:QueryTask = new QueryTask();
+									qtID2.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0/query";
+									qtID2.useAMF = false;
+									var queryID2:Query = new Query();
+									queryID2.where = "rotulo='" + valor + "'";
+									
+									queryID2.outFields=["rotulo"]
+									queryID2.returnGeometry=true;
+									queryID2.spatialRelationship ="esriSpatialRelIntersects";
+									queryID2.outSpatialReference = map.spatialReference;
+									qtID2.execute(queryID2, new AsyncResponder(onResult1, onFault1));
+									
+									function onResult1(featureSet:FeatureSet, token:Object = null):void
+									{
+										try{
+											var myGraphicMarker:Graphic = featureSet.features[0] as Graphic;
+											myGraphicMarker.symbol = new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value);
+											graphicsLayer1.add(myGraphicMarker);
+											ac.addItem(graphicsLayer1);
+										}catch(err:Error){
+											//Alert.show(err.message+ "id no encontrada");
+										}
+									}
+									
+									function onFault1(info:Object, token:Object = null):void
+									{   
+										//Alert.show("id no encontrada"+ valor);
+									}
+									seleccion = 0;
+									
+									
+								}else {     
+									Alert.show("espacios");
+								}
+							}					
+							
+							map.addLayer(graphicsLayer1);
+							break;
+						}
+						case 9:
+						{
+							//	Alert.show("Camaras");
+							for(var i3:int=0;i3<=tRows-1;i3++)
+							{
+								valor = '0';
+								var statsEnry3:Object = new Object();
+								statsEnry3.eventLabel = sheet.getCell(i3,0).value;
+								statsEnry3.totalEvent = sheet.getCell(i3,1).value;
+								if(statsEnry3.EntryLabel !=""){
+									statCollection.addItem(statsEnry3);
+									valor = sheet.getCell(i3,0).value;						
+									//Obtener ids del servicio
+									var qtID3:QueryTask = new QueryTask();
+									qtID3.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0/query";
+									qtID3.useAMF = false;
+									var queryID3:Query = new Query();
+									queryID3.where = "rotulo='" + valor + "'";								
+									queryID3.outFields=["rotulo"]
+									queryID3.returnGeometry=true;
+									queryID3.spatialRelationship ="esriSpatialRelIntersects";
+									queryID3.outSpatialReference = map.spatialReference;
+									qtID3.execute(queryID3, new AsyncResponder(onResult2, onFault2));
+									
+									function onResult2(featureSet:FeatureSet, token:Object = null):void
+									{
+										try{
+											var myGraphicMarker:Graphic = featureSet.features[0] as Graphic;
+											myGraphicMarker.symbol = new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value);
+											graphicsLayer1.add(myGraphicMarker);
+											ac.addItem(graphicsLayer1);
+										}catch(err:Error){
+											//Alert.show(err.message+ "id no encontrada");
+										}
+									}
+									
+									function onFault2(info:Object, token:Object = null):void
+									{   
+										//Alert.show("id no encontrada"+ valor);
+									}
+									seleccion = 0;
+									
+									
+								}else {     
+									Alert.show("espacios");
+								}
+							}
+							map.addLayer(graphicsLayer1);
+							break;
+						}
+							
+							
+							
+							
+						case 1:
+						{
+							//Alert.show("Clientes");
+							for(var i4:int=0;i4<=tRows-1;i4++)
+							{   
+								valor = '0';
+								var statsEnry4:Object = new Object();
+								statsEnry4.eventLabel = sheet.getCell(i4,0).value;
+								statsEnry4.totalEvent = sheet.getCell(i4,1).value;
+								if(statsEnry4.EntryLabel !=""){
+									statCollection.addItem(statsEnry4);
+									valor = sheet.getCell(i4,0).value;								
+									//Obtener ids del servicio
+									var qtID4:QueryTask = new QueryTask();
+									qtID4.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0/query";								
+									qtID4.useAMF = false;
+									var queryID4:Query = new Query();
+									queryID4.where = "ARCGIS.DBO.CLIENTES_XY_006.nis=" + valor;								
+									queryID4.outFields=["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis"]
+									queryID4.returnGeometry=true;
+									queryID4.spatialRelationship ="esriSpatialRelIntersects";
+									queryID4.outSpatialReference = map.spatialReference;
+									qtID4.execute(queryID4, new AsyncResponder(onResult4, onFault4));
+									
+									function onResult4(featureSet:FeatureSet, token:Object = null):void
+									{
+										try{
+											
+											
+											var mp:MapPoint=featureSet.features[0].geometry as MapPoint;  
+											var myGraphic:Graphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value), featureSet.features[0].attributes);
+											
+											
+											
+											myGraphic.toolTip = "NIS: " + String(featureSet.features[0].attributes["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis"]); 
+											graphicsLayer1.add(myGraphic);
+											graphicsLayer1.moveToTop(myGraphic);
+											ac.addItem(graphicsLayer1);
+											map.addLayer(graphicsLayer1);
+										}catch(err:Error){
+											//Alert.show(err.message+ "id no encontrada");
+										}
+									}
+									
+									function onFault4(info:Object, token:Object = null):void
+									{   
+										//Alert.show("id no encontrada"+ valor);
+									}
+									seleccion = 0;
+									
+									
+								}else {     
+									Alert.show("espacios");
+								}
+							}
+							map.addLayer(graphicsLayer1);
+							break;
 							
 						}
-						map.addLayer(graphicsLayer1);
-						break;
-						
-					}
-					case 3:
-					{
-						//     Alert.show("Torres");
-						for(var i5:int=0;i5<=tRows-1;i5++)
-						{   
-							valor = '0';
-							var statsEnry5:Object = new Object();
-							statsEnry5.eventLabel = sheet.getCell(i5,0).value;
-							statsEnry5.totalEvent = sheet.getCell(i5,1).value;
-							if(statsEnry5.EntryLabel !=""){
-								statCollection.addItem(statsEnry5);
-								valor = sheet.getCell(i5,0).value;                                                     
-								//Obtener ids del servicio
-								var qtID5:QueryTask = new QueryTask();
-								qtID5.url="http://gisred.chilquinta/arcgis/rest/services/STx/STx/MapServer/0/query";                                                  
-								qtID5.useAMF = false;
-								var queryID5:Query = new Query();
-								queryID5.where = "nombre_obj='" + valor + "'";                                                
-								queryID5.outFields=["nombre_obj"]
-								queryID5.returnGeometry=true;
-								queryID5.spatialRelationship ="esriSpatialRelIntersects";
-								queryID5.outSpatialReference = map.spatialReference;
-								qtID5.execute(queryID5, new AsyncResponder(onResult5, onFault5));
-								
-								function onResult5(featureSet:FeatureSet, token:Object = null):void
-								{
-									try{
+						case 2:
+						{
+							//Alert.show("TramoMT");
+							for(var i6:int=0;i6<=tRows-1;i6++)
+							{   
+								valor = '0';
+								var statsEnry6:Object = new Object();
+								statsEnry6.eventLabel = sheet.getCell(i6,0).value;
+								statsEnry6.totalEvent = sheet.getCell(i6,1).value;
+								if(statsEnry6.EntryLabel !=""){
+									statCollection.addItem(statsEnry6);
+									valor = sheet.getCell(i6,0).value;								
+									//Obtener ids del servicio
+									var queryTaskEquipoSelected:QueryTask = new QueryTask();
+									queryTaskEquipoSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Tramos_006/MapServer/0";
+									queryTaskEquipoSelected.useAMF = false;
+									var queryEquipoSelected:Query = new Query();
+									queryEquipoSelected.outFields = ["*"];
+									queryEquipoSelected.returnGeometry = true;
+									
+									queryEquipoSelected.where = "ARCGIS.DBO.Tramos_MT_006.id=" + valor;
+									queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+									queryEquipoSelected.outSpatialReference = map.spatialReference;
+									queryTaskEquipoSelected.execute(queryEquipoSelected, new AsyncResponder(onResult6, onFault6));
+									
+									function onResult6(featureSet:FeatureSet, token:Object = null):void
+									{ 
+										
+										try{
+											
+											for each (var myGraphic:Graphic in featureSet.features)
+											{
+												
+												myGraphic.symbol=new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,cpMarker.selectedColor,numMarkerAlpha.value,5);
+												graphicsLayer1.add(myGraphic);
+												
+												
+											}
+											map.addLayer(graphicsLayer1);
+										}catch(err:Error){
+											Alert.show("no se pudo hacer zoom al equipo seleccionado");
+										}
 										
 										
-										var mp:MapPoint=featureSet.features[0].geometry as MapPoint;  
-										var myGraphic:Graphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value), featureSet.features[0].attributes);
-										
-										
-										
-										myGraphic.toolTip = "Torre: " + String(featureSet.features[0].attributes["nombre_obj"]); 
-										graphicsLayer1.add(myGraphic);
-										graphicsLayer1.moveToTop(myGraphic);
-										ac.addItem(graphicsLayer1);
-										map.addLayer(graphicsLayer1);
-									}catch(err:Error){
-										//Alert.show(err.message+ "id no encontrada");
 									}
+									
+									function onFault6(info:Object, token:Object = null):void
+									{   
+										Alert.show("id de equipo no encontrada");
+									}
+									
+									seleccion = 0;
+									
+									
+								}else {     
+									Alert.show("espacios");
 								}
 								
-								function onFault5(info:Object, token:Object = null):void
-								{   
-									Alert.show("id no encontrada"+ valor);
-								}
-								seleccion = 0;
-								
-								
-							}else {     
-								Alert.show("espacios");
 							}
+							map.addLayer(graphicsLayer1);
+							break;
+							
 						}
-						map.addLayer(graphicsLayer1);
-						break;
+						case 3:
+						{
+							//     Alert.show("Torres");
+							for(var i5:int=0;i5<=tRows-1;i5++)
+							{   
+								valor = '0';
+								var statsEnry5:Object = new Object();
+								statsEnry5.eventLabel = sheet.getCell(i5,0).value;
+								statsEnry5.totalEvent = sheet.getCell(i5,1).value;
+								if(statsEnry5.EntryLabel !=""){
+									statCollection.addItem(statsEnry5);
+									valor = sheet.getCell(i5,0).value;                                                     
+									//Obtener ids del servicio
+									var qtID5:QueryTask = new QueryTask();
+									qtID5.url="http://gisred.chilquinta/arcgis/rest/services/STx/STx/MapServer/0/query";                                                  
+									qtID5.useAMF = false;
+									var queryID5:Query = new Query();
+									queryID5.where = "nombre_obj='" + valor + "'";                                                
+									queryID5.outFields=["nombre_obj"]
+									queryID5.returnGeometry=true;
+									queryID5.spatialRelationship ="esriSpatialRelIntersects";
+									queryID5.outSpatialReference = map.spatialReference;
+									qtID5.execute(queryID5, new AsyncResponder(onResult5, onFault5));
+									
+									function onResult5(featureSet:FeatureSet, token:Object = null):void
+									{
+										try{
+											
+											
+											var mp:MapPoint=featureSet.features[0].geometry as MapPoint;  
+											var myGraphic:Graphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value), featureSet.features[0].attributes);
+											
+											
+											
+											myGraphic.toolTip = "Torre: " + String(featureSet.features[0].attributes["nombre_obj"]); 
+											graphicsLayer1.add(myGraphic);
+											graphicsLayer1.moveToTop(myGraphic);
+											ac.addItem(graphicsLayer1);
+											map.addLayer(graphicsLayer1);
+										}catch(err:Error){
+											//Alert.show(err.message+ "id no encontrada");
+										}
+									}
+									
+									function onFault5(info:Object, token:Object = null):void
+									{   
+										Alert.show("id no encontrada"+ valor);
+									}
+									seleccion = 0;
+									
+									
+								}else {     
+									Alert.show("espacios");
+								}
+							}
+							map.addLayer(graphicsLayer1);
+							break;
+						}
+						default: {}      
+							
 					}
-					default:
-					{
-						
-						
-					}      
-
 				}
+			
+				
 
-				}
+			}
 				
 			
 			
