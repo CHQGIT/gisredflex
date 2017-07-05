@@ -1038,6 +1038,7 @@
 				queryEquipoSelected.outFields = ["PERMISO"];
 				queryEquipoSelected.returnGeometry = true;     
 				queryEquipoSelected.orderByFields = ["PERMISO"];
+				Alert.show(User.Usuario);
 				queryEquipoSelected.where = "CUENTA_VIALACTEA = '" + User.Usuario + "' AND MODULO='CIERRE'" ;
 				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
 				queryEquipoSelected.outSpatialReference = map.spatialReference;
@@ -1047,6 +1048,7 @@
 				{
 					
 					if(featureSet.features.length == 0 ){
+						Alert.show("length 0");
 						//     Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
 						//currentState = "bkmInit"; 
 						currentState ="bkmInit";
@@ -1057,7 +1059,7 @@
 						//si hay, cuales son los permisos
 					else{               
 						ColeccionUser.addAll(new ArrayCollection(featureSet.attributes));
-						
+						Alert.show("length +" + featureSet.features.attributes['PERMISO']);
 						for(var i:int=0;i<=ColeccionUser.length-1;i++){
 							
 							if (ColeccionUser[i].PERMISO == 'AGREGAR')

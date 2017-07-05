@@ -936,6 +936,7 @@
 					var rectangulo:Polygon=new Polygon;
 					rectangulo.addRing(crearRectangulo(event.mapPoint,10));
 					query.geometry = rectangulo;
+					
 					var parametros:ArrayList=new ArrayList;
 					
 					parametros.addItem("id_nodo");
@@ -943,8 +944,9 @@
 					
 					query.outFields=parametros.toArray();			
 					query.returnGeometry = true;
-					query.where ="1=1"; 
-					
+					//query.where ="1=1"; 
+					//Evelyn Hernández - 5-07-2017 : Arreglado problema cuando existe más de un objeto nodo dentro del rectángulo.
+					query.where ="tipo_nodo = 'ele!poste'"
 					var queryTask:QueryTask =  new QueryTask;
 					queryTask.url = urls.URL_ROTULOS;
 					queryTask.token = cargarCombos.token as String;
@@ -957,13 +959,14 @@
 						if (featureSet.features.length > 0)
 						{
 							for each (var encontrado:Graphic in featureSet.features)
-							{							
+							{		
+								
 								RotuloEncontrado.addItem(encontrado);
 							}
 							
 							
 						}else{
-							//Alert.show("Rotulo no encontrado");
+							
 							buscarEnRotuloNuevo(cliente.geom_ubicacionPoste);
 						}
 						

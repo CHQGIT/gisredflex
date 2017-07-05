@@ -97,8 +97,7 @@
 				//DataClientesNuevos.selectedIndex = 1;
 			}
 			
-			protected function ConsultarAcceso():void
-			{
+			protected function ConsultarAcceso():void{
 			
 				var queryTaskUserSelected:QueryTask = new QueryTask();
 				queryTaskUserSelected.url = comun.url.URL.URL_ACCESO;
@@ -112,8 +111,7 @@
 				queryEquipoSelected.outSpatialReference = map.spatialReference;
 				queryTaskUserSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
 				
-				function onResult(featureSet:FeatureSet, token:Object = null):void
-				{
+				function onResult(featureSet:FeatureSet, token:Object = null):void{
 					
 					if(featureSet.features.length == 0 ){
 						//Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
@@ -148,8 +146,7 @@
 								btnCambiarEstadoCliente.enabled = true;
 								
 							}
-							
-							
+													
 						}
 						
 						
@@ -303,6 +300,7 @@
 			public function cargarListaClientesNuevos():void {
 				// TODO Auto-generated method stub
 				coleccionClientes.removeAll();
+				DataClientesNuevos.dataProvider = coleccionClientes;
 				// TODO Auto-generated method stub
 				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientes.utilidad.urls.URL_ADD_CLIENTE);
 				var query:Query = new Query();
@@ -314,8 +312,7 @@
 				
 				
 				
-				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
-				{
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void{
 					var k:int;
 					
 					
@@ -347,6 +344,7 @@
 							
 						}
 						
+						//Evelyn Hernández - 14.6.2017 - Arreglando problema con valores nulos.
 						var recordGraphic:Graphic = featureSet.features[k];
 						coleccionClientes.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
 							NIS:recordGraphic.attributes["NIS"],
@@ -362,6 +360,7 @@
 							ESTADO:recordGraphic.attributes["ESTADO"],
 							gra:recordGraphic});			
 					}
+					
 					
 				}
 				function onFaultQuery(info:Object, token:Object = null):void
@@ -386,7 +385,7 @@
 				anexo2="";
 				tipoEdificacion="";
 				//buscar datos de detalle
-				buscarDetalle(DataClientesNuevos.selectedItem['NIS']);
+				buscarDetalle(DataClientesNuevos.selectedItem['NIS'], DataClientesNuevos.selectedItem['OBJECTID']);
 				
 				// TODO Auto-generated method stub
 				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientes.utilidad.urls.URL_ADD_CLIENTE);
@@ -394,64 +393,71 @@
 				var query:Query = new Query();
 				
 				//7.6.2017: Evelyn Hernández - Arreglando problema de búsqueda de nis con más de una geometría. 
-				//query.where = "NIS="+ DataClientesNuevos.selectedItem['NIS'];
-				
-				query.where = "OBJECTID="+ DataClientesNuevos.selectedItem['OBJECTID'];
+								
+				query.where = "OBJECTID="+ DataClientesNuevos.selectedItem['OBJECTID'] + "and nis =" + DataClientesNuevos.selectedItem['NIS'];
 				query.outFields = ['*'];
 				query.returnGeometry = true;
 				queryTask.execute(query, new AsyncResponder(onResultQuery2, onFaultQuery2));
 				
 				function onResultQuery2(featureSet2:FeatureSet, token:Object = null):void {
-					/*	map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
-					myGraphicsLayer.remove(graphicNuevaDireccion);
-					direccion.geom_ubicacionNuevaDireccion = event.mapPoint;
-					graphicNuevaDireccion = new Graphic (event.mapPoint,sms);
-					myGraphicsLayer.add(graphicNuevaDireccion);
-					map.addLayer(myGraphicsLayer);*/	
+					//Alert.show("Elementos " + featureSet2.features.length + " a:" + featureSet2.features[0].attributes['OBJECTID'] + featureSet2.features[0].attributes['SHAPE']  );
 					
-					myGraphicsLayer.clear();
-					map.level = 20;
-					var mp:MapPoint=featureSet2.features[0].geometry as MapPoint;
+					//Evelyn Hernández - 14.6.2017 - Arreglada lógica para nis sin geometría ni atributos específicos. 
+						
+					if(!featureSet2.features.length){
+						Alert.show("No hay nis para mostrar.");
+						return;	
+					}else{
+						if(!featureSet2.features[0].geometry){
+							myGraphicsLayer.clear();
+							Alert.show("Nis sin geometría para mostrar");
+							
+						}else{
+							myGraphicsLayer.clear();
+							map.level = 20;
+							var mp:MapPoint=featureSet2.features[0].geometry as MapPoint;
+							
+							var g:Graphic = new Graphic(mp,smsIdentify);
+							
+							
+							myGraphicsLayer.add(g);
+							map.addLayer(myGraphicsLayer);
+							map.zoomTo(featureSet2.features[0].geometry);	
+						}
+						
+					}
 					
-					var g:Graphic = new Graphic(mp,smsIdentify);
-					
-					
-					myGraphicsLayer.add(g);
-					map.addLayer(myGraphicsLayer);
-					map.zoomTo(featureSet2.features[0].geometry);	
 				}
-				function onFaultQuery2(info:Object, token:Object = null):void
-				{   
+				function onFaultQuery2(info:Object, token:Object = null):void{   
 					Alert.show("Error al buscar NIS, intente nuevamente");
-					
 				}
 			}
 			
-			public function buscarDetalle(nis:int):void{
-				
+			public function buscarDetalle(nis:int, objid: int):void{
 				
 				nisBuscado = String(nis);
-				
-				
+								
 				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientes.utilidad.urls.URL_ADD_CLIENTE);
 				var query:Query = new Query();
-				query.where = "NIS="+ nis;
+				query.where = "NIS="+ nis + "and OBJECTID="+objid;
 				query.outFields = ['*'];
 				query.returnGeometry = true;
 				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
 				
 				function onResultQuery(featureSet2:FeatureSet, token:Object = null):void {
-					
-					buscarDireccion(featureSet2.features[0].attributes['ID_DIRECCION']);
-					buscarRotulo(featureSet2.features[0].attributes['ID_POSTE_CAMARA']);
-					
-					
-					
+					//Evelyn Hernández - 14.6.2017  - Cambiada lógica de detalle de nis.
+					if(!featureSet2.features.length){
+						Alert.show("No hay detalle para el nis");
+						direccionCompleta = "";
+						rotuloEncontrado = "";
+					}else{
+						buscarDireccion(featureSet2.features[0].attributes['ID_DIRECCION']);
+						buscarRotulo(featureSet2.features[0].attributes['ID_POSTE_CAMARA']);
+					}
+										
 				}
-				function onFaultQuery(info:Object, token:Object = null):void
-				{   
-					
-					
+				function onFaultQuery(info:Object, token:Object = null):void{   
+					Alert.show("Hubo un problema buscando el detalle del NIS, intente nuevamente.");
 				}
 			}
 			
@@ -471,10 +477,8 @@
 						buscarEnExternosDir(idDir);
 					}
 				}
-				function onFaultQuery3(info:Object, token:Object = null):void
-				{   
-					
-					
+				function onFaultQuery3(info:Object, token:Object = null):void{   
+					Alert.show("Hubo problemas buscando la dirección (antigua) del nis, intente nuevamente");
 				}
 			}
 			
@@ -488,30 +492,37 @@
 				queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
 				
 				function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
-					direccionCompleta = featureSet3.features[0].attributes['CALLE'] + " " + featureSet3.features[0].attributes['NUMERO'] + " - Según TECNORED" ;
-					tipoEdificacion = featureSet3.features[0].attributes['TIPO_EDIFICACION'];
-					
-					if (featureSet3.features[0].attributes['ANEXO1']=="") {
-						anexo1 = ""; 
+					//Evelyn Hernández - 14.6.2017
+					//Cambiando lógica de direcciones nuevas
+					if(featureSet3.features.length){
+						direccionCompleta = featureSet3.features[0].attributes['CALLE'] + " " + featureSet3.features[0].attributes['NUMERO'] + " - Según TECNORED" ;
+						tipoEdificacion = featureSet3.features[0].attributes['TIPO_EDIFICACION'];
 						
-						if(featureSet3.features[0].attributes['ANEXO2']==""){
-							anexo2 = ""; 
+						if (featureSet3.features[0].attributes['ANEXO1']=="") {
+							anexo1 = ""; 
+							
+							if(featureSet3.features[0].attributes['ANEXO2']==""){
+								anexo2 = ""; 
+							}
+							
+							
+						}else{
+							anexo1 = featureSet3.features[0].attributes['ANEXO1'] + " - Según TECNORED"; 
+							if (featureSet3.features[0].attributes['ANEXO2']==""){
+								anexo2 = ""; 
+							}else {
+								anexo2 =  featureSet3.features[0].attributes['ANEXO2'] + " - Según TECNORED"; 
+							}
+							
 						}
-						
-						
 					}else{
-						anexo1 = featureSet3.features[0].attributes['ANEXO1'] + " - Según TECNORED"; 
-						if (featureSet3.features[0].attributes['ANEXO2']==""){
-							anexo2 = ""; 
-						}else {
-							anexo2 =  featureSet3.features[0].attributes['ANEXO2'] + " - Según TECNORED"; 
-						}
-						
+						direccionCompleta= "";
+						tipoEdificacion = "";
 					}
-					
+									
 				}
-				function onFaultQuery3(info:Object, token:Object = null):void
-				{   
+				function onFaultQuery3(info:Object, token:Object = null):void{   
+					Alert.show("Hubo un problema buscando la dirección (nueva) asociada al nis, intente nuevamente");
 				}
 			}
 			
@@ -531,9 +542,8 @@
 						buscarEnExternos(ipc);
 					}
 				}
-				function onFaultQuery3(info:Object, token:Object = null):void
-				{   
-					
+				function onFaultQuery3(info:Object, token:Object = null):void{   
+					Alert.show("Hubo un problema buscando el rótulo (antiguo) del nis, intente nuevamente");
 					
 				}
 			}
@@ -547,12 +557,14 @@
 				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
 				
 				function onResultQuery(featureSet2:FeatureSet, token:Object = null):void {
+					if(!featureSet2.features.length){
+						rotuloEncontrado = "";
+						return;
+					}
 					rotuloEncontrado = featureSet2.features[0].attributes['ROTULO'] + " - Según TECNORED";
 				}
-				function onFaultQuery(info:Object, token:Object = null):void
-				{   
-					
-					
+				function onFaultQuery(info:Object, token:Object = null):void {   
+					Alert.show("Hubo un problema buscando el rótulo (nuevo) del nis, intente nuevamente");
 				}
 			}
 			private var ef:ExcelFile;
@@ -719,7 +731,9 @@
 			protected function image1_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
+				coleccionClientes.removeAll();
 				cargarListaClientesNuevos();
+				DataClientesNuevos.dataProvider = coleccionClientes;
 			}
 			
 		]]>
