@@ -2,6 +2,7 @@
 <configuration>
     <title>Rotulo: {rotulo}</title>
     <fields>
+     	<field name="id_nodo" alias="ID Nodo:" visible="true"/>
         <field name="tipo_nodo" alias="Tipo nodo:" visible="true"/>
         <field name="alimentador" alias="Alimentador:" visible="true"/>
         <field name="comuna" alias="Comuna:" visible="true"/>
