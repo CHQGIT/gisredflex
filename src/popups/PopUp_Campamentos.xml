@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Nombre: {Campamento}</title>
+    <fields>
+         <field name="Familias_2" alias="Familias: " visible="true"/>  
+         <field name="Comuna" alias="Comuna:  " visible="true"/>   
+      
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>
+

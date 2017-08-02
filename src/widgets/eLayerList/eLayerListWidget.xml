@@ -25,7 +25,7 @@
           <excludelayer mapservice="Vialidad"></excludelayer>
           <excludelayer mapservice="Linea Gas"></excludelayer>
      	  <excludelayer mapservice="Direcciones"></excludelayer>
-     	  <excludelayer mapservice="Unidad vecinal"></excludelayer>
+     	  <excludelayer mapservice="Polígonos Varios"></excludelayer>
      	  <excludelayer mapservice="Podas"></excludelayer>
      	  <excludelayer mapservice="Manejo vegetación"></excludelayer>
      	  <excludelayer mapservice="PMGD"></excludelayer>

@@ -3,7 +3,9 @@
 				   xmlns:mx="library://ns.adobe.com/flex/mx"
 				   xmlns:viewer="com.esri.viewer.*"				   
 				   xmlns:components="com.esri.viewer.components.*"
-				   xmlns:esri="http://www.esri.com/2008/ags"  initialize="basewidget1_initializeHandler(event)" creationComplete="basewidget1_creationCompleteHandler(event)"
+				   xmlns:esri="http://www.esri.com/2008/ags"  
+				   initialize="basewidget1_initializeHandler(event)" 
+				   creationComplete="basewidget1_creationCompleteHandler(event)"
 				   
 				   >	
 	

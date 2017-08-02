@@ -57,7 +57,7 @@
 			[Bindable]
 			private var markerSizeLabel:String;
 			[Bindable]
-				
+			public var rango:int=0;	
 			[Bindable]private var statCollection:ArrayCollection;
 	
 			[Bindable]
@@ -131,19 +131,24 @@
 				var sheet:Sheet =ef.sheets[0];
 				var tCols:int = sheet.cols;
 				var tRows:int = sheet.rows;
-				statuslbl.text = "Filas leidas: "+ tRows;
+				statuslbl.text = "Filas leidas: "+ tRows + " - max." + rango;
+				//statuslbl.text = "Filas leidas: "+ rango;
 				statCollection = new ArrayCollection();
 						
-				if(tRows.valueOf()>300)	{
+				/*if(tRows.valueOf()>300)	{
 					Alert.show("Demasiados datos a consultar \n             (maximo 300)");
 					return;
+				*/
+				if(rango==0)	{
+					Alert.show("Error procesando su solicitud. Contáctese con el adm. del sistema");
+					return;		
 				}else{
 					switch(seleccion)
 					{
 						case 0:
 						{
 							//Alert.show("SED");
-							for(var i:int=0;i<=tRows-1;i++)
+							for(var i:int=0;i<=rango-1;i++)
 							{
 								valor = '0';
 								var statsEnry:Object = new Object();
@@ -195,7 +200,7 @@
 						case 4:
 						{
 							//	Alert.show("Postes");
-							for(var i2:int=0;i2<=tRows-1;i2++)
+							for(var i2:int=0;i2<=rango-1;i2++)
 							{
 								valor = '0';
 								var statsEnry2:Object = new Object();
@@ -250,7 +255,7 @@
 						case 9:
 						{
 							//	Alert.show("Camaras");
-							for(var i3:int=0;i3<=tRows-1;i3++)
+							for(var i3:int=0;i3<=rango-1;i3++)
 							{
 								valor = '0';
 								var statsEnry3:Object = new Object();
@@ -304,7 +309,7 @@
 						case 1:
 						{
 							//Alert.show("Clientes");
-							for(var i4:int=0;i4<=tRows-1;i4++)
+							for(var i4:int=0;i4<=rango-1;i4++)
 							{   
 								valor = '0';
 								var statsEnry4:Object = new Object();
@@ -363,7 +368,7 @@
 						case 2:
 						{
 							//Alert.show("TramoMT");
-							for(var i6:int=0;i6<=tRows-1;i6++)
+							for(var i6:int=0;i6<=rango-1;i6++)
 							{   
 								valor = '0';
 								var statsEnry6:Object = new Object();
@@ -426,7 +431,7 @@
 						case 3:
 						{
 							//     Alert.show("Torres");
-							for(var i5:int=0;i5<=tRows-1;i5++)
+							for(var i5:int=0;i5<=rango-1;i5++)
 							{   
 								valor = '0';
 								var statsEnry5:Object = new Object();
@@ -615,23 +620,19 @@
 				
 				function onResult(featureSet:FeatureSet, token:Object = null):void
 				{	
+					myDP.addItem({elemento:"Subestacion", id:0});
+					myDP.addItem({elemento:"Clientes", id:1});
+					myDP.addItem({elemento:"Tramos MT", id:2});
+					myDP.addItem({elemento:"Torres sTX", id:3});
+					myDP.addItem({elemento:"Postes", id:4});
 					
-					if(featureSet.features.length == 0 ){
-						myDP.addItem({elemento:"Subestacion", id:0});
-						myDP.addItem({elemento:"Clientes", id:1});
-						myDP.addItem({elemento:"Tramos MT", id:2});
-						myDP.addItem({elemento:"Torres sTX", id:3});
+					
+					if(featureSet.features.length>0){
+					  rango = featureSet.features[0].attributes['pass'];
+					}else{
+					  rango = 300;	
 					}
-					else
-					{
-														
-						myDP.addItem({elemento:"Subestacion", id:0});
-						myDP.addItem({elemento:"Clientes", id:1});
-						myDP.addItem({elemento:"Tramos MT", id:2});
-						myDP.addItem({elemento:"Torres sTX", id:3});
-						myDP.addItem({elemento:"Postes", id:4});
-					}
-			
+					
 				}		
 				
 				

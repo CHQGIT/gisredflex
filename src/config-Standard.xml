@@ -57,11 +57,12 @@
      				<sublayer id="0" label="Clientes No Leidos" popupconfig="popups/PopUp_clientes_no_leidos.xml"/>
      		</layer> 
      		<layer type="dynamic"
-     			label="Unidad vecinal"
+     			label="Polígonos Varios"
      			imageformat="png32"
      			url="http://gisred.chilquinta/arcgis/rest/services/MANTENIMIENTO/Otras_Capas/MapServer"
      			visible="false">
      				<sublayer id="0" label="Unidad vecinal" popupconfig="popups/PopUp_Unidad_vecinal.xml"/>
+     				<sublayer id="4" label="Campamentos" popupconfig="popups/PopUp_Campamentos.xml"/>
      		</layer>  
      		<layer type="dynamic"
      			label="ECSE"
