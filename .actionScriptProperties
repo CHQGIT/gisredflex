@@ -85,6 +85,7 @@
     <module application="src/index.mxml" destPath="widgets/PO/PO.swf" optimize="true" sourcePath="src/widgets/PO/PO.mxml"/>
     <module application="src/index.mxml" destPath="widgets/PowerOn/PowerOnWidget.swf" optimize="true" sourcePath="src/widgets/PowerOn/PowerOnWidget.mxml"/>
     <module application="src/index.mxml" destPath="widgets/Buscador/BuscadorWidget.swf" optimize="true" sourcePath="src/widgets/Buscador/BuscadorWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/AdminLectores/AdminLectores.swf" optimize="true" sourcePath="src/widgets/AdminLectores/AdminLectores.mxml"/>
   </modules>
   <workers/>
   <buildCSSFiles/>

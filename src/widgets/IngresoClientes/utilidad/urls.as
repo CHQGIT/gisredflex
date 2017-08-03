@@ -38,7 +38,7 @@ package widgets.IngresoClientes.utilidad
 		public static var URL_CREAR_DIRECCION:String="http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/FeatureServer/2"
 		public static var URL_CREAR_UNION_CDP:String="http://gisred.chilquinta//arcgis/rest/services/Mobile/Ingreso_externo_nuevo/FeatureServer/3"
 		public static var URL_CALLES:String = "http://gisred.chilquinta/arcgis/rest/services/MapaBase/MapServer/2";
-		
+		public static var URL_INGRESOEXTERNO_DYN = "http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/MapServer";
 		public function urls()
 		{
 				

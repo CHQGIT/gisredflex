@@ -17,7 +17,8 @@ package widgets.AdmIngresoClientes.utilidad
 		public static var URL_CREAR_POSTES:String="http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/FeatureServer/1";
 		public static var URL_CREAR_DIRECCION:String="http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/FeatureServer/2"
 		public static var URL_CREAR_UNION_CDP:String="http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/FeatureServer/3"
-			
+		public static var URL_INGRESOEXTERNO_DYN = "http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/MapServer";
+		
 		public static var ndo:String; 
 		
 		public function urls()

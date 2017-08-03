@@ -49,6 +49,7 @@
 			import com.esri.ags.FeatureSet;
 			import com.esri.ags.Graphic;
 			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
 			import com.esri.ags.layers.FeatureLayer;
 			import com.esri.ags.layers.GraphicsLayer;
 			import com.esri.ags.tasks.QueryTask;
@@ -66,6 +67,7 @@
 			import comun.url.URL;
 			
 			import widgets.AdmIngresoClientes.utilidad.urls;
+			
 		
 			
 			
@@ -91,12 +93,24 @@
 			private var ColeccionUser:ArrayCollection = new ArrayCollection;
 			private var text1:String;
 			
+			
+			public var ingresosLayer:ArcGISDynamicMapServiceLayer= new ArcGISDynamicMapServiceLayer(widgets.AdmIngresoClientes.utilidad.urls.URL_INGRESOEXTERNO_DYN);
+			
+			
 			protected function basewidget1_initializeHandler(event:FlexEvent):void
 			{
 				
 				ConsultarAcceso();
 				
+				
+				
 				//DataClientesNuevos.selectedIndex = 1;
+			}
+			
+			public function openLayer():void{
+				ingresosLayer.name = "Ingreso Externo";
+				map.addLayer(ingresosLayer);				
+				ingresosLayer.visible = true;
 			}
 			
 			protected function ConsultarAcceso():void{
@@ -658,7 +672,7 @@
 				// TODO Auto-generated method stub
 				if (DataClientesNuevos.selectedIndex>=0){
 					//Layer que se ocupa para las actividades
-					var myActLayer:FeatureLayer = new FeatureLayer(urls.URL_ADD_CLIENTE);
+					var myActLayer:FeatureLayer = new FeatureLayer(widgets.AdmIngresoClientes.utilidad.urls.URL_ADD_CLIENTE);
 					//cambiar estado
 					var ModClientesNuevos:* = new Object;
 					
@@ -738,11 +752,23 @@
 				DataClientesNuevos.dataProvider = coleccionClientes;
 			}
 			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				map.removeLayer(ingresosLayer);
+			}
+			
+			protected function wTemplate_openHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				openLayer();
+			}
+			
 		]]>
 	</fx:Script>
 	<viewer:WidgetTemplate id="wTemplate"                      
 						   width="850" height="500"
-						   visible="true" initialize="wTemplate_initializeHandler(event)">
+						   visible="true" initialize="wTemplate_initializeHandler(event)" closed="wTemplate_closedHandler(event)" open="wTemplate_openHandler(event)">
 		
 		<s:Group id="bkmInit" width="100%" height="100%" initialize="bkmInit_initializeHandler(event)"
 				 visible="false" visible.bkmInit="true">	

@@ -182,14 +182,24 @@
      			url="http://gisred.chilquinta/arcgis/rest/services/Varios/POSTES_SIN_APOYOS/MapServer"
      			visible="false">
      		</layer>
-       		
-       		<layer type="dynamic"
+       		<!--  
+       		 <layer type="dynamic"
+       			 id="ingresoExterno"
                  label="Ingreso Externo"
                  imageformat="png32"
                  url="http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/MapServer"
-                 visible="true">
+                 visible="false">
              </layer>
-       		
+             
+       		<layer type="dynamic"
+       			 id="ingresoLectores"
+                 label="Ingreso Lectores"
+                 imageformat="png32"
+                 url="http://gisred.chilquinta/arcgis/rest/services/Varios/Ingreso_Lectores/MapServer/"
+                 visible="false">
+               
+             </layer>
+            -->
        			
         </operationallayers>
     </map>
@@ -332,6 +342,12 @@
        		   			icon="assets/images/admclientes_cnr.png"
                			config="widgets/AdmIngresoClientesCNR/AdmIngresoClientesCNR.xml"
                			url="widgets/AdmIngresoClientesCNR/AdmIngresoClientesCNR.swf" 
+               			preload="close"/>
+               			
+               	<widget label="Administracion Lectores" 
+       		   			icon="assets/images/metericon.png"
+               			config="widgets/AdminLectores/AdminLectores.xml"
+               			url="widgets/AdminLectores/AdminLectores.swf" 
                			preload="close"/>
          </widgetgroup>
   	 <!--      <widget label="Inspecciones" 

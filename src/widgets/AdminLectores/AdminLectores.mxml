@@ -7,12 +7,13 @@
 				   initialize="basewidget1_initializeHandler(event)" 
 				   creationComplete="basewidget1_creationCompleteHandler(event)"
 				   
+				   
 				   >	
 	
 	<viewer:states>
 		<s:State name="bkmInit"/>
 		<s:State name="bkmConsulta"/>
-		
+	
 	</viewer:states>
 	<viewer:transitions>
 		<s:Transition autoReverse="true" toState="*">
@@ -34,11 +35,11 @@
 								 color="0xFF9900"
 								 size="20"
 								 style="circle"/>
-		
+	
 		<mx:WipeUp id="myWU" duration="300"/>
 		<mx:WipeDown id="myWD" duration="500"/>
 		<mx:WipeRight id="myWR" duration="850"/>
-		
+	
 		
 	</fx:Declarations>
 	
@@ -66,8 +67,8 @@
 			import comun.Planificacion.User;
 			import comun.url.URL;
 			
-			
-			import widgets.AdmIngresoClientesCNR.utilidad.urls;
+			import widgets.AdminLectores.utilidad.urls;
+		
 			
 			
 			[Bindable] public var idPosteNuevo:String;
@@ -92,20 +93,26 @@
 			private var ColeccionUser:ArrayCollection = new ArrayCollection;
 			private var text1:String;
 			
-			public var ingresosLayer:ArcGISDynamicMapServiceLayer= new ArcGISDynamicMapServiceLayer(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_INGRESOEXTERNO_DYN);
-			
+			public var lecturasLayer:ArcGISDynamicMapServiceLayer= new ArcGISDynamicMapServiceLayer(widgets.AdminLectores.utilidad.urls.URL_LECTURAS_DYN);
 			
 			protected function basewidget1_initializeHandler(event:FlexEvent):void
 			{
 				
+				
+				openLayer();
 				ConsultarAcceso();
 				
 				//DataClientesNuevos.selectedIndex = 1;
 			}
 			
-			protected function ConsultarAcceso():void
-			{
-				
+			public function openLayer():void{
+				lecturasLayer.name = "Ingreso Lectores";
+				map.addLayer(lecturasLayer);				
+				lecturasLayer.visible = true;	
+			}
+			
+			protected function ConsultarAcceso():void{
+			
 				var queryTaskUserSelected:QueryTask = new QueryTask();
 				queryTaskUserSelected.url = comun.url.URL.URL_ACCESO;
 				queryTaskUserSelected.useAMF = false;
@@ -113,16 +120,15 @@
 				queryEquipoSelected.outFields = ["*"];
 				queryEquipoSelected.returnGeometry = true;     
 				queryEquipoSelected.orderByFields = ["usuario"];
-				queryEquipoSelected.where = "usuario = '" + User.Usuario + "' AND MODULO ='INGRESO_CLIENTES' AND widget='ADMINGRESOCLIENTESCNR'" ;
+				queryEquipoSelected.where = "usuario = '" + User.Usuario + "' AND MODULO ='INGRESO_CLIENTES' AND widget='ADMINLECTURAS'" ;
 				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
 				queryEquipoSelected.outSpatialReference = map.spatialReference;
 				queryTaskUserSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
 				
-				function onResult(featureSet:FeatureSet, token:Object = null):void
-				{
+				function onResult(featureSet:FeatureSet, token:Object = null):void{
 					
 					if(featureSet.features.length == 0 ){
-						//     Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
+						//Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
 						//currentState = "bkmInit"; 
 						currentState ="bkmInit";
 						lblwarning.visible = true;
@@ -132,7 +138,8 @@
 						wTemplate.width = 800;
 					}
 						//si hay, cuales son los permisos
-					else{               
+					else{   
+						
 						ColeccionUser.addAll(new ArrayCollection(featureSet.attributes));
 						
 						for(var i:int=0;i<=ColeccionUser.length-1;i++){	
@@ -153,8 +160,7 @@
 								btnCambiarEstadoCliente.enabled = true;
 								
 							}
-							
-							
+													
 						}
 						
 						
@@ -172,7 +178,7 @@
 				
 				function onFault(info:Object, token:Object = null):void
 				{   
-					//Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
+					Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
 					currentState ="bkmInit";
 					lblwarning.visible = true;
 					lblwarning2.visible = true;
@@ -189,7 +195,7 @@
 				/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
 				Everything else is dynamic. Do not edit variable names. */
 				var filterText:String = StringUtil.trim(txtFilterClientes.text.toLowerCase()); //Trimmed text String to filter by
-				var columnArray:Array = ['NUMERO_MEDIDOR','TIPO_MEDIDOR','NIS','TIPO_POSTE_CAMARA','ID_POSTE_CAMARA','TIPO_EMPALME','TIPO_DIRECCION','ID_DIRECCION','created_user', 'created_date', 'ESTADO']; //Datagrid column names to filter on
+				var columnArray:Array = ['nro_medidor','estado','tipo_edificacion','poste','direccion','estado_revision','lector','lectura_actual','created_user', 'created_date', 'estado_final']; //Datagrid column names to filter on
 				var gridDataProvider:ArrayCollection = this.coleccionClientes as ArrayCollection; //Name of datagrid's dataprovider. In this case e.g. databases
 				var dataGridName:String = 'DataClientesNuevos'; //Name of the datagrid you are filtering by
 				
@@ -232,85 +238,14 @@
 					this[dataGridName].dataProvider = filteredData; //Pusht he filtered data into the datagrid
 				}
 			}	
-			
-			public function cargarListaClientesNuevos():void {
-				// TODO Auto-generated method stub
-				coleccionClientes.removeAll();
-				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
-				var query:Query = new Query();
-				query.where = "ESTADO IS NULL OR ESTADO ='NO CARGADO'";
-				query.outFields = ['*'];
-				query.orderByFields = ['created_date'];
-				query.returnGeometry = true;
-				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
-				
-				
-				
-				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
-				{
-					var k:int;
-					
-					
-					for(k=0;k<featureSet.features.length;k++)
-					{
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ){
-							idPosteNuevo = "";
-							rotNuevo = "";
-							idDirNueva = "";
-							dirNueva = "";
-						}
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
-							idPosteNuevo = "";
-							rotNuevo = "";
-							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
-							
-						}
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ) {
-							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
-							rotNuevo = "";
-							idDirNueva = "";
-							dirNueva = "";
-						}
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
-							//buscarRotulo(featureSet.features[k].attributes["ID_POSTE_CAMARA"]);
-							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
-							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
-							
-							
-						}
-						
-						var recordGraphic:Graphic = featureSet.features[k];
-						coleccionClientes.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
-							NIS:recordGraphic.attributes["NIS"],
-							NUMERO_MEDIDOR:recordGraphic.attributes["NUMERO_MEDIDOR"],
-							TIPO_POSTE_CAMARA:recordGraphic.attributes["TIPO_POSTE_CAMARA"],
-							TIPO_EMPALME:recordGraphic.attributes["TIPO_EMPALME"],
-							TIPO_MEDIDOR:recordGraphic.attributes["TIPO_MEDIDOR"],
-							ID_POSTE_CAMARA:String(idPosteNuevo),
-							TIPO_DIRECCION:recordGraphic.attributes["TIPO_DIRECCION"],
-							created_user:recordGraphic.attributes["created_user"],
-							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
-							ID_DIRECCION:String(idDirNueva),
-							ESTADO:recordGraphic.attributes["ESTADO"],
-							gra:recordGraphic});			
-					}
-					
-				}
-				function onFaultQuery(info:Object, token:Object = null):void
-				{   
-					Alert.show("Error en consulta","Carga de Clientes");
-				}
-			}
-			
 			public function cargarListaClientesNuevosRango():void {
 				// TODO Auto-generated method stub
 				coleccionClientes.removeAll();
 				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
+				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURAS);
 				var query:Query = new Query();
-				query.where = "created_date >=" + "'" +  dateDesde.text + "'" + "and created_date <=" + "'" + dateHasta.text + "'  AND (ESTADO IS NULL OR ESTADO ='NO CARGADO')";
-
+				query.where = "created_date >=" + "'" +  dateDesde.text + "'" + "and created_date <=" + "'" + dateHasta.text + "'  AND (estado_final IS NULL OR estado_final <>'CARGADO')"; 
+				
 				query.outFields = ['*'];
 				query.orderByFields = ['created_date'];
 				query.returnGeometry = true;
@@ -325,54 +260,80 @@
 					
 					for(k=0;k<featureSet.features.length;k++)
 					{
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ){
-							idPosteNuevo = "";
-							rotNuevo = "";
-							idDirNueva = "";
-							dirNueva = "";
-						}
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
-							idPosteNuevo = "";
-							rotNuevo = "";
-							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
-							
-						}
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ) {
-							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
-							rotNuevo = "";
-							idDirNueva = "";
-							dirNueva = "";
-						}
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
-							//buscarRotulo(featureSet.features[k].attributes["ID_POSTE_CAMARA"]);
-							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
-							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
-							
-							
-						}
+						
 						
 						var recordGraphic:Graphic = featureSet.features[k];
 						coleccionClientes.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
-							NIS:recordGraphic.attributes["NIS"],
-							NUMERO_MEDIDOR:recordGraphic.attributes["NUMERO_MEDIDOR"],
-							TIPO_POSTE_CAMARA:recordGraphic.attributes["TIPO_POSTE_CAMARA"],
-							TIPO_EMPALME:recordGraphic.attributes["TIPO_EMPALME"],
-							TIPO_MEDIDOR:recordGraphic.attributes["TIPO_MEDIDOR"],
-							ID_POSTE_CAMARA:String(idPosteNuevo),
-							TIPO_DIRECCION:recordGraphic.attributes["TIPO_DIRECCION"],
+							nro_medidor:recordGraphic.attributes["nro_medidor"],
+							estado:recordGraphic.attributes["estado"],
+							tipo_edificacion:recordGraphic.attributes["tipo_edificacion"],
+							poste:recordGraphic.attributes["poste"],
+							direccion:recordGraphic.attributes["direccion"],
+							estado_revision:recordGraphic.attributes["estado_revision"],
+							lector:recordGraphic.attributes["lector"],
 							created_user:recordGraphic.attributes["created_user"],
 							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
-							ID_DIRECCION:String(idDirNueva),
-							ESTADO:recordGraphic.attributes["ESTADO"],
+							estado_final:recordGraphic.attributes["estado_final"],
+							lectura_actual: recordGraphic.attributes["lectura_actual"],
 							gra:recordGraphic});			
 					}
 					
 				}
 				function onFaultQuery(info:Object, token:Object = null):void
 				{   
-					Alert.show("Error en consulta","Carga de Clientes");
+					Alert.show("Error en consulta","Carga de Lecturas");
 				}
 			}
+			
+			
+			
+			public function cargarListaClientesNuevos():void {
+				// TODO Auto-generated method stub
+				coleccionClientes.removeAll();
+				DataClientesNuevos.dataProvider = coleccionClientes;
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURAS);
+				var query:Query = new Query();
+				query.where = "estado_final  IS NULL OR estado_final  <> 'CARGADO'";
+				query.outFields = ['*'];
+				query.orderByFields = ['created_date'];
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void{
+					var k:int;
+					
+					
+					for(k=0;k<featureSet.features.length;k++)
+					{
+						
+						//Evelyn Hernández - 14.6.2017 - Arreglando problema con valores nulos.
+						var recordGraphic:Graphic = featureSet.features[k];
+						coleccionClientes.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+							nro_medidor:recordGraphic.attributes["nro_medidor"],
+							estado:recordGraphic.attributes["estado"],
+							tipo_edificacion:recordGraphic.attributes["tipo_edificacion"],
+							poste:recordGraphic.attributes["poste"],
+							direccion:recordGraphic.attributes["direccion"],
+							estado_revision:recordGraphic.attributes["estado_revision"],
+							lector:recordGraphic.attributes["lector"],
+							created_user:recordGraphic.attributes["created_user"],
+							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
+							estado_final:recordGraphic.attributes["estado_final"],
+							lectura_actual: recordGraphic.attributes["lectura_actual"],
+							gra:recordGraphic});			
+					}
+					
+					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","Carga de Lecturas");
+				}
+			}
+			
 			
 			protected function basewidget1_creationCompleteHandler(event:FlexEvent):void
 			{
@@ -383,80 +344,91 @@
 			public var myGraphic:Graphic;
 			
 			public var acPolyline:ArrayCollection = new ArrayCollection;
+			
 			public function DataClientesNuevos_itemClickHandler(event:ListEvent):void
 			{
 				anexo1="";
 				anexo2="";
 				tipoEdificacion="";
 				//buscar datos de detalle
-				buscarDetalle(DataClientesNuevos.selectedItem['NIS']);
+				//buscarDetalle(DataClientesNuevos.selectedItem['NIS'], DataClientesNuevos.selectedItem['OBJECTID']);
 				
 				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
-				var query:Query = new Query();
-				//7.6.2017: Evelyn Hernández - Arreglando problema de búsqueda de nis con más de una geometría. 
-				//query.where = "NIS="+ DataClientesNuevos.selectedItem['NIS'];
+				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURAS);
 				
-				query.where = "OBJECTID="+ DataClientesNuevos.selectedItem['OBJECTID'];
+				var query:Query = new Query();
+				
+				//7.6.2017: Evelyn Hernández - Arreglando problema de búsqueda de nis con más de una geometría. 
+								
+				query.where = "OBJECTID="+ DataClientesNuevos.selectedItem['OBJECTID'] + "and nro_medidor=" + DataClientesNuevos.selectedItem['nro_medidor'];
 				query.outFields = ['*'];
 				query.returnGeometry = true;
 				queryTask.execute(query, new AsyncResponder(onResultQuery2, onFaultQuery2));
 				
 				function onResultQuery2(featureSet2:FeatureSet, token:Object = null):void {
-					/*	map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
-					myGraphicsLayer.remove(graphicNuevaDireccion);
-					direccion.geom_ubicacionNuevaDireccion = event.mapPoint;
-					graphicNuevaDireccion = new Graphic (event.mapPoint,sms);
-					myGraphicsLayer.add(graphicNuevaDireccion);
-					map.addLayer(myGraphicsLayer);*/	
+					//Alert.show("Elementos " + featureSet2.features.length + " a:" + featureSet2.features[0].attributes['OBJECTID'] + featureSet2.features[0].attributes['SHAPE']  );
 					
-					myGraphicsLayer.clear();
-					map.level = 20;
-					var mp:MapPoint=featureSet2.features[0].geometry as MapPoint;
+					//Evelyn Hernández - 14.6.2017 - Arreglada lógica para nis sin geometría ni atributos específicos. 
+						
+					if(!featureSet2.features.length){
+						Alert.show("No hay lecturas para mostrar.");
+						return;	
+					}else{
+						if(!featureSet2.features[0].geometry){
+							myGraphicsLayer.clear();
+							Alert.show("Lectura sin geometría para mostrar");
+							
+						}else{
+							myGraphicsLayer.clear();
+							map.level = 20;
+							var mp:MapPoint=featureSet2.features[0].geometry as MapPoint;
+							
+							var g:Graphic = new Graphic(mp,smsIdentify);
+							
+							
+							myGraphicsLayer.add(g);
+							map.addLayer(myGraphicsLayer);
+							map.zoomTo(featureSet2.features[0].geometry);	
+						}
+						
+					}
 					
-					var g:Graphic = new Graphic(mp,smsIdentify);
-					
-					
-					myGraphicsLayer.add(g);
-					map.addLayer(myGraphicsLayer);
-					map.zoomTo(featureSet2.features[0].geometry);	
 				}
-				function onFaultQuery2(info:Object, token:Object = null):void
-				{   
-					Alert.show("Error al buscar NIS, intente nuevamente");
+				function onFaultQuery2(info:Object, token:Object = null):void{   
+					Alert.show("Error al buscar lectura, intente nuevamente");
 				}
 			}
 			
-			public function buscarDetalle(nis:int):void{
-				
+			public function buscarDetalle(nis:int, objid: int):void{
 				
 				nisBuscado = String(nis);
-				
-				
-				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
+								
+				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURAS);
 				var query:Query = new Query();
-				query.where = "NIS="+ nis;
+				query.where = "nro_medidor="+ nis + "and OBJECTID="+objid;
 				query.outFields = ['*'];
 				query.returnGeometry = true;
 				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
 				
 				function onResultQuery(featureSet2:FeatureSet, token:Object = null):void {
-					
-					buscarDireccion(featureSet2.features[0].attributes['ID_DIRECCION']);
-					buscarRotulo(featureSet2.features[0].attributes['ID_POSTE_CAMARA']);
-					
-					
-					
+					//Evelyn Hernández - 14.6.2017  - Cambiada lógica de detalle de nis.
+					if(!featureSet2.features.length){
+						Alert.show("No hay detalle para la lectura");
+						direccionCompleta = "";
+						rotuloEncontrado = "";
+					}else{
+						//buscarDireccion(featureSet2.features[0].attributes['ID_DIRECCION']);
+						//buscarRotulo(featureSet2.features[0].attributes['ID_POSTE_CAMARA']);
+					}
+										
 				}
-				function onFaultQuery(info:Object, token:Object = null):void
-				{   
-					
-					
+				function onFaultQuery(info:Object, token:Object = null):void{   
+					Alert.show("Hubo un problema buscando el detalle de la lectura, intente nuevamente.");
 				}
 			}
 			
-			public function buscarDireccion(idDir:int):void {
-				var queryTask2:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_DIRECCIONES);
+			/*public function buscarDireccion(idDir:int):void {
+				var queryTask2:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_DIRECCIONES);
 				var query2:Query = new Query();
 				query2.where = "id_direccion="+ idDir;
 				query2.outFields = ['*'];
@@ -471,16 +443,14 @@
 						buscarEnExternosDir(idDir);
 					}
 				}
-				function onFaultQuery3(info:Object, token:Object = null):void
-				{   
-					
-					
+				function onFaultQuery3(info:Object, token:Object = null):void{   
+					Alert.show("Hubo problemas buscando la dirección (antigua) del nis, intente nuevamente");
 				}
 			}
 			
 			public function buscarEnExternosDir(idD:int):void{
 				
-				var queryTask2:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_CREAR_DIRECCION);
+				var queryTask2:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_CREAR_DIRECCION);
 				var query2:Query = new Query();
 				query2.where = "OBJECTID="+ idD;
 				query2.outFields = ['*'];
@@ -488,35 +458,42 @@
 				queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
 				
 				function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
-					direccionCompleta = featureSet3.features[0].attributes['CALLE'] + " " + featureSet3.features[0].attributes['NUMERO'] + " - Según TECNORED" ;
-					tipoEdificacion = featureSet3.features[0].attributes['TIPO_EDIFICACION'];
-					
-					if (featureSet3.features[0].attributes['ANEXO1']=="") {
-						anexo1 = ""; 
+					//Evelyn Hernández - 14.6.2017
+					//Cambiando lógica de direcciones nuevas
+					if(featureSet3.features.length){
+						direccionCompleta = featureSet3.features[0].attributes['CALLE'] + " " + featureSet3.features[0].attributes['NUMERO'] + " - Según TECNORED" ;
+						tipoEdificacion = featureSet3.features[0].attributes['TIPO_EDIFICACION'];
 						
-						if(featureSet3.features[0].attributes['ANEXO2']==""){
-							anexo2 = ""; 
+						if (featureSet3.features[0].attributes['ANEXO1']=="") {
+							anexo1 = ""; 
+							
+							if(featureSet3.features[0].attributes['ANEXO2']==""){
+								anexo2 = ""; 
+							}
+							
+							
+						}else{
+							anexo1 = featureSet3.features[0].attributes['ANEXO1'] + " - Según TECNORED"; 
+							if (featureSet3.features[0].attributes['ANEXO2']==""){
+								anexo2 = ""; 
+							}else {
+								anexo2 =  featureSet3.features[0].attributes['ANEXO2'] + " - Según TECNORED"; 
+							}
+							
 						}
-						
-						
 					}else{
-						anexo1 = featureSet3.features[0].attributes['ANEXO1'] + " - Según TECNORED"; 
-						if (featureSet3.features[0].attributes['ANEXO2']==""){
-							anexo2 = ""; 
-						}else {
-							anexo2 =  featureSet3.features[0].attributes['ANEXO2'] + " - Según TECNORED"; 
-						}
-						
+						direccionCompleta= "";
+						tipoEdificacion = "";
 					}
-					
+									
 				}
-				function onFaultQuery3(info:Object, token:Object = null):void
-				{   
+				function onFaultQuery3(info:Object, token:Object = null):void{   
+					Alert.show("Hubo un problema buscando la dirección (nueva) asociada al nis, intente nuevamente");
 				}
 			}
 			
 			public function buscarRotulo(ipc:int):void{
-				var queryTask2:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ROTULOS);
+				var queryTask2:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_ROTULOS);
 				var query2:Query = new Query();
 				query2.where = "id_nodo="+ ipc;
 				query2.outFields = ['rotulo'];
@@ -531,15 +508,14 @@
 						buscarEnExternos(ipc);
 					}
 				}
-				function onFaultQuery3(info:Object, token:Object = null):void
-				{   
-					
+				function onFaultQuery3(info:Object, token:Object = null):void{   
+					Alert.show("Hubo un problema buscando el rótulo (antiguo) del nis, intente nuevamente");
 					
 				}
 			}
 			
 			public function buscarEnExternos(idpEx:int):void{
-				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_CREAR_POSTES);
+				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_CREAR_POSTES);
 				var query:Query = new Query();
 				query.where = "OBJECTID="+ idpEx;
 				query.outFields = ['*'];
@@ -547,14 +523,17 @@
 				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
 				
 				function onResultQuery(featureSet2:FeatureSet, token:Object = null):void {
+					if(!featureSet2.features.length){
+						rotuloEncontrado = "";
+						return;
+					}
 					rotuloEncontrado = featureSet2.features[0].attributes['ROTULO'] + " - Según TECNORED";
 				}
-				function onFaultQuery(info:Object, token:Object = null):void
-				{   
-					
-					
+				function onFaultQuery(info:Object, token:Object = null):void {   
+					Alert.show("Hubo un problema buscando el rótulo (nuevo) del nis, intente nuevamente");
 				}
 			}
+			*/
 			private var ef:ExcelFile;
 			private var ba:ByteArray;
 			private var fr:FileReference;
@@ -630,8 +609,8 @@
 			{
 				coleccionEstados.removeAll();
 				coleccionEstados = new ArrayCollection(				
-					[ {item:"CARGADO"},
-						{item:"NO CARGADO"}]);
+					[ {item:"REVISADO"},
+						{item:""}]);
 				
 				
 				DDLEstadoCliente.dataProvider = coleccionEstados;
@@ -642,13 +621,13 @@
 				// TODO Auto-generated method stub
 				if (DataClientesNuevos.selectedIndex>=0){
 					//Layer que se ocupa para las actividades
-					var myActLayer:FeatureLayer = new FeatureLayer(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
+					var myActLayer:FeatureLayer = new FeatureLayer(urls.URL_LECTURAS);
 					//cambiar estado
 					var ModClientesNuevos:* = new Object;
 					
 					ModClientesNuevos["OBJECTID"]= DataClientesNuevos.selectedItem['OBJECTID'];
 					//Alert.show(String(DDLEstadoCliente.selectedItem.item));
-					ModClientesNuevos["ESTADO"]= DDLEstadoCliente.selectedItem.item;
+					ModClientesNuevos["estado_final"]= DDLEstadoCliente.selectedItem.item;
 					
 					
 					var graficoEditadoActual:Graphic = new Graphic;
@@ -660,19 +639,19 @@
 					
 					function onResult():void
 					{      
-						Alert.show("Cliente NIS: " + DataClientesNuevos.selectedItem['NIS'] + " modificado" );
+						Alert.show("Medidor: " + DataClientesNuevos.selectedItem['nro_medidor'] + " modificado" );
 						cargarListaClientesNuevos();
 						
 					}
 					
 					function onFault(info:Object, token:Object = null):void
 					{
-						Alert.show("Error al modificar el cliente.  Contáctese con el administrador de GISRED. "+info.toString());
+						Alert.show("Error al modificar el medidor.  Contáctese con el administrador de GISRED. "+info.toString());
 					}
 					
 					
 				}else{
-					Alert.show("Debe seleccionar un cliente de la tabla para cambiar su estado");
+					Alert.show("Debe seleccionar un medidor de la tabla para cambiar su estado");
 				}
 			}
 			
@@ -690,7 +669,6 @@
 				pbGisred.addChild(verImageGISRED);
 				
 			}
-			
 			protected function btnRangoFecha_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
@@ -715,6 +693,20 @@
 				dt.formatString = "DD/MM/YYYY";
 			}
 			
+			protected function image1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				coleccionClientes.removeAll();
+				cargarListaClientesNuevos();
+				DataClientesNuevos.dataProvider = coleccionClientes;
+			}
+			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				// TODO Auto-generated method stub
+				map.removeLayer(lecturasLayer);
+			}
 			
 			protected function wTemplate_openHandler(event:Event):void
 			{
@@ -722,26 +714,11 @@
 				openLayer();
 			}
 			
-			protected function wTemplate_closedHandler(event:Event):void
-			{
-				// TODO Auto-generated method stub
-				map.removeLayer(ingresosLayer);
-			}
-			
-			public function openLayer():void{
-				ingresosLayer.name = "Ingreso Externo";
-				map.addLayer(ingresosLayer);				
-				ingresosLayer.visible = true;
-			}
-			
 		]]>
 	</fx:Script>
 	<viewer:WidgetTemplate id="wTemplate"                      
 						   width="850" height="500"
-						   visible="true" 
-						   initialize="wTemplate_initializeHandler(event)"
-						   open="wTemplate_openHandler(event)"
-						   closed="wTemplate_closedHandler(event)">
+						   visible="true" initialize="wTemplate_initializeHandler(event)" closed="wTemplate_closedHandler(event)" open="wTemplate_openHandler(event)">
 		
 		<s:Group id="bkmInit" width="100%" height="100%" initialize="bkmInit_initializeHandler(event)"
 				 visible="false" visible.bkmInit="true">	
@@ -761,30 +738,32 @@
 				 visible.bkmConsulta="true">
 			
 			
-			
-			<mx:Canvas id="ListadoClientes" label="Lista Clientes Nuevos" width="100%" height="100%">
-				<s:VGroup width="100%" top="5" bottom="5" height="50%">
-					<mx:Label id="Lblclie" text="Listado de Inspecciones CNR" fontSize="18"/>
+				
+			<mx:Canvas id="ListadoClientes" label="Lista Lecturas" width="100%" height="100%">
+				<s:VGroup width="100%" top="5" bottom="5" height="80%">
+					<mx:Label id="Lblclie" text="Listado de Lecturas" fontSize="18"/>
 					<s:HGroup width="100%" verticalAlign="middle">
 						<mx:TextInput x="10" id="txtFilterClientes" width="100%" height="30" fontSize="14" fontWeight="bold" />
 						<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png"/>
+						<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/refresh_1.png" click="image1_clickHandler(event)"/>
 					</s:HGroup>
 					<mx:DataGrid id="DataClientesNuevos" resizableColumns="true" sortableColumns="true" editable="false"  
 								 width="100%" height="100%" visible="true" selectable="true" itemClick="DataClientesNuevos_itemClickHandler(event)">
 						<mx:columns>        
 							<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID" width="30" visible="false"/>                                                         
 							
-							<mx:DataGridColumn dataField="NUMERO_MEDIDOR" headerText="NUM.MEDIDOR" width="50" /> 
-							<mx:DataGridColumn dataField="TIPO_MEDIDOR" headerText="TIPO MEDIDOR" visible="true" width="50" />
-							<mx:DataGridColumn dataField="NIS" headerText="NIS" width="50"/>
-							<mx:DataGridColumn dataField="TIPO_POSTE_CAMARA" headerText="TIPO P/C" visible="true" width="50" />
-							<mx:DataGridColumn dataField="ID_POSTE_CAMARA" headerText="ID P/C" visible="true" width="50" />
-							<mx:DataGridColumn dataField="TIPO_EMPALME" headerText="TIPO EMPALME" visible="true" width="50" />
-							<mx:DataGridColumn dataField="TIPO_DIRECCION" headerText="TIPO DIR." visible="true" width="50" />
-							<mx:DataGridColumn dataField="ID_DIRECCION" headerText="ID DIRECCION" visible="true" width="50" />
-							<mx:DataGridColumn dataField="ESTADO" headerText="ESTADO" visible="true" width="50" />
+							<mx:DataGridColumn dataField="nro_medidor" headerText="NUM.MEDIDOR" width="50" /> 
+							<mx:DataGridColumn dataField="estado" headerText="ESTADO" visible="true" width="50" />
+							<mx:DataGridColumn dataField="tipo_edificacion" headerText="EDIFICACION" width="50"/>
+							<mx:DataGridColumn dataField="poste" headerText="POSTE" visible="true" width="50" />
+							<mx:DataGridColumn dataField="direccion" headerText="DIRECCION" visible="true" width="50" />
+							<mx:DataGridColumn dataField="lectura_actual" headerText="LECTURA_ACTUAL" visible="true" width="50" />
+							<mx:DataGridColumn dataField="estado_revision" headerText="ESTADO_REVISION" visible="false" width="50" />
+							<mx:DataGridColumn dataField="lector" headerText="LECTOR" visible="true" width="50" />
 							<mx:DataGridColumn dataField="created_user" headerText="CREADO POR" visible="true" width="50" />
 							<mx:DataGridColumn dataField="created_date" headerText="FECHA CREACION" visible="true" width="50" />
+							<mx:DataGridColumn dataField="estado_final" headerText="ESTADO FINAL" visible="true" width="50" />
+							
 							
 						</mx:columns>
 					</mx:DataGrid> 
@@ -796,7 +775,7 @@
 						<s:HGroup horizontalAlign="left" width="100%">
 							<mx:DateField id="dateDesde" formatString="DD/MM/YYYY" creationComplete="dateChooser_init(dateDesde)"/>
 							<mx:DateField id="dateHasta" formatString="DD/MM/YYYY" creationComplete="dateChooser2_init(dateHasta)"/>
-							<s:Button id="btnRangoFecha" label="Consultar" click="btnRangoFecha_clickHandler(event)"/> <!--click="btnRangoFecha_clickHandler(event)"-->
+							<s:Button id="btnRangoFecha" label="Consultar" click="btnRangoFecha_clickHandler(event)"/> 
 						</s:HGroup>
 						<s:HGroup horizontalAlign="right" width="100%">
 							<s:DropDownList id="DDLEstadoCliente"  prompt="Seleccione Estado del Cliente" width="150" labelField="item" dataProvider="{coleccionEstados}"/>
@@ -807,7 +786,7 @@
 					<mx:HRule width="100%">
 						
 					</mx:HRule>
-					<mx:Form id="FormDetalleNIS" width="100%" height="15%">
+					<!--<mx:Form id="FormDetalleNIS" width="100%" height="15%">
 						<s:Label text="Detalle de NIS: " fontSize="18" fontWeight="bold"></s:Label>
 						<s:HGroup width="100%" paddingTop="5">
 							<mx:VBox width="50%" paddingLeft="1">
@@ -834,14 +813,15 @@
 							</mx:VBox>
 						</s:HGroup>
 					</mx:Form>
+					-->
 					
 				</s:VGroup>
 				
 				
 			</mx:Canvas>
-			
-			
-			
+					
+
+
 		</s:Group>
 		
 		

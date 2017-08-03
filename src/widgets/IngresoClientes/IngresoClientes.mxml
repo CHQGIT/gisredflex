@@ -86,6 +86,7 @@
 			import com.esri.ags.geometry.MapPoint;
 			import com.esri.ags.geometry.Polygon;
 			import com.esri.ags.geometry.Polyline;
+			import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
 			import com.esri.ags.layers.GraphicsLayer;
 			import com.esri.ags.symbols.SimpleMarkerSymbol;
 			import com.esri.ags.tasks.QueryTask;
@@ -98,6 +99,7 @@
 			import mx.rpc.AsyncResponder;
 			import mx.validators.Validator;
 			
+
 			import widgets.IngresoClientes.utilidad.cargarCombos;
 			import widgets.IngresoClientes.utilidad.cliente;
 			import widgets.IngresoClientes.utilidad.direccion;
@@ -326,6 +328,10 @@
 			}
 		*/	
 			//carga todos los combos 
+			
+			public var ingresosLayer:ArcGISDynamicMapServiceLayer= new ArcGISDynamicMapServiceLayer(widgets.IngresoClientes.utilidad.urls.URL_INGRESOEXTERNO_DYN);
+			
+			
 			protected function bkmIngresoClientes_initializeHandler(event:FlexEvent):void
 			{
 				
@@ -333,9 +339,16 @@
 				ddlTipoMedidor.dataProvider = cargaCombo.cargaTipoMedidor();
 				ddlTecnologiaMedidor.dataProvider = cargaCombo.cargaTecnologiaMedidor();
 				ddlTipoEmpalme1.dataProvider = cargaCombo.cargaTipoEmpalme();
+				openLayer();
+				
 				
 			}
 			
+			public function openLayer():void{
+				ingresosLayer.name = "Ingreso Externo";
+				map.addLayer(ingresosLayer);				
+				ingresosLayer.visible = true;
+			}
 			
 			
 			protected function bkmAddPoste_initializeHandler(event:FlexEvent):void
@@ -1106,6 +1119,8 @@
 				ddlTipoEmpalme1.selectedIndex = -1;
 				txtOS.text  = "";
 				lblDireccion.text  = "";
+				
+				map.removeLayer(ingresosLayer);
 			}
 			
 			public function limpiarCampos(op:int):void{
@@ -1141,11 +1156,18 @@
 					}
 				}
 			}
+			
+			protected function wTemplate_openHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				openLayer();
+			}
+			
 		]]>
 	</fx:Script>
 	<viewer:WidgetTemplate id="wTemplate"                      
 						   width="500" height="535"
-						   visible="true" closed="wTemplate_closedHandler(event)">
+						   visible="true" closed="wTemplate_closedHandler(event)" open="wTemplate_openHandler(event)" >
 		
 		
 		<!--Ventana nueva solicitud-->
