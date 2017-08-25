@@ -146,7 +146,7 @@
 				queryEquipoSelected.outFields = ["*"];
 				queryEquipoSelected.returnGeometry = true;     
 				queryEquipoSelected.orderByFields = ["usuario"];
-				queryEquipoSelected.where = "usuario = '" + User.Usuario + "' AND MODULO ='INGRESO_CLIENTES' AND widget='ADMINLECTURAS'" ;
+				queryEquipoSelected.where = "usuario = '" + User.Usuario + "' AND MODULO ='INGRESO_CLIENTES' AND widget='ADMINAP'" ;
 				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
 				queryEquipoSelected.outSpatialReference = map.spatialReference;
 				queryTaskUserSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));

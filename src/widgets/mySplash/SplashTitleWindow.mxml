@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+////////////////////////////////////////////////////////////////////////////////
+//
+// Delevoped by Robert Scheitlin
+//
+////////////////////////////////////////////////////////////////////////////////
+-->
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="{_windowWidth}"
+			   height="{_windowHeight}" cornerRadius="8" 
+			   skinClass="widgets.mySplash.TitleWindowSkin" >
+	<s:layout>
+		<s:VerticalLayout gap="0"/>
+	</s:layout>
+
+	<fx:Script>
+		<![CDATA[
+			import flash.net.URLRequest;
+			
+			import flashx.textLayout.conversion.TextConverter;
+			
+			import mx.managers.PopUpManager;
+			
+			import spark.components.Button;
+			import spark.components.NavigatorContent;
+			import spark.components.TextArea;
+			
+			[Bindable]
+			private var _windowWidth:int;
+			
+			[Bindable]
+			private var _windowHeight:int;
+			
+			[Bindable]
+			private var _buttons:XMLList;
+			
+			[Bindable]
+			private var _content:Array;
+			
+			[Bindable]
+			private var _chkLabel:String;
+		
+			public var swidget:SplashWidget;
+			
+			[Bindable]
+			private var isSingle:Boolean = false;
+			
+			[Bindable]
+			public var dontShowCBvisible:Boolean = true;
+			
+			private var u:URLRequest;
+			
+			
+			public function set windowWidth(value:int):void
+			{
+				_windowWidth = value;
+			}
+			
+			public function set windowHeight(value:int):void
+			{
+				_windowHeight = value;
+			}
+			
+			public function set buttons(value:XMLList):void
+			{
+				_buttons = value;
+				addButtons();
+			}
+			
+			public function set content(value:Array):void
+			{
+				if(value.length == 1){
+					isSingle = true;
+					txtArea.textFlow = TextConverter.importToFlow(value[0].value.toString(),TextConverter.TEXT_FIELD_HTML_FORMAT);
+				}else{
+					isSingle = false;
+					var navCont:NavigatorContent;
+					for(var t:int=0; t<value.length; t++){
+						var ta:TextArea = new TextArea;
+						ta.percentWidth = 100;
+						ta.percentHeight = 100;
+						ta.setStyle("borderVisible",false);
+						ta.editable = false;
+						ta.heightInLines = Number.NaN;
+						ta.minHeight = 100;
+						ta.minWidth = 100;
+						ta.textFlow = TextConverter.importToFlow(value[t].value.toString(),TextConverter.TEXT_FIELD_HTML_FORMAT);
+						ta.widthInChars = Number.NaN;
+						navCont = new NavigatorContent;
+						navCont.id = "Tab" + t;
+						navCont.addElement(ta);
+						navCont.label = value[t].tname;
+						navCont.percentWidth = 100;
+						navCont.percentHeight = 100;
+						myViewStack.addChild(navCont);
+					}
+				}
+			}
+			
+			public function set chkLabel(value:String):void
+			{
+				_chkLabel = value;
+			}
+			
+			protected function addButtons():void
+			{
+				for (var i:int = 0; i < _buttons.length(); i++)
+				{
+					var btnURL:String = _buttons[i].@url;
+					var btnLabel:String = _buttons[i].@label;
+					var btnAction:String = _buttons[i].@action;
+					var btnImage:String = _buttons[i].@icon;
+					var btnDelay:Number = Number(_buttons[i].@delayenable);
+					var btn:Button = new Button();
+					btn.label = btnLabel;
+					btn.name = "button" + i;
+					btn.setStyle("icon", btnImage);
+					btn.setStyle("skinClass", Class(widgets.mySplash.ButtonIconSkin));
+					
+					btn.name = btnURL;
+					switch (btnAction){
+						case "close":{
+							btn.addEventListener(MouseEvent.CLICK, btnClose);
+							if(btnDelay > 0){
+								btn.enabled = false;
+								setTimeout(enableAgree, btnDelay, btn);
+							}
+							break;
+						}
+						case "redirect":{
+							btn.addEventListener(MouseEvent.CLICK, btnRedirect);
+							if(btnDelay > 0){
+								btn.enabled = false;
+								setTimeout(enableAgree, btnDelay, btn);
+							}
+							break;
+						}
+						case "link":{
+							btn.addEventListener(MouseEvent.CLICK, btnLink);
+							if(btnDelay > 0){
+								btn.enabled = false;
+								setTimeout(enableAgree, btnDelay, btn);
+							}
+							break;
+						}
+						case "closeandlink":{
+							btn.addEventListener(MouseEvent.CLICK, btnCloseAndLink);
+							if(btnDelay > 0){
+								btn.enabled = false;
+								setTimeout(enableAgree, btnDelay, btn);
+							}
+							break;
+						}
+					}
+					bGroup.addElement(btn);
+				}
+			}
+			
+			protected function enableAgree(b:Object):void{
+				b.enabled = true;
+			}
+			
+			protected function btnClose(event:Event):void
+			{
+				if(ShowChk.selected)
+					swidget.dontShowSplashAgain(true);
+				PopUpManager.removePopUp(this);
+			}
+			
+			protected function btnCloseAndLink(event:Event):void
+			{
+				if(ShowChk.selected)
+					swidget.dontShowSplashAgain(true);
+				PopUpManager.removePopUp(this);
+				u = new URLRequest(event.currentTarget.name);
+				navigateToURL(u);
+			}
+			
+			protected function btnLink(event:Event):void
+			{
+				u = new URLRequest(event.currentTarget.name);
+				navigateToURL(u);
+			}
+			
+			protected function btnRedirect(event:Event):void
+			{
+				u = new URLRequest(event.currentTarget.name);
+				navigateToURL(u,'_parent');
+			}			
+		]]>
+	</fx:Script>
+	<s:TabBar dataProvider="{myViewStack}" includeInLayout="{!isSingle}"
+			  visible="{!isSingle}"/> 
+	<mx:ViewStack id="myViewStack" width="100%" height="100%" includeInLayout="{!isSingle}"
+				  visible="{!isSingle}" /> 
+	
+	<s:TextArea id="txtArea"
+				width="100%" height="100%"
+				borderVisible="false"
+				editable="false"
+				heightInLines="{NaN}"
+				minHeight="100"
+				minWidth="100"
+				widthInChars="{NaN}"
+			    includeInLayout="{isSingle}"
+				visible="{isSingle}"/>
+	
+	<s:BorderContainer id="buttonGroup" width="100%" borderVisible="false" height="70">
+		<s:backgroundFill>
+				<s:SolidColor alpha="{getStyle('contentBackgroundAlpha')}"
+							  color="{getStyle('contentBackgroundColor')}"/>
+		</s:backgroundFill>
+		<s:VGroup horizontalAlign="center" verticalAlign="middle" gap="5" width="100%">
+			<s:CheckBox id="ShowChk" selected="false" label="{_chkLabel}" includeInLayout="{dontShowCBvisible}" visible="{dontShowCBvisible}"/>
+			<s:HGroup id="bGroup" horizontalAlign="center" verticalAlign="middle" gap="10" width="100%"/>
+		</s:VGroup>
+	</s:BorderContainer>
+	<s:controlBarContent>
+		<mx:Spacer height="15" />
+	</s:controlBarContent>
+</s:TitleWindow>

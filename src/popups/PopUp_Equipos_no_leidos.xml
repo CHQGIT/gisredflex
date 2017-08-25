@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <title>PRODUCTO: {ARCGIS.dbo.view_ap_cant_no_leido_equipo.nis}</title>
+    <fields>
+        <field name="ARCGIS.dbo.view_ap_cant_no_leido_equipo.CANTIDAD" alias="Cantidad no leido:" visible="true"/>
+        <field name="ARCGIS.dbo.view_ap_cant_no_leido_equipo.id_medidor" alias="Id_Medidor:" visible="true"/>
+        <field name="ARCGIS.dbo.view_ap_cant_no_leido_equipo.numero_medidor" alias="Medidor:" visible="true"/>
+        <field name="ARCGIS.dbo.view_ap_cant_no_leido_equipo.tipo_equipo" alias="Tipo_equipo:" visible="true"/>
+        <field name="ARCGIS.dbo.view_ap_cant_no_leido_equipo.luminarias" alias="Cant_Luminarias:" visible="true"/>
+        <field name="ARCGIS.dbo.view_ap_cant_no_leido_equipo.caja" alias="Tipo_Caja:" visible="true"/>
+        <field name="ARCGIS.dbo.view_ap_cant_no_leido_equipo.estado" alias="Estado:" visible="true"/>
+        <field name="ARCGIS.DBO.Nodos_006.rotulo" alias="Rotulo:" visible="true"/>
+        <field name="ARCGIS.DBO.Nodos_006.sed" alias="SED:" visible="true"/>
+        <field name="ARCGIS.DBO.Nodos_006.alimentador" alias="Alimentador: " visible="true"/>
+        <field name="ARCGIS.DBO.Nodos_006.comuna" alias="Comuna:" visible="true"/>
+        <field name="ARCGIS.DBO.Nodos_006.tipo" alias="Tipo:" visible="true"/>
+        <field name="ARCGIS.dbo.view_ap_cant_no_leido_equipo.observaciones" alias="Obs:" visible="true"/>
+
+       
+    </fields>
+    <medias>
+      
+    </medias>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

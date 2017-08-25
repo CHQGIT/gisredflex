@@ -192,8 +192,7 @@
 			
 			
 			//Filtra Listado de Solicitudes ingresadas en Textbox
-			protected function filterGridClientes(event:Event):void
-			{
+			protected function filterGridClientes(event:Event):void {
 				/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
 				Everything else is dynamic. Do not edit variable names. */
 				var filterText:String = StringUtil.trim(txtFilterClientes.text.toLowerCase()); //Trimmed text String to filter by
@@ -240,6 +239,7 @@
 					this[dataGridName].dataProvider = filteredData; //Pusht he filtered data into the datagrid
 				}
 			}	
+			
 			public function cargarListaClientesNuevosRango():void {
 				// TODO Auto-generated method stub
 				coleccionClientes.removeAll();
@@ -262,14 +262,14 @@
 					
 					for(k=0;k<featureSet.features.length;k++)
 					{
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ){
-							idPosteNuevo = "";
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nueva") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ){
+							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
 							rotNuevo = "";
-							idDirNueva = "";
+							idDirNueva = idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
 							dirNueva = "";
 						}
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
-							idPosteNuevo = "";
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nueva") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
+							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
 							rotNuevo = "";
 							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
 							
@@ -277,7 +277,7 @@
 						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ) {
 							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
 							rotNuevo = "";
-							idDirNueva = "";
+							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
 							dirNueva = "";
 						}
 						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
@@ -334,22 +334,22 @@
 					
 					for(k=0;k<featureSet.features.length;k++)
 					{
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ){
-							idPosteNuevo = "";
-							rotNuevo = "";
-							idDirNueva = "";
-							dirNueva = "";
-						}
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
-							idPosteNuevo = "";
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nueva") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ){
+							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
 							rotNuevo = "";
 							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
-							
+							dirNueva = "";
+						}
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nueva") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
+							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
+							rotNuevo = "";
+							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
+							dirNueva = "";
 						}
 						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ) {
 							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
 							rotNuevo = "";
-							idDirNueva = "";
+							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
 							dirNueva = "";
 						}
 						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
@@ -395,8 +395,8 @@
 			public var myGraphic:Graphic;
 			
 			public var acPolyline:ArrayCollection = new ArrayCollection;
-			public function DataClientesNuevos_itemClickHandler(event:ListEvent):void
-			{
+			
+			public function DataClientesNuevos_itemClickHandler(event:ListEvent):void {
 				anexo1="";
 				anexo2="";
 				tipoEdificacion="";
@@ -543,6 +543,7 @@
 			}
 			
 			public function buscarRotulo(ipc:int):void{
+				
 				var queryTask2:QueryTask = new QueryTask(widgets.AdmIngresoClientes.utilidad.urls.URL_ROTULOS);
 				var query2:Query = new Query();
 				query2.where = "id_nodo="+ ipc;
@@ -565,6 +566,7 @@
 			}
 			
 			public function buscarEnExternos(idpEx:int):void{
+				
 				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientes.utilidad.urls.URL_CREAR_POSTES);
 				var query:Query = new Query();
 				query.where = "OBJECTID="+ idpEx;

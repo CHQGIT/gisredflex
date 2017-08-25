@@ -1,0 +1,72 @@
+<?xml version="1.0" ?>
+<configuration>
+    <!--
+        Refer to the doc below for valid HTML tags that can be used for the content
+        http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flashx/textLayout/conversion/TextConverter.html#TEXT_FIELD_HTML_FORMAT
+    -->
+    <width>375</width>
+    <height>550</height>
+    <contents>
+	    <content tabname="Inicio">
+	        <![CDATA[<p align='center'>
+	            <img src='assets/images/logogisred_16x16cm.png' width='140' height='140' />
+	        </p>
+	        <p align='center'>
+	            <font size="16"><b>Bienvenido al visualizador GISRED</b></font>
+	        </p>
+	        <p align='center'>
+	            Esta Aplicación esta desarrollada en Arcgis for flex para Chilquinta Energia S.A.
+	        </p>
+	       
+	        <textformat blockindent="20">
+	            <p>
+	                * La información contenida en esta aplicación es extraida periodicamente desde Smallworld (SIRED)</a>
+	                <br>
+	                <br>
+	                * Planificación y Gestión de la información operacional 2014</a>
+	             	
+	               
+	            </p>
+	             
+	        </textformat>
+	        <br>
+	        <p>
+	            <a href="http://www.esri.com/legal/pdfs/mla_e204_e300/english.pdf" target='_blank'><font color="#FFFFFF">(c) Copyright 2010 Esri</font></a>. All rights reserved.
+	        </p>
+	       
+	       ]]>
+	    </content>
+	    <content tabname="acerca de...">
+	        <![CDATA[<p align='center'>
+	            <img src='assets/images/Banner.png' width='37%'/>
+	        </p>
+	        <p>
+	            <font size="16"><b>Acerca de ls version 2 de GISRED</b></font>
+	        </p>
+	        <p align='left'>
+	         Esta aplicacion es un visualizador con caracteristicas especiales de busqueda rapida.
+	           <br>
+	           <br>	
+	            ***Modificaciones nueva versión*** <br>
+	            <br>		            
+	            -Nueva busqueda desde excel. <br>	             
+	            -Nuevo trazado por atributo en baja tensión. <br>	             
+	            -Se modifica buscador de direcciones. <br>
+	            -Se añade selector de perfiles. <br>
+	            -Se proteje la informacion de clientes con autorizacion. <br>
+	             <br>
+	             *Proximamente se añaden mas modulos para grupos de usuarios
+	        </p>
+	        </ul>
+	       ]]>
+	    </content>
+    </contents>
+    <buttons>
+    	<button label="Entrar" action="close" url="" />
+    	<button label="Contacto" action="redirect" url="mailto:nelgueta@chilquinta.cl" />
+    	<button label="NuestraNet" action="link" url="http://nuestranet.chilquinta/" />
+    	<!--  <button label="Cerrar y linkear " action="closeandlink" url="http://www.chilquinta.cl" /> -->
+    </buttons>
+    <dontshowlabel>No mostrar nuevamente</dontshowlabel>
+    <disabledontshowoption>false</disabledontshowoption>
+</configuration>

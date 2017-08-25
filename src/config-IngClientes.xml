@@ -190,16 +190,16 @@
                  url="http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/MapServer"
                  visible="false">
              </layer>
-             
+            
        		<layer type="dynamic"
        			 id="ingresoLectores"
                  label="Ingreso Lectores"
                  imageformat="png32"
-                 url="http://gisred.chilquinta/arcgis/rest/services/Varios/Ingreso_Lectores/MapServer/"
-                 visible="false">
-               
+                 url="http://gisred.chilquinta/arcgis/rest/services/Varios/Ingreso_Lectores/MapServer"
+                 visible="true">
+              	 <sublayer id="0" label="Ingreso Lectores" popupconfig="popups/PopUp_IngresoLectores.xml"/>
              </layer>
-            -->
+             -->
        			
         </operationallayers>
     </map>

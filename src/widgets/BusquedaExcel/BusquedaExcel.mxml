@@ -92,7 +92,7 @@
 			
 				fr.removeEventListener(Event.SELECT,importData);
 				fr = FileReference(event.target);			
-				//fr.addEventListener(Event.COMPLETE,fileIn);
+				fr.addEventListener(Event.COMPLETE,fileIn);
 				fr.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 				fr.load();
 				txtdireccion.visible =  true;
@@ -131,10 +131,11 @@
 				var sheet:Sheet =ef.sheets[0];
 				var tCols:int = sheet.cols;
 				var tRows:int = sheet.rows;
-				statuslbl.text = "Filas leidas: "+ tRows + " - max." + rango;
+				//statuslbl.text = "Filas leidas: "+ tRows + " - max." + rango;
+				//Alert.show(statuslbl.text);
 				//statuslbl.text = "Filas leidas: "+ rango;
 				statCollection = new ArrayCollection();
-						
+				statuslbl.visible = true;	
 				/*if(tRows.valueOf()>300)	{
 					Alert.show("Demasiados datos a consultar \n             (maximo 300)");
 					return;
@@ -143,13 +144,11 @@
 					Alert.show("Error procesando su solicitud. Contáctese con el adm. del sistema");
 					return;		
 				}else{
-					switch(seleccion)
-					{
+					switch(seleccion){
 						case 0:
-						{
-							//Alert.show("SED");
-							for(var i:int=0;i<=rango-1;i++)
-							{
+							//Alert.show("SUBESTACION");
+							statuslbl.text = "Filas leidas: "+ tRows + " - max." + rango;
+							for(var i:int=0;i<=rango-1;i++){
 								valor = '0';
 								var statsEnry:Object = new Object();
 								statsEnry.eventLabel = sheet.getCell(i,0).value;
@@ -196,121 +195,12 @@
 							}
 							map.addLayer(graphicsLayer1);
 							break;
-						}
-						case 4:
-						{
-							//	Alert.show("Postes");
-							for(var i2:int=0;i2<=rango-1;i2++)
-							{
-								valor = '0';
-								var statsEnry2:Object = new Object();
-								statsEnry2.eventLabel = sheet.getCell(i2,0).value;
-								statsEnry2.totalEvent = sheet.getCell(i2,1).value;
-								if(statsEnry2.EntryLabel !=""){
-									statCollection.addItem(statsEnry2);
-									valor = sheet.getCell(i2,0).value;
-									//Alert.show(valor);
-									
-									//  Alert.show("Clientes");
-									//Obtener ids del servicio
-									var qtID2:QueryTask = new QueryTask();
-									qtID2.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0/query";
-									qtID2.useAMF = false;
-									var queryID2:Query = new Query();
-									queryID2.where = "rotulo='" + valor + "'";
-									
-									queryID2.outFields=["rotulo"]
-									queryID2.returnGeometry=true;
-									queryID2.spatialRelationship ="esriSpatialRelIntersects";
-									queryID2.outSpatialReference = map.spatialReference;
-									qtID2.execute(queryID2, new AsyncResponder(onResult1, onFault1));
-									
-									function onResult1(featureSet:FeatureSet, token:Object = null):void
-									{
-										try{
-											var myGraphicMarker:Graphic = featureSet.features[0] as Graphic;
-											myGraphicMarker.symbol = new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value);
-											graphicsLayer1.add(myGraphicMarker);
-											ac.addItem(graphicsLayer1);
-										}catch(err:Error){
-											//Alert.show(err.message+ "id no encontrada");
-										}
-									}
-									
-									function onFault1(info:Object, token:Object = null):void
-									{   
-										//Alert.show("id no encontrada"+ valor);
-									}
-									seleccion = 0;
-									
-									
-								}else {     
-									Alert.show("espacios");
-								}
-							}					
+						
+						case 1:						
+							//Alert.show("CLIENTES");
+							statuslbl.text = "Filas leidas: "+ tRows + " - max." + rango;
 							
-							map.addLayer(graphicsLayer1);
-							break;
-						}
-						case 9:
-						{
-							//	Alert.show("Camaras");
-							for(var i3:int=0;i3<=rango-1;i3++)
-							{
-								valor = '0';
-								var statsEnry3:Object = new Object();
-								statsEnry3.eventLabel = sheet.getCell(i3,0).value;
-								statsEnry3.totalEvent = sheet.getCell(i3,1).value;
-								if(statsEnry3.EntryLabel !=""){
-									statCollection.addItem(statsEnry3);
-									valor = sheet.getCell(i3,0).value;						
-									//Obtener ids del servicio
-									var qtID3:QueryTask = new QueryTask();
-									qtID3.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0/query";
-									qtID3.useAMF = false;
-									var queryID3:Query = new Query();
-									queryID3.where = "rotulo='" + valor + "'";								
-									queryID3.outFields=["rotulo"]
-									queryID3.returnGeometry=true;
-									queryID3.spatialRelationship ="esriSpatialRelIntersects";
-									queryID3.outSpatialReference = map.spatialReference;
-									qtID3.execute(queryID3, new AsyncResponder(onResult2, onFault2));
-									
-									function onResult2(featureSet:FeatureSet, token:Object = null):void
-									{
-										try{
-											var myGraphicMarker:Graphic = featureSet.features[0] as Graphic;
-											myGraphicMarker.symbol = new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value);
-											graphicsLayer1.add(myGraphicMarker);
-											ac.addItem(graphicsLayer1);
-										}catch(err:Error){
-											//Alert.show(err.message+ "id no encontrada");
-										}
-									}
-									
-									function onFault2(info:Object, token:Object = null):void
-									{   
-										//Alert.show("id no encontrada"+ valor);
-									}
-									seleccion = 0;
-									
-									
-								}else {     
-									Alert.show("espacios");
-								}
-							}
-							map.addLayer(graphicsLayer1);
-							break;
-						}
-							
-							
-							
-							
-						case 1:
-						{
-							//Alert.show("Clientes");
-							for(var i4:int=0;i4<=rango-1;i4++)
-							{   
+							for(var i4:int=0;i4<=rango-1;i4++){   
 								valor = '0';
 								var statsEnry4:Object = new Object();
 								statsEnry4.eventLabel = sheet.getCell(i4,0).value;
@@ -330,15 +220,10 @@
 									queryID4.outSpatialReference = map.spatialReference;
 									qtID4.execute(queryID4, new AsyncResponder(onResult4, onFault4));
 									
-									function onResult4(featureSet:FeatureSet, token:Object = null):void
-									{
+									function onResult4(featureSet:FeatureSet, token:Object = null):void{
 										try{
-											
-											
 											var mp:MapPoint=featureSet.features[0].geometry as MapPoint;  
 											var myGraphic:Graphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value), featureSet.features[0].attributes);
-											
-											
 											
 											myGraphic.toolTip = "NIS: " + String(featureSet.features[0].attributes["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis"]); 
 											graphicsLayer1.add(myGraphic);
@@ -350,12 +235,10 @@
 										}
 									}
 									
-									function onFault4(info:Object, token:Object = null):void
-									{   
+									function onFault4(info:Object, token:Object = null):void{   
 										//Alert.show("id no encontrada"+ valor);
 									}
 									seleccion = 0;
-									
 									
 								}else {     
 									Alert.show("espacios");
@@ -364,12 +247,10 @@
 							map.addLayer(graphicsLayer1);
 							break;
 							
-						}
-						case 2:
-						{
+						case 2:						
 							//Alert.show("TramoMT");
-							for(var i6:int=0;i6<=rango-1;i6++)
-							{   
+							statuslbl.text = "Filas leidas: "+ tRows + " - max." + rango;
+							for(var i6:int=0;i6<=rango-1;i6++){   
 								valor = '0';
 								var statsEnry6:Object = new Object();
 								statsEnry6.eventLabel = sheet.getCell(i6,0).value;
@@ -390,49 +271,36 @@
 									queryEquipoSelected.outSpatialReference = map.spatialReference;
 									queryTaskEquipoSelected.execute(queryEquipoSelected, new AsyncResponder(onResult6, onFault6));
 									
-									function onResult6(featureSet:FeatureSet, token:Object = null):void
-									{ 
-										
+									function onResult6(featureSet:FeatureSet, token:Object = null):void { 
 										try{
-											
-											for each (var myGraphic:Graphic in featureSet.features)
-											{
+											for each (var myGraphic:Graphic in featureSet.features)	{
 												
 												myGraphic.symbol=new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,cpMarker.selectedColor,numMarkerAlpha.value,5);
 												graphicsLayer1.add(myGraphic);
-												
-												
 											}
 											map.addLayer(graphicsLayer1);
 										}catch(err:Error){
 											Alert.show("no se pudo hacer zoom al equipo seleccionado");
 										}
 										
-										
 									}
 									
-									function onFault6(info:Object, token:Object = null):void
-									{   
+									function onFault6(info:Object, token:Object = null):void {   
 										Alert.show("id de equipo no encontrada");
 									}
-									
 									seleccion = 0;
-									
-									
+																		
 								}else {     
 									Alert.show("espacios");
 								}
-								
 							}
 							map.addLayer(graphicsLayer1);
 							break;
 							
-						}
-						case 3:
-						{
-							//     Alert.show("Torres");
-							for(var i5:int=0;i5<=rango-1;i5++)
-							{   
+						case 3:				
+							//Alert.show("Torres");
+							statuslbl.text = "Filas leidas: "+ tRows + " - max." + rango;
+							for(var i5:int=0;i5<=rango-1;i5++){   
 								valor = '0';
 								var statsEnry5:Object = new Object();
 								statsEnry5.eventLabel = sheet.getCell(i5,0).value;
@@ -452,15 +320,10 @@
 									queryID5.outSpatialReference = map.spatialReference;
 									qtID5.execute(queryID5, new AsyncResponder(onResult5, onFault5));
 									
-									function onResult5(featureSet:FeatureSet, token:Object = null):void
-									{
-										try{
-											
-											
+									function onResult5(featureSet:FeatureSet, token:Object = null):void{
+										try{											
 											var mp:MapPoint=featureSet.features[0].geometry as MapPoint;  
 											var myGraphic:Graphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value), featureSet.features[0].attributes);
-											
-											
 											
 											myGraphic.toolTip = "Torre: " + String(featureSet.features[0].attributes["nombre_obj"]); 
 											graphicsLayer1.add(myGraphic);
@@ -472,12 +335,10 @@
 										}
 									}
 									
-									function onFault5(info:Object, token:Object = null):void
-									{   
+									function onFault5(info:Object, token:Object = null):void {   
 										Alert.show("id no encontrada"+ valor);
 									}
 									seleccion = 0;
-									
 									
 								}else {     
 									Alert.show("espacios");
@@ -485,14 +346,68 @@
 							}
 							map.addLayer(graphicsLayer1);
 							break;
-						}
+						
+						case 4:						
+							//	Alert.show("Postes");
+							statuslbl.text = "Filas leidas: "+ tRows + " - max." + rango;
+							for(var i2:int=0;i2<=rango-1;i2++) {
+								valor = '0';
+								var statsEnry2:Object = new Object();
+								statsEnry2.eventLabel = sheet.getCell(i2,0).value;
+								statsEnry2.totalEvent = sheet.getCell(i2,1).value;
+								if(statsEnry2.EntryLabel !=""){
+									statCollection.addItem(statsEnry2);
+									valor = sheet.getCell(i2,0).value;						
+									
+									//Obtener ids del servicio
+									var qtID2:QueryTask = new QueryTask();
+									qtID2.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0/query";
+									qtID2.useAMF = false;
+									var queryID2:Query = new Query();
+									queryID2.where = "rotulo='" + valor + "'and tipo_nodo='ele!poste'";
+									
+									queryID2.outFields=["rotulo"]
+									queryID2.returnGeometry=true;
+									queryID2.spatialRelationship ="esriSpatialRelIntersects";
+									queryID2.outSpatialReference = map.spatialReference;
+									qtID2.execute(queryID2, new AsyncResponder(onResult1, onFault1));
+									
+									function onResult1(featureSet:FeatureSet, token:Object = null):void {
+										try{
+											var mp:MapPoint=featureSet.features[0].geometry as MapPoint;  
+											var myGraphic:Graphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value), featureSet.features[0].attributes);
+											
+											myGraphic.toolTip = "Poste: " + String(featureSet.features[0].attributes["rotulo"]); 
+											graphicsLayer1.add(myGraphic);
+											graphicsLayer1.moveToTop(myGraphic);
+											ac.addItem(graphicsLayer1);
+											map.addLayer(graphicsLayer1);
+											
+											/*var myGraphicMarker:Graphic = featureSet.features[0] as Graphic;
+											myGraphicMarker.symbol = new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value);
+											graphicsLayer1.add(myGraphicMarker);
+											ac.addItem(graphicsLayer1);
+											*/
+										}catch(err:Error){
+											//Alert.show(err.message+ "id no encontrada");
+										}
+									}
+									
+									function onFault1(info:Object, token:Object = null):void {   
+										//Alert.show("id no encontrada"+ valor);
+									}
+									seleccion = 0;
+									
+								}else {     
+									Alert.show("espacios");
+								}
+							}					
+							map.addLayer(graphicsLayer1);
+							break;
+						
 						default: {}      
-							
 					}
 				}
-			
-				
-
 			}
 				
 			
@@ -541,25 +456,19 @@
 			}			
 						
 														 
-			protected function graficar_clickHandler(event:MouseEvent):void
-			{			
+			protected function graficar_clickHandler(event:MouseEvent):void{			
 				
-				
-				if(dropTipoCapa.selectedIndex ==-1)
-				{
+				if(dropTipoCapa.selectedIndex ==-1){
 					Alert.show("Seleccione un Objeto");
 					return;
 				}
-				if(txtdireccion.text == "")
-				{
+				if(txtdireccion.text == ""){
 					Alert.show("Seleccione un archivo xls");
 					return;
 				}
-					
-				
 				map.removeLayer(graphicsLayer1);
 				fileIn();
-				statuslbl.visible =true;	
+				
 				dropTipoCapa.selectedIndex = -1;
 			}
 			
@@ -581,9 +490,7 @@
 				clearAllResults();			
 			}
 			
-			protected function wTemplate_openHandler(event:Event):void
-			{
-			
+			protected function wTemplate_openHandler(event:Event):void{
 				statuslbl.visible = false;
 			}
 			
@@ -604,8 +511,8 @@
 				GetUser();
 				
 			}
-			private function GetUser():void
-			{		
+			
+			private function GetUser():void {		
 				//graphicsLayer= null
 				var queryTaskCapexSelected:QueryTask = new QueryTask();
 				queryTaskCapexSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Admin/LogAccesos/MapServer/2";
@@ -618,8 +525,7 @@
 				queryEquipoSelected.outSpatialReference = map.spatialReference;
 				queryTaskCapexSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));				
 				
-				function onResult(featureSet:FeatureSet, token:Object = null):void
-				{	
+				function onResult(featureSet:FeatureSet, token:Object = null):void{	
 					myDP.addItem({elemento:"Subestacion", id:0});
 					myDP.addItem({elemento:"Clientes", id:1});
 					myDP.addItem({elemento:"Tramos MT", id:2});
@@ -632,14 +538,11 @@
 					}else{
 					  rango = 300;	
 					}
-					
 				}		
 				
 				
-				function onFault(info:Object, token:Object = null):void
-				{   	
+				function onFault(info:Object, token:Object = null):void{   	
 					Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
-					
 				}
 				
 			}

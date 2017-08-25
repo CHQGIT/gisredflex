@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+////////////////////////////////////////////////////////////////////////////////
+//
+// Delevoped by Robert Scheitlin
+//
+////////////////////////////////////////////////////////////////////////////////
+-->
+
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"
+				   widgetConfigLoaded="init()">
+	<fx:Script>
+		<![CDATA[
+			import com.esri.viewer.WidgetStates;
+
+			import mx.managers.PopUpManager;
+			
+			private var content:String;
+			private var buttons:XMLList;
+			private var tWidth:Number;
+			private var tHeight:Number;
+			private var dontShow:String;
+			private var disableDontShowOption:Boolean;
+			private var contentArray:Array = [];
+			
+			private const SHOWSPLASH:String = "showsplash";
+			
+			[Bindable]
+			private var splashWindow:SplashTitleWindow;
+			
+			private var showsplashSO:SharedObject;
+			
+			public function dontShowSplashAgain(value:Boolean):void
+			{
+				showsplashSO.data[SHOWSPLASH] = value.toString();
+				showsplashSO.flush();
+			}
+			
+			private function init():void
+			{
+				if (configXML)
+				{
+					var contentList:XMLList = configXML..content;
+					for (var i:int = 0; i < contentList.length(); i++)
+					{
+						var co:Object={
+							tname: contentList[i].@tabname[0],
+							value: contentList[i]
+						}
+						contentArray.push(co);
+					}
+					tWidth = configXML.width || 500;
+					tHeight = configXML.height || 500;
+					buttons = configXML..button;
+					dontShow = configXML.dontshowlabel || "Don't show again";
+					disableDontShowOption = configXML.disabledontshowoption && configXML.disabledontshowoption == "true";
+					if(!disableDontShowOption){
+						try
+						{
+							showsplashSO = SharedObject.getLocal(SHOWSPLASH);
+						}
+						catch (err:Error)
+						{
+							trace(err);
+						}
+					}
+					
+					if (showsplashSO)
+					{
+						var sSplash:String = showsplashSO.data[SHOWSPLASH] as String;
+						var bSplash:Boolean = (sSplash == "true")?true:false;
+						if(!bSplash)
+						{
+							splashWindow = SplashTitleWindow(PopUpManager.createPopUp(parent, SplashTitleWindow, true));
+							splashWindow.windowHeight = tHeight;
+							splashWindow.windowWidth = tWidth;
+							splashWindow.content = contentArray;
+							splashWindow.buttons = buttons;
+							splashWindow.closeButton.visible = false;
+							splashWindow.title = widgetTitle;
+							splashWindow.dontShowCBvisible = disableDontShowOption?false:true;
+							splashWindow.swidget = this;
+							splashWindow.chkLabel = dontShow;
+							PopUpManager.centerPopUp(splashWindow);
+						}
+					}else{
+						splashWindow = SplashTitleWindow(PopUpManager.createPopUp(parent, SplashTitleWindow, true));
+						splashWindow.windowHeight = tHeight;
+						splashWindow.windowWidth = tWidth;
+						splashWindow.content = contentArray;
+						splashWindow.buttons = buttons;
+						splashWindow.closeButton.visible = false;
+						splashWindow.title = widgetTitle;
+						splashWindow.dontShowCBvisible = disableDontShowOption?false:true;
+						splashWindow.swidget = this;
+						splashWindow.chkLabel = dontShow;
+						PopUpManager.centerPopUp(splashWindow);
+					}
+				}
+				setState(WidgetStates.WIDGET_CLOSED);
+			}
+			
+			override public function setState(value:String):void
+			{
+				this.cursorManager.removeBusyCursor();
+				if(value == "open"){
+					splashWindow = SplashTitleWindow(PopUpManager.createPopUp(parent, SplashTitleWindow, true));
+					splashWindow.windowHeight = tHeight;
+					splashWindow.windowWidth = tWidth;
+					splashWindow.content = contentArray;
+					splashWindow.buttons = buttons;
+					splashWindow.closeButton.visible = false;
+					splashWindow.title = widgetTitle;
+					splashWindow.dontShowCBvisible = disableDontShowOption?false:true;
+					splashWindow.swidget = this;
+					splashWindow.chkLabel = dontShow;
+					PopUpManager.centerPopUp(splashWindow);
+					setState(WidgetStates.WIDGET_CLOSED);
+				}
+			}
+		]]>
+	</fx:Script>
+</viewer:BaseWidget>

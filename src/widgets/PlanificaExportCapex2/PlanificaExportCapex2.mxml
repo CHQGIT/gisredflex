@@ -128,13 +128,13 @@
 									GC.enabled = true;
 									GC.selected = true;
 									break;
-								case "GT" :
-									GT.enabled = true;
-									GT.selected = true;
+								case "GIO" :
+									GIO.enabled = true;
+									GIO.selected = true;
 									break;
-								case "GO" :
-									GO.enabled = true;
-									GO.selected = true;
+								case "GMO" :
+									GMO.enabled = true;
+									GMO.selected = true;
 									break;
 								case "GF" :
 									GF.enabled = true;
@@ -163,10 +163,10 @@
 								case "Full" :
 									GC.enabled = true;
 									GC.selected = true;
-									GT.enabled = true;
-									GT.selected = true;
-									GO.enabled = true;
-									GO.selected = true;
+									GIO.enabled = true;
+									GIO.selected = true;
+									GMO.enabled = true;
+									GMO.selected = true;
 									GF.enabled = true;
 									GF.selected = true;
 									GP.enabled = true;
@@ -180,6 +180,15 @@
 									Innovacion.enabled = true;
 									Innovacion.selected = true;
 									break;
+								case "GSC" :
+									GSC.enabled = true;
+									GSC.selected = true;
+									break;
+								case "SGG" :
+									SGG.enabled = true;
+									SGG.selected = true;
+									break;
+								
 							}
 						}
 						
@@ -200,7 +209,7 @@
 				DataCapex.visible = true;
 				coleccion.removeAll();
 				
-				if (GO.selected == true){
+				if (GMO.selected == true){
 					
 					var queryTaskCapexSelected:QueryTask = new QueryTask();
 					queryTaskCapexSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
@@ -210,7 +219,7 @@
 					queryEquipoSelected.returnGeometry = true;
 					queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
 					queryEquipoSelected.outSpatialReference = map.spatialReference;
-					queryEquipoSelected.where = "gerencia='GO' AND ano_ejecucion = " + txtAnio.text;
+					queryEquipoSelected.where = "gerencia='GMO' AND ano_ejecucion = " + txtAnio.text;
 					queryTaskCapexSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
 					
 					
@@ -218,7 +227,7 @@
 					{
 						
 						if(featureSet.features.length == 0 ){
-							Alert.show("No existen datos para la gerencia GO.")
+							Alert.show("No existen datos para la gerencia GMO.")
 						}
 						else{		
 							coleccion.addAll(new ArrayCollection(featureSet.attributes));
@@ -302,7 +311,7 @@
 					}
 				}
 				
-				if (GT.selected == true){
+				if (GIO.selected == true){
 					
 					
 					
@@ -314,7 +323,7 @@
 					queryEquipoSelected4.returnGeometry = true;
 					queryEquipoSelected4.spatialRelationship ="esriSpatialRelIntersects";
 					queryEquipoSelected4.outSpatialReference = map.spatialReference;
-					queryEquipoSelected4.where = "gerencia='GT' AND ano_ejecucion = " + txtAnio.text;
+					queryEquipoSelected4.where = "gerencia='GIO' AND ano_ejecucion = " + txtAnio.text;
 					queryTaskCapexSelected4.execute(queryEquipoSelected4, new AsyncResponder(onResult3, onFault3));
 					
 					
@@ -322,7 +331,7 @@
 					{
 						
 						if(featureSet.features.length == 0 ){
-							Alert.show("No existen datos para la gerencia GT.")
+							Alert.show("No existen datos para la gerencia GIO.")
 						}
 						else{		
 							coleccion.addAll(new ArrayCollection(featureSet.attributes));
@@ -508,6 +517,75 @@
 						//	Alert.show("Error en consulta");
 					}
 				}*/
+				
+				if (GSC.selected == true){							
+					
+					
+					var queryTaskCapexSelected8:QueryTask = new QueryTask();
+					queryTaskCapexSelected8.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected8.useAMF = false;
+					var queryEquipoSelected8:Query = new Query();
+					queryEquipoSelected8.outFields = ["*"];
+					queryEquipoSelected8.returnGeometry = true;
+					queryEquipoSelected8.spatialRelationship ="esriSpatialRelIntersects";
+					queryEquipoSelected8.outSpatialReference = map.spatialReference;
+					queryEquipoSelected8.where = "gerencia='GSC' AND ano_ejecucion = " + txtAnio.text;
+					queryTaskCapexSelected8.execute(queryEquipoSelected8, new AsyncResponder(onResult7, onFault7));
+					
+					
+					function onResult8(featureSet:FeatureSet, token:Object = null):void
+					{
+						
+						if(featureSet.features.length == 0 ){
+							Alert.show("No existen datos para GSC.")
+						}
+						else{		
+							coleccion.addAll(new ArrayCollection(featureSet.attributes));
+							
+							
+						}
+					}		
+					
+					function onFault8(info:Object, token:Object = null):void
+					{   
+						//	Alert.show("Error en consulta");
+					}
+				}
+				
+				if (SGG.selected == true){							
+					
+					
+					var queryTaskCapexSelected8:QueryTask = new QueryTask();
+					queryTaskCapexSelected8.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected8.useAMF = false;
+					var queryEquipoSelected8:Query = new Query();
+					queryEquipoSelected8.outFields = ["*"];
+					queryEquipoSelected8.returnGeometry = true;
+					queryEquipoSelected8.spatialRelationship ="esriSpatialRelIntersects";
+					queryEquipoSelected8.outSpatialReference = map.spatialReference;
+					queryEquipoSelected8.where = "gerencia='SGG' AND ano_ejecucion = " + txtAnio.text;
+					queryTaskCapexSelected8.execute(queryEquipoSelected8, new AsyncResponder(onResult7, onFault7));
+					
+					
+					function onResult9(featureSet:FeatureSet, token:Object = null):void
+					{
+						
+						if(featureSet.features.length == 0 ){
+							Alert.show("No existen datos para SGG.")
+						}
+						else{		
+							coleccion.addAll(new ArrayCollection(featureSet.attributes));
+							
+							
+						}
+					}		
+					
+					function onFault9(info:Object, token:Object = null):void
+					{   
+						//	Alert.show("Error en consulta");
+					}
+				}
+				
 				DataCapex.dataProvider = coleccion;	
 				wTemplate.width = 1100;
 				wTemplate.height = 330;
@@ -627,12 +705,14 @@
 		<s:HGroup width="100%" height="100%">
 			<s:VGroup>
 				<s:CheckBox id="GC" width="200" label="Gerencia Comercial" selected="false" enabled="false"/>
-				<s:CheckBox id="GT" width="140" label="Gerencia Técnica" selected="false" enabled="false"/> 
-				<s:CheckBox id="GO" width="160" label="Gerencia Operación" selected="false" enabled="false"/>
+				<s:CheckBox id="GIO" width="140" label="Gerencia Técnica" selected="false" enabled="false"/> 
+				<s:CheckBox id="GMO" width="160" label="Gerencia Operación" selected="false" enabled="false"/>
 				<s:CheckBox id="GF" width="140" label="Gerencia Finanzas" selected="false" enabled="false"/>
 				<s:CheckBox id="GP" width="140" label="Gerencia Personas" selected="false" enabled="false"/>
+				<s:CheckBox id="GSC" width="140" label="Gerencia Servicio al Cliente" selected="false" enabled="false"/>
 				<s:CheckBox id="SGRyP" width="200" label="Subgerencia Regulación" selected="false" enabled="false"/>
 				<s:CheckBox id="SGEHyS" width="200" label="Subgerencia EHyS" selected="false" enabled="false"/>
+				<s:CheckBox id="SGG" width="200" label="Sub Gerencia General" selected="false" enabled="false"/>
 				<!--<s:CheckBox id="SGC" width="200" label="Subgerencia Comercial" selected="false" enabled="false"/>-->
 				<s:CheckBox id="Innovacion" width="200" label="Innovación" selected="false" enabled="false"/>					
 			</s:VGroup>

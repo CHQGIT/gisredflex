@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Número Medidor: {nro_medidor}</title>
+    <fields>
+        <field name="estado" alias="Estado:" visible="true"/>
+        
+        
+        
+        
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

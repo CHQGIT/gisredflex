@@ -254,14 +254,14 @@
 					
 					for(k=0;k<featureSet.features.length;k++)
 					{
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ){
-							idPosteNuevo = "";
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nueva") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ){
+							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
 							rotNuevo = "";
-							idDirNueva = "";
+							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
 							dirNueva = "";
 						}
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
-							idPosteNuevo = "";
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nueva") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
+							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
 							rotNuevo = "";
 							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
 							
@@ -269,7 +269,7 @@
 						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ) {
 							idPosteNuevo = featureSet.features[k].attributes["ID_POSTE_CAMARA"];
 							rotNuevo = "";
-							idDirNueva = "";
+							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];
 							dirNueva = "";
 						}
 						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "existente") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
@@ -325,13 +325,13 @@
 					
 					for(k=0;k<featureSet.features.length;k++)
 					{
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ){
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nueva") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "nueva") ){
 							idPosteNuevo = "";
 							rotNuevo = "";
 							idDirNueva = "";
 							dirNueva = "";
 						}
-						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nuevo") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
+						if ( (featureSet.features[k].attributes["TIPO_POSTE_CAMARA"] == "nueva") && (featureSet.features[k].attributes["TIPO_DIRECCION"] == "existente") ) {
 							idPosteNuevo = "";
 							rotNuevo = "";
 							idDirNueva = featureSet.features[k].attributes["ID_DIRECCION"];

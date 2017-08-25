@@ -1054,12 +1054,12 @@
 						
 						lblRotulo.text = poste.rotulo;
 						lblIDRotulo.text = encontrado.attributes["OBJECTID"];
-						estadoPoste.text = "nuevo";
+						estadoPoste.text = "nueva";
 					}
 					else{
 						lblIDRotulo.text = "";
 						lblRotulo.text = "";
-						estadoPoste.text =  "nuevo/existente"
+						estadoPoste.text =  "nueva/existente"
 					}
 				}
 				function onFault(info:Object, token:Object = null):void
@@ -1098,7 +1098,7 @@
 				ddlTipoEmpalme1.selectedIndex = -1;
 				txtOS.text  = "";
 				lblDireccion.text  = "";
-				estadoPoste.text =  "nuevo/existente"
+				estadoPoste.text =  "nueva/existente"
 				estadoDireccion.text =  "nueva/existente"
 			}
 			
@@ -1255,7 +1255,7 @@
 					</mx:FormItem>
 					<mx:FormItem label="ESTADO POSTE" height="0"  visible="false">
 						<s:HGroup width="100%" height="0">
-							<mx:Label id="estadoPoste"  width="200"  text="Nuevo/Existente"/>
+							<mx:Label id="estadoPoste"  width="200"  text="Nueva/Existente"/>
 						</s:HGroup>
 					</mx:FormItem> 
 					
