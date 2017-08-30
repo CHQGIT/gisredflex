@@ -1,0 +1,647 @@
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"				   
+				   xmlns:components="com.esri.viewer.components.*"
+				   xmlns:esri="http://www.esri.com/2008/ags"  initialize="basewidget1_initializeHandler(event)" 				   
+				   >	
+	
+		
+	<viewer:states>
+		<s:State name="bkmInit"/>
+		<s:State name="bkmConsulta"/>
+		<s:State name="bkmDetalle"/>
+		
+	</viewer:states>
+	<viewer:transitions>
+		<s:Transition autoReverse="true" toState="*">
+			<s:Fade targets="{[bkmInit,bkmConsulta,bkmDetalle]}"/>
+		</s:Transition>
+	</viewer:transitions>
+	
+	<fx:Declarations>
+		<s:GlowFilter id="glowFilter"
+					  alpha="1"
+					  color="{getStyle('focusColor')}"
+					  inner="true"
+					  strength="2"/>
+		
+		<s:DateTimeFormatter id="dateFormatter" dateTimePattern="dd/MM/yyyy"/>
+		<s:DateTimeFormatter id="dateFormatter2" dateTimePattern="MMyyyy"/>
+		
+		<esri:SimpleMarkerSymbol id="smsIdentify"
+								 alpha="0.5"
+								 color="0xFF9900"
+								 size="20"
+								 style="circle"/>
+		
+		<mx:WipeUp id="myWU" duration="300"/>
+		<mx:WipeDown id="myWD" duration="520"/>
+		<mx:WipeRight id="myWR" duration="850"/>
+		
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.as3xls.xls.ExcelFile;
+			import com.as3xls.xls.Sheet;
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.layers.FeatureLayer;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.messaging.messages.ErrorMessage;
+			import mx.rpc.AsyncResponder;
+			import mx.utils.StringUtil;
+			
+			import comun.Planificacion.User;
+			import comun.url.URL;
+			
+			
+			
+			
+			
+			[Bindable] public var idPosteNuevo:String;
+			[Bindable] public var idDirNueva:String;
+			[Bindable] public var rotNuevo:String;
+			[Bindable] public var dirNueva:String;
+			
+			[Bindable] public var coleccionConsumos:ArrayCollection = new ArrayCollection;
+			[Bindable] public var coleccionEstados:ArrayCollection = new ArrayCollection;
+			[Bindable] public var coleccionNis1:ArrayCollection = new ArrayCollection;
+			[Bindable] public var coleccionPrimerT:ArrayCollection = new ArrayCollection;
+			
+			
+			[Bindable] public var fs:FeatureSet = new FeatureSet;
+			[Bindable] public var rotu:int;
+			[Bindable] public var rotuloEncontrado:String;
+			[Bindable] public var direccionCompleta:String;
+			[Bindable] public var nisBuscado:String;
+			[Bindable] public var anexo1:String;
+			[Bindable] public var anexo2:String;
+			[Bindable] public var tipoEdificacion:String;
+			public var myGraphicsLayer:GraphicsLayer =  new GraphicsLayer;
+			
+			private var ColeccionUser:ArrayCollection = new ArrayCollection;
+			private var text1:String;
+			
+			protected function basewidget1_initializeHandler(event:FlexEvent):void
+			{
+				
+				//	ConsultarAcceso();
+				
+					
+				
+				currentState ="bkmConsulta";
+				wTemplate.height = 95;
+				wTemplate.width = 300;
+			}
+			
+			protected function ConsultarAcceso():void
+			{
+				
+				var queryTaskUserSelected:QueryTask = new QueryTask();
+				queryTaskUserSelected.url = comun.url.URL.URL_ACCESO;
+				queryTaskUserSelected.useAMF = false;
+				var queryEquipoSelected:Query = new Query();
+				queryEquipoSelected.outFields = ["*"];
+				queryEquipoSelected.returnGeometry = true;     
+				queryEquipoSelected.orderByFields = ["usuario"];
+				queryEquipoSelected.where = "usuario = '" + User.Usuario + "' AND MODULO ='INGRESO_CLIENTES' AND widget='ADMINGRESOCLIENTES'" ;
+				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryEquipoSelected.outSpatialReference = map.spatialReference;
+				queryTaskUserSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					if(featureSet.features.length == 0 ){
+						//     Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
+						//currentState = "bkmInit"; 
+						currentState ="bkmInit";
+						lblwarning.visible = true;
+						lblwarning2.visible = true;
+						pbGisred.visible = true;
+						wTemplate.height = 520;
+						wTemplate.width = 800;
+					}
+						//si hay, cuales son los permisos
+					else{               
+						ColeccionUser.addAll(new ArrayCollection(featureSet.attributes));
+						
+						for(var i:int=0;i<=ColeccionUser.length-1;i++){	
+							
+							if(ColeccionUser[i].select_ == 'FALSE'){
+								btnExportarDatosClientes.enabled = false;
+							}else{
+								btnExportarDatosClientes.enabled = true;
+							}
+							
+							if( ColeccionUser[i].update_ == 'FALSE'){
+								
+								
+								
+							}else{
+								
+								
+							}
+							
+							
+						}
+						
+						
+						//cargarListaClientesNuevos();
+						//txtFilterClientes.addEventListener(Event.CHANGE,filterGridClientes);
+						
+						//currentState ="bkmConsulta";
+						//wTemplate.height = 500;
+						//wTemplate.width = 800;
+						
+					}
+				}
+				
+				
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					//Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
+					currentState ="bkmInit";
+					lblwarning.visible = true;
+					lblwarning2.visible = true;
+					pbGisred.visible = true;
+					wTemplate.width = 800;
+					wTemplate.height = 520;
+				}
+			}
+			
+			//Filtra Listado de Solicitudes ingresadas en Textbox
+			protected function filterGridNis(event:Event):void
+			{
+				/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
+				Everything else is dynamic. Do not edit variable names. */
+				var filterText:String = StringUtil.trim(txtFilterNis.text.toLowerCase()); //Trimmed text String to filter by
+				var columnArray:Array = ['NIS','DESC_TARIFA','CONSTANTE','DESC_ESTADO']; //Datagrid column names to filter on
+				var gridDataProvider:ArrayCollection = this.coleccionNis1 as ArrayCollection; //Name of datagrid's dataprovider. In this case e.g. databases
+				var dataGridName:String = 'dataNIS'; //Name of the datagrid you are filtering by
+				
+				//Do not edit code past this point
+				var filteredData:Array = [];
+				var added:Boolean=false;
+				var i:int;
+				var j:int;
+				
+				// Loop Through Grid
+				for(i=0; i < gridDataProvider.length; i++){    
+					added = false;
+					
+					//Loop through grid column
+					for(j=0; j<columnArray.length; j++){            
+						if(gridDataProvider[i][columnArray[j]]!=null){
+							
+							//Grab datagrid cell contents, trim it, and convert to lowercase for comparison.
+							var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
+							
+							//Compare the datagrid string(filterString) to the user typed string(filterText).  
+							if(!added){      
+								//If the datagrid string matches the users string, put it into the array.
+								if(filterString.indexOf(filterText) != -1){
+									filteredData.push(gridDataProvider[i]);
+									added = true;
+								} 
+							}else{
+								//Do nothing, break out.
+								break;
+							}
+						}    
+					}
+				}
+				
+				//Set datagrid dataprovider
+				if(filterText.length == 0){
+					this[dataGridName].dataProvider = gridDataProvider; //Display the original unfiltered data
+				}else{
+					this[dataGridName].dataProvider = filteredData; //Pusht he filtered data into the datagrid
+				}
+			}	
+			
+		public function consulta_nis1():void{
+			
+			var queryS:String = "";
+			
+			if (txtCiclo.text == ""){
+				queryS = "1=1"
+			}else{
+				queryS = "CICLO_FACTURACION = '" + txtCiclo.text +"'"
+			}					
+			
+			
+			coleccionNis1.removeAll();
+			var queryTask:QueryTask = new QueryTask('http://gisred.chilquinta/arcgis/rest/services/GESTION_AP/AP_ANALISIS/MapServer/5');
+			var query:Query = new Query();
+			query.where = queryS;
+			query.outFields= ['NIS','DESC_TARIFA','CONSTANTE','DESC_ESTADO','DESC_CATEGORIA','DESC_SUBCATEGORIA','periodo_ini'];
+			query.returnGeometry = false;
+			query.returnDistinctValues = true;
+			queryTask.execute(query,new AsyncResponder(onResultQuery, onFaultQuery));
+			
+			function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+			{
+				var k:int;
+				
+				
+				for(k=0;k<featureSet.features.length;k++)
+				{
+						//cargarConsumos(featureSet.features[k].attributes["NIS"]);
+					var recordGraphic:Graphic = featureSet.features[k];
+						coleccionNis1.addItem({NIS:recordGraphic.attributes["NIS"], 
+						DESC_TARIFA:recordGraphic.attributes["DESC_TARIFA"],
+						CONSTANTE:recordGraphic.attributes["CONSTANTE"],
+						DESC_ESTADO:recordGraphic.attributes["DESC_ESTADO"],
+						DESC_CATEGORIA:recordGraphic.attributes["DESC_CATEGORIA"],
+						DESC_SUBCATEGORIA:recordGraphic.attributes["DESC_SUBCATEGORIA"],
+						periodo_ini:recordGraphic.attributes["periodo_ini"],
+						gra:recordGraphic});			
+				}
+				txtFilterNis.addEventListener(Event.CHANGE,filterGridNis);
+				dataNIS.dataProvider = coleccionNis1;
+				wTemplate.height=580;
+				wTemplate.width =800;
+			}
+			
+			function onFaultQuery(info:Object, token:Object = null):void
+			{   
+				Alert.show("Error en consulta","Intente nuevamente");
+			}
+		}
+		
+			public function cargarConsumos(){
+				// TODO Auto-generated method stub
+				coleccionConsumos.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask('http://gisred.chilquinta/arcgis/rest/services/GESTION_AP/AP_ANALISIS/MapServer/5');
+				var query:Query = new Query();
+				query.where = "NIS = " + dataNIS.selectedItem.NIS;
+				query.outFields = ['*'];
+			//	query.orderByFields = ['ARCGIS.dbo.view_ap_cant_no_leido_equipo.CANTIDAD DESC'];
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{
+					var k:int;
+					
+					coleccionPrimerT.removeAll();
+					for(k=0;k<featureSet.features.length;k++)
+					{
+						
+						var recordGraphic:Graphic = featureSet.features[k];
+						if(k==0){
+							
+							
+							coleccionPrimerT.addItem({
+								mes_12:recordGraphic.attributes["mes_12"],
+								mes_11:recordGraphic.attributes["mes_11"],
+								mes_10:recordGraphic.attributes["mes_10"],
+								mes_9:recordGraphic.attributes["mes_9"],
+								mes_8:recordGraphic.attributes["mes_8"],
+								mes_7:recordGraphic.attributes["mes_7"],
+								mes_6:recordGraphic.attributes["mes_6"],
+								mes_5:recordGraphic.attributes["mes_5"],
+								mes_4:recordGraphic.attributes["mes_4"],
+								mes_3:recordGraphic.attributes["mes_3"],
+								mes_2:recordGraphic.attributes["mes_2"],
+								mes_1:recordGraphic.attributes["mes_1"]
+								});
+						}
+						
+						coleccionConsumos.addItem({NIS:recordGraphic.attributes["NIS"], 
+							MESANO:recordGraphic.attributes["MESANO"],
+							AÑO:recordGraphic.attributes["AÑO"],
+							MES:recordGraphic.attributes["MES"],
+							CONSUMO:recordGraphic.attributes["CONSUMO"],
+							DIAS:recordGraphic.attributes["DIAS"],
+							ID_ESTADO:recordGraphic.attributes["ID_ESTADO"],						
+							DESC_ESTADO:recordGraphic.attributes["DESC_ESTADO"],
+							ID_CATEGORIA:recordGraphic.attributes["ID_CATEGORIA"],
+							DESC_CATEGORIA:recordGraphic.attributes["DESC_CATEGORIA"],							
+							CICLO_FACTURACION:recordGraphic.attributes["CICLO_FACTURACION"],
+							ID_TARIFA:recordGraphic.attributes["ID_TARIFA"],
+							DESC_TARIFA:recordGraphic.attributes["DESC_TARIFA"],
+							ESTADO_LECTURA:recordGraphic.attributes["ESTADO_LECTURA"],
+							LECTURA:recordGraphic.attributes["LECTURA"],
+							CONSTANTE:recordGraphic.attributes["CONSTANTE"],
+							FECHA_LECTURA:dateFormatter.format(new Date(recordGraphic.attributes["FECHA_LECTURA"])),
+							periodo_ini:recordGraphic.attributes["periodo_ini"],
+							mes_12:recordGraphic.attributes["mes_12"],
+							mes_11:recordGraphic.attributes["mes_11"],
+							mes_10:recordGraphic.attributes["mes_10"],
+							mes_9:recordGraphic.attributes["mes_9"],
+							mes_8:recordGraphic.attributes["mes_8"],
+							mes_7:recordGraphic.attributes["mes_7"],
+							mes_6:recordGraphic.attributes["mes_6"],
+							mes_5:recordGraphic.attributes["mes_5"],
+							mes_4:recordGraphic.attributes["mes_4"],
+							mes_3:recordGraphic.attributes["mes_3"],
+							mes_2:recordGraphic.attributes["mes_2"],
+							mes_1:recordGraphic.attributes["mes_1"],
+							mes_0:recordGraphic.attributes["mes_0"],
+							
+							
+							gra:recordGraphic});			
+					}					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","Carga de Clientes");
+				}
+				dataDetalle.dataProvider = coleccionConsumos;				
+				
+				dataTeorico.dataProvider = coleccionPrimerT;
+				//;
+				//Alert.show(dataNIS.selectedItem.NIS)
+			}
+			
+			
+		
+				
+				
+			
+			private var ef:ExcelFile;
+			private var ba:ByteArray;
+			private var fr:FileReference;
+			private var frSave:FileReference;
+			
+			
+			
+			
+			
+			protected function btnExportarDatosClientes_clickHandler(event:MouseEvent):void
+			{
+				
+				// TODO Auto-generated method stub
+				switch(event.currentTarget.id)
+				{
+					case "btnExportarDatosClientes":
+					{
+						
+						
+						var s:Sheet = new Sheet();
+						s.resize(coleccionNis1.length+1,12);
+						s.setCell(0,0,"NIS");
+						s.setCell(0,1,"DESC_TARIFA");
+						s.setCell(0,2,"CONSTANTE");
+						s.setCell(0,3,"DESC_ESTADO");
+						s.setCell(0,4,"DESC_CATEGORIA");
+						s.setCell(0,5,"DESC_SUBCATEGORIA");
+						
+						for(var j:int=0;j<coleccionNis1.length;j++)
+						{
+							/*
+							 * <mx:DataGridColumn dataField="NIS" headerText="NIS" width="38" /> 
+							<mx:DataGridColumn dataField="DESC_TARIFA" headerText="DESC TARIFA" visible="true" width="45" />
+							<mx:DataGridColumn dataField="CONSTANTE" headerText="CONSTANTE" width="45"/>
+							<mx:DataGridColumn dataField="DESC_ESTADO" headerText="DESC ESTADO" visible="true" width="50" />
+							<mx:DataGridColumn dataField="DESC_CATEGORIA" headerText="DESC CATEGORIA" visible="true" width="50" />
+							<mx:DataGridColumn dataField="DESC_SUBCATEGORIA" headerText="DESC SUBCATEGORIA" visible="true" width="50" />*/
+							
+							s.setCell(j+1,0,coleccionNis1[j].NIS);										
+							s.setCell(j+1,1,coleccionNis1[j].DESC_TARIFA);
+							s.setCell(j+1,2,coleccionNis1[j].CONSTANTE);
+							s.setCell(j+1,3,coleccionNis1[j].DESC_ESTADO);
+							s.setCell(j+1,4,String(coleccionNis1[j].DESC_CATEGORIA));
+							s.setCell(j+1,5,String(coleccionNis1[j].DESC_SUBCATEGORIA));
+							
+						}
+						
+						try {
+							var fileTosave:ExcelFile = new ExcelFile();
+							fileTosave.sheets.addItem(s);
+							
+							var fileBytes:ByteArray = fileTosave.saveToByteArray();
+							frSave = new FileReference();
+							frSave.save(fileBytes,"Exportacion_Consumo_ciclo" + txtCiclo.text + ".xls");
+							frSave.addEventListener(Event.COMPLETE,grabadoListo);
+							
+						}catch(e:ErrorMessage){
+							Alert.show("Error al guardar archivo" + e);
+							
+						}
+						
+						break;
+					}
+						
+						
+					default:
+					{
+						//Alert.show("Ningun archivo ha sido generado");
+						break;
+					}
+				}			
+			}
+			
+			public function grabadoListo(event:Event):void{
+				Alert.show("Listo");
+			}
+				
+			protected function bkmInit_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				var verImageGISRED:Image = new Image;
+				
+				//imagen configuraciones
+				verImageGISRED.scaleContent = true;
+				verImageGISRED.maintainAspectRatio =false;
+				verImageGISRED.percentWidth = 850;
+				verImageGISRED.percentHeight = 520;
+				verImageGISRED.source =  "assets/images/128x128.png";
+				pbGisred.addChild(verImageGISRED);
+				
+			}
+			
+			
+			protected function image1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				//cargarAP_No_LEIDO();
+			}
+			
+			
+			
+			protected function btnCargaConsumos_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+			//	cargarConsumos();				
+				consulta_nis1();
+				
+			}
+			protected function dataNIS_doubleClickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				
+				cargarConsumos();
+				currentState ="bkmDetalle";
+			}
+			
+			
+			protected function btnVolver_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				currentState = "bkmConsulta"				
+			}
+			
+			protected function wTemplate_openHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				wTemplate.resizable = false;
+			}
+			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				wTemplate.resizable = false;
+			}
+			
+		]]>
+	</fx:Script>
+	<viewer:WidgetTemplate id="wTemplate"                      
+						   width="200" height="95"
+						   visible="true" open="wTemplate_openHandler(event)" closed="wTemplate_closedHandler(event)" >
+		
+			
+			
+				
+			
+		<s:Group id="bkmInit" width="100%" height="100%" initialize="bkmInit_initializeHandler(event)"
+				 visible="false" visible.bkmInit="true">	
+			<s:VGroup horizontalAlign="center" height="100%" width="100%" verticalAlign="middle">
+				<mx:Canvas width="200" height="200" id="pbGisred" color="0x000000" horizontalScrollPolicy="off"
+						   verticalScrollPolicy="off" visible="false"/>                                           
+				<s:Label id="lblwarning" text="No tiene permisos para acceder a este módulo." 
+						 fontSize="16" visible="false" paddingTop="10"/>
+				<s:Label id="lblwarning2" text="Comuniquese con el administrador de GISRED" 
+						 fontSize="16" visible="false" paddingTop="10"/>
+			</s:VGroup>
+		</s:Group> 
+		
+		<s:Group id="bkmConsulta"
+				 width="100%" height="100%"
+				 visible="false"
+				 visible.bkmConsulta="true">
+			
+					
+			
+				<s:VGroup width="100%" top="5" bottom="5" height="100%">					
+					<s:VGroup width="100%" top="5" bottom="5" >
+						<s:HGroup width="100%">
+							<mx:Text text="Ingrese Ciclo:" fontSize="14" fontWeight="bold" />
+							<mx:TextInput x="10" id="txtCiclo" width="10%" height="30" fontSize="14" fontWeight="bold" maxChars="2" restrict="0-9"/>
+							<mx:Button id="btnCargaConsumos" label="Ejecutar" height="30" click="btnCargaConsumos_clickHandler(event)"/>
+						</s:HGroup>	
+					</s:VGroup>		
+					<s:HGroup width="100%" verticalAlign="middle">						
+						<mx:TextInput x="10" id="txtFilterNis" width="100%" height="30" fontSize="14" fontWeight="bold" />
+						<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png"/>
+					
+					</s:HGroup>
+					<mx:DataGrid id="dataNIS" resizableColumns="true" sortableColumns="true" editable="false"  
+								 width="100%" height="100%" visible="true" selectable="true" doubleClickEnabled="true" doubleClick="dataNIS_doubleClickHandler(event)" >
+						<mx:columns>        
+							<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID" width="30" visible="false" />                                                         
+							
+							<mx:DataGridColumn dataField="NIS" headerText="NIS" width="38" /> 
+							<mx:DataGridColumn dataField="DESC_TARIFA" headerText="DESC TARIFA" visible="true" width="45" />
+							<mx:DataGridColumn dataField="CONSTANTE" headerText="CONSTANTE" width="45"/>
+							<mx:DataGridColumn dataField="DESC_ESTADO" headerText="DESC ESTADO" visible="true" width="50" />
+							<mx:DataGridColumn dataField="DESC_CATEGORIA" headerText="DESC CATEGORIA" visible="true" width="50" />
+							<mx:DataGridColumn dataField="DESC_SUBCATEGORIA" headerText="DESC SUBCATEGORIA" visible="true" width="50" />
+							
+						</mx:columns>
+					</mx:DataGrid> 
+					
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					<s:HGroup width="100%">						
+						<s:HGroup horizontalAlign="right" width="100%">						
+							<s:Button id="btnExportarDatosClientes" label="Exportar Listado" click="btnExportarDatosClientes_clickHandler(event)"/>
+						</s:HGroup>
+					</s:HGroup>
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+				</s:VGroup>
+			
+		</s:Group>
+		
+		
+		<s:Group id="bkmDetalle"
+				 width="100%" height="100%"
+				 visible="false"
+				 visible.bkmDetalle="true" >
+			
+			<s:VGroup width="100%" height="100%">			
+				<s:HGroup width="100%" verticalAlign="middle">
+					<mx:Text text="Producto: {dataNIS.selectedItem.NIS}" fontSize="14" fontWeight="bold" />				
+					
+				</s:HGroup>	
+				
+				<mx:DataGrid id="dataDetalle" resizableColumns="true" sortableColumns="true" editable="false"  
+						 width="100%" height="90%" visible="true" selectable="true" >
+					<mx:columns>        
+						<mx:DataGridColumn dataField="OBJECTID" headerText="OBJECTID" width="30" visible="false"/>                                                         
+						<mx:DataGridColumn dataField="MESANO" headerText="PERIODO" width="50" /> 
+						<mx:DataGridColumn dataField="CONSUMO" headerText="CONSUMO" visible="true" width="50" />
+						<mx:DataGridColumn dataField="ESTADO_LECTURA" headerText="ESTADO LECTURA" width="50"/>
+						<mx:DataGridColumn dataField="LECTURA" headerText="LECTURA" visible="true" width="50" />				
+						<mx:DataGridColumn dataField="FECHA_LECTURA" headerText="FECHA LECTURA" visible="true" width="50" />
+						<mx:DataGridColumn dataField="CONSTANTE" headerText="CONSTANTE" visible="true" width="50" />
+					</mx:columns>
+				</mx:DataGrid> 
+				<mx:HRule width="100%"/>
+				<mx:Text text="Consumo teorico de los ultimos 12 meses" fontSize="14" fontWeight="bold" />				
+				<mx:DataGrid id="dataTeorico" resizableColumns="true" sortableColumns="true" editable="false"  
+							 width="100%" height="10%" visible="true" selectable="true"  >
+					<mx:columns>        
+						<mx:DataGridColumn dataField="mes_12" headerText="MES 12" width="50" visible="true"/>                                                         
+						<mx:DataGridColumn dataField="mes_11" headerText="MES 11" width="50" /> 
+						<mx:DataGridColumn dataField="mes_10" headerText="MES 10" visible="true" width="50" />
+						<mx:DataGridColumn dataField="mes_9" headerText="MES 9" width="50"/>
+						<mx:DataGridColumn dataField="mes_8" headerText="MES 8" visible="true" width="50" />				
+						<mx:DataGridColumn dataField="mes_7" headerText="MES 7" visible="true" width="50" />
+						<mx:DataGridColumn dataField="mes_6" headerText="MES 6" visible="true" width="50" />
+						<mx:DataGridColumn dataField="mes_5" headerText="MES 5" visible="true" width="50" />
+						<mx:DataGridColumn dataField="mes_4" headerText="MES 4" visible="true" width="50" />
+						<mx:DataGridColumn dataField="mes_3" headerText="MES 3" visible="true" width="50" />
+						<mx:DataGridColumn dataField="mes_2" headerText="MES 2" visible="true" width="50" />
+						<mx:DataGridColumn dataField="mes_1" headerText="MES 1" visible="true" width="50" />
+					</mx:columns>
+				</mx:DataGrid> 
+			
+				<mx:HRule width="100%">
+				
+				</mx:HRule>
+				<s:HGroup width="100%">						
+					<s:HGroup horizontalAlign="right" width="100%">						
+						<s:Button id="btnVolver" label="Volver" click="btnVolver_clickHandler(event)"/>
+						<s:Button id="btnExportarDetalle" label="Exportar Listado" click="btnExportarDatosClientes_clickHandler(event)"/>
+					</s:HGroup>
+				</s:HGroup>
+				<mx:HRule width="100%">
+				
+				</mx:HRule>
+			</s:VGroup>
+		</s:Group>
+		
+	
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

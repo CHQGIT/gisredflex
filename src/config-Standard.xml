@@ -186,6 +186,13 @@
      			url="http://gisred.chilquinta/arcgis/rest/services/Varios/POSTES_SIN_APOYOS/MapServer"
      			visible="false">
      		</layer>
+     		<layer type="dynamic"
+     			label="Nivel Criticidad"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/Test/Criticidad/MapServer"
+     			visible="false">
+     			<sublayer id="0" popupconfig="popups/PopUp_Criticidad.xml"/>
+     		</layer>
        		
        			
         </operationallayers>

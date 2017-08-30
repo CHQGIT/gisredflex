@@ -37,7 +37,7 @@
        	<excludelayer mapservice="Unidad vecinal"></excludelayer>
        	<excludelayer mapservice="PMGD"></excludelayer>
        	<excludelayer mapservice="Capacidad Conductores"></excludelayer>
-          
+           <excludelayer mapservice="Nivel Criticidad"></excludelayer>
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

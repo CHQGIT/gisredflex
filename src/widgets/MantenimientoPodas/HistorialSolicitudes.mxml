@@ -1,0 +1,1998 @@
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"                            
+				   xmlns:components="com.esri.viewer.components.*"
+				   xmlns:esri="http://www.esri.com/2008/ags"
+				   xmlns:xx="comun.Check.*"
+				   initialize="basewidget1_initializeHandler(event)" xmlns:che="widgets.MantenimientoPodas.che.*" xmlns:Check="comun.Check.*">
+	
+	
+	
+	<viewer:states>
+		<s:State name="bkmInit"/>
+		<s:State name="bkmSoli"/>
+		<s:State name="bkmActividades"/>
+		<s:State name="bkmDetalleActividad"/>
+		<s:State name="bkmVerFotos"/>
+		<s:State name="DataDetalleActividad"/>
+		<s:State name="bkmCerrarSolictud"/>
+		<s:State name="bkmLiquidarOT"/>
+		
+		
+	</viewer:states>
+	
+	<viewer:transitions>
+		<s:Transition autoReverse="true" toState="*">
+			<s:Fade targets="{[bkmInit,bkmSoli,bkmActividades,bkmDetalleActividad,bkmVerFotos,DataDetalleActividad,bkmCerrarSolictud,bkmLiquidarOT]}"/>
+		</s:Transition>
+	</viewer:transitions>
+	<fx:Declarations>
+		<s:GlowFilter id="glowFilter"
+					  alpha="1"
+					  color="{getStyle('focusColor')}"
+					  inner="true"
+					  strength="2"/>
+		
+		<s:DateTimeFormatter id="dateFormatter" dateTimePattern="dd/MM/yyyy"/>
+		
+		<fx:Array id="validarFechaUF">
+			<mx:DateValidator id="txtFechaUFValidator" source="{fechaUF}" property="text" required="true" inputFormat="DD-MM-YYYY" trigger="{btnLiqFinal}" triggerEvent="click"/>                         
+			<s:NumberValidator id="txtValorUFValidator" source="{txtValorUF}" property="text" required="true" trigger="{btnLiqFinal}" triggerEvent="click"/>
+			<mx:DateValidator id="txtFechaEstadoPagoDesde" source="{dfFechaEstadoDesde}" property="text" required="true" inputFormat="DD-MM/YYYY" trigger="{btnLiqFinal}" triggerEvent="click"/>                         
+			<mx:DateValidator id="txtFechaEstadoPagoHasta" source="{dfFechaEstadoHasta}" property="text" required="true" inputFormat="DD-MM/YYYY" trigger="{btnLiqFinal}" triggerEvent="click"/>                         
+			<mx:DateValidator id="txtNumEstadoPago" source="{ddlNumEstadoPago}" property="text" required="true" inputFormat="MM/YYYY" trigger="{btnLiqFinal}" triggerEvent="click"/>                         
+			
+		
+		</fx:Array>	
+		
+	</fx:Declarations>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		@namespace components "com.esri.viewer.components.*";
+		@namespace viewer "com.esri.viewer.*";
+		@namespace esri "http://www.esri.com/2008/ags";
+		
+		mx|DataGrid.red{
+			selectionColor: #00CF3F;
+		}
+		
+	</fx:Style>
+		
+	
+	<fx:Script>
+		<![CDATA[
+			import com.as3xls.xls.ExcelFile;
+			import com.as3xls.xls.Sheet;
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.geometry.Geometry;
+			import com.esri.ags.layers.FeatureLayer;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.symbols.SimpleFillSymbol;
+			import com.esri.ags.symbols.SimpleLineSymbol;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.controls.Image;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.events.ResizeEvent;
+			import mx.formatters.DateFormatter;
+			import mx.messaging.messages.ErrorMessage;
+			import mx.rpc.AsyncResponder;
+			import mx.utils.StringUtil;
+			import mx.validators.Validator;
+			
+			import spark.events.IndexChangeEvent;
+			
+			import comun.Planificacion.User;
+			
+			import widgets.MantenimientoPodas.URLS;
+	
+			    
+			[Bindable] private var anchoColumna:int = 75; 
+			
+			private var clearFeatureLabel:String;
+			private var drawPolygonLabel:String;
+			private var lastDrawnGraphic:Graphic;
+			public var myGraphicsLayer:GraphicsLayer =  new GraphicsLayer;
+			public var mySolicitudLayer:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_SOLICITUD);            
+			public var featurePodas:FeatureSet;
+			//guarda featureset de query de solicitudes de poda
+			public var featureDetalle:FeatureSet;
+			public var coleccionSolicitud:ArrayCollection = new ArrayCollection;
+			public var coleccionOT:ArrayCollection = new ArrayCollection;
+			private var ColeccionUser:ArrayCollection = new ArrayCollection;
+			//coleccion para actualizacion
+			public var coleccionActividadesUpd:ArrayCollection = new ArrayCollection;
+			
+			[Bindable] private var ArrayEmergencia:ArrayList = new ArrayList;
+			[Bindable] private var ArraySolicitante:ArrayList =  new ArrayList;
+			[Bindable] private var drawingLine:Boolean;
+			[Bindable] private var drawLineLabel:String = "drawLineLabel";
+			//guarda en una coleccion la resultante de la query de areas de la tabla area
+			[Bindable]public var ArrayArea:ArrayList =  new ArrayList;
+			//Guarda el detalle de actividades de acuerdo a su 
+			private var ArrayDetalleUF:ArrayList =  new ArrayList;
+			
+			
+			
+			public var CalleEncontrada:ArrayList = new ArrayList;
+			public var NodosEncontrados:ArrayList = new ArrayList;
+			
+			private var graphicToMeasurementGraphic:Dictionary = new Dictionary(true);
+			public var sfs:SimpleFillSymbol = new SimpleFillSymbol;
+			public var sls:SimpleLineSymbol = new SimpleLineSymbol;
+			public var geom:Geometry=new Geometry;
+			//private var selectedDrawingIcon:FocusableImage;
+			
+			public var arranque_id:int = new int;
+			public var segmento_id:int = new int;
+			public var codigoSAP:int = new int;
+			public var myPodaLayer:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_SOLICITUD);
+			
+			[Bindable]public var pp:ArrayCollection = new ArrayCollection;
+			[Bindable]public var nl:ArrayCollection = new ArrayCollection;
+			[Bindable]public var pps:String = new String("");
+			[Bindable]public var nls:String = new String("");
+			//ACTIVIDADES
+			//guarda en una coleccion la resultante de la query de actividades relacioandas a una solicitud de poda
+			[Bindable]public var coleccionActividades:ArrayCollection = new ArrayCollection;
+			//guarda en una coleccion la resultante de la query de supervisores de la tabla usuarios
+			[Bindable]public var ArraySupervisor:ArrayList =  new ArrayList;
+			[Bindable]public var descripcion:String;
+			[Bindable]public var fechacreacionSolicitud:String;
+			//Setea el ancho de los txt y ddl  por defecto.
+			[Bindable] private var anchoObj:int =250;
+			//Guarda el codigo sap de la solicitud
+			[Bindable]public var codigo_sap:int;
+			//Guarda el solicitante de la solicitud
+			[Bindable]public  var solicitante:String;
+			//Guarda la fecha de la solicitud
+			[Bindable]public  var fechasolicitud:String;
+			//Guarda la Comuna de la solicitud
+			[Bindable]public  var ComunaSolictud: String;
+			//Guarda el alimentador de la solicitud
+			[Bindable]public  var AlimentadorSolicitud: String;
+			//Guarda la sed de la solicitud
+			[Bindable]public  var SedSolicitud:String;
+			//Guarda el estado de la solicitud
+			[Bindable]public  var EstadoSolicitud:String;
+			//Guarda la descripcion de la solicitud
+			[Bindable]public  var tdescripcion:String;
+			//Guarda la Fecha de creacion de la solicitud
+			[Bindable]public  var datecreate:String;
+			//variables para modificar y extraer la hora y minutos
+			
+			//variables para modificar y extraer la hora y minutos
+			public var minuteIncrement:int = 5;
+			[Bindable] private var horaSolPP:String;
+			[Bindable] private var horaCanPP:String;
+			[Bindable] private var modhoraSolPP:String;
+			[Bindable] private var modhoraCanPP:String;
+			//Layer que se ocupa para las actividades
+			public var myActLayer:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_ACTIVIDADES);
+			//Layer que se ocupa para el detalle de actividades
+			public var myDetalleAct:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_DETALLE_ACTIVIDADES);
+			//Guarda la siguiente actividad en tiempo de ejecución
+			public var numSigteAct:int=0;
+			
+			//DETALLE ACTIVIDAD
+			//Guarda el numero de actividad seleccionado para su detalle
+			[Bindable]public  var numActividad:int;
+			//Guarda el valor del numero de obra para su detalle
+			[Bindable]public  var numLibroObra:int;
+			//Guarda el valor del supervisor a cargo para su detalle
+			[Bindable]public  var nomSupervisor:String;
+			//guarda en una coleccion la resultante de la query de detalle de actividades relacioandas a una actividad
+			[Bindable]public var coleccionDetalleActividades:ArrayCollection = new ArrayCollection;
+			//guarda el listado de arboles
+			[Bindable]public var ArrayArboles:ArrayList =  new ArrayList;
+			//guarda el listado del tipo de tension
+			[Bindable]public var ArrayTension:ArrayList =  new ArrayList;
+			//guarda el listado de tipo de poda
+			[Bindable]public var ArrayTipoPoda:ArrayList =  new ArrayList;
+			
+			//guarda un array con las fotos encontradas del objectid seleccionado
+			[Bindable]public var ArrayFotografias:Array = new Array;
+			[Bindable]public var  ArrayAreas:Array = new Array;
+			//guarda en un array el numero de oi y pep de la tabla
+			[Bindable]public var  ArrayOIPEP:ArrayList = new ArrayList;
+			//fotografia
+			//Guarda la foto antes en tiempo de ejecución
+			private var frAntes:FileReference;
+			//Guarda la foto despues en tiempo de ejecución
+			private var frDespues:FileReference;
+			//Guarda el bytearray de la foto antes en tiempo de ejecución
+			private var myByteArrayAntes:ByteArray;
+			//Guarda el bytearray de la foto despues en tiempo de ejecución
+			private var myByteArrayDespues:ByteArray;
+			//Verifica la existencia de fotografías adjuntas.
+			[Bindable]public var fotosAdjuntas:String;
+			
+			//imagenes para adjuntar.
+			public var imageAntes : Image = new Image();
+			public var imageDespues : Image = new Image();
+			
+			
+			//LIQUITAR OT
+			//objeto que guarda lo seleccionado de la grilla de liquidacion OT
+			public var listItem:Object;
+			public var selectedItemsDataOT:Array;
+			
+			
+			
+			//22-10
+			
+			public var otEmergencia:Array = new Array;
+			public var otNoEmergencia:Array = new Array;
+			[Bindable] private var ArrayContratistas:ArrayList = new ArrayList;
+			[Bindable] private var ArrayInfoContratista:ArrayList = new ArrayList;
+			[Bindable] private var ArrayNumEstadoPago:ArrayCollection = new ArrayCollection;
+				
+			[Bindable]private var errors:Array;
+			
+			
+			protected function wTemplate_openHandler(event:Event):void
+			{
+				wTemplate.resizable = false
+			}
+			//Autoajusta las columnas de la grilla de solicitudes.
+			protected function DataSolicitud_resizeHandler(event:ResizeEvent):void
+			{
+				// TODO Auto-generated method stub
+				anchoColumna = event.currentTarget.width / event.currentTarget.rowCount;
+			}
+			
+			//Carga los campos de header de la solicitud elegida 
+			public function cargarHeaderActividades():void{
+				
+				codigo_sap = DataSolicitud.selectedItem.CODIGO_SAP;
+				tdescripcion = DataSolicitud.selectedItem.DESCRIPCION;
+				solicitante = DataSolicitud.selectedItem.SOLICITANTE;
+				ComunaSolictud = DataSolicitud.selectedItem.COMUNA;
+				AlimentadorSolicitud = DataSolicitud.selectedItem.ALIMENTADOR;
+				SedSolicitud = DataSolicitud.selectedItem.SED;
+				EstadoSolicitud = DataSolicitud.selectedItem.ESTADO_SOLICITUD;
+				
+			}
+			//Carga los campos de header de la solicitud elegida 
+			public function cargarHeaderCierreSol():void{
+				
+				codigo_sap = DataSolicitud.selectedItem.CODIGO_SAP;
+				tdescripcion = DataSolicitud.selectedItem.DESCRIPCION;
+				solicitante = DataSolicitud.selectedItem.SOLICITANTE;
+				datecreate = DataSolicitud.selectedItem.FECHA_SOLICITUD_CREACION;
+				Generica.AreaMtto = DataSolicitud.selectedItem.NOMBRE_AREA;
+			}
+			//carga actividades relacionadas al cod_sap
+			public function cargarActividadesRelacionadas():void{
+				coleccionActividades.removeAll();
+				var queryTask:QueryTask = new QueryTask(widgets.MantenimientoPodas.URLS.URL_ACTIVIDADES);
+				var query:Query = new Query();
+				//Alert.show("HOLA");
+				query.where = "COD_SAP= " + DataSolicitud.selectedItem.CODIGO_SAP;                     
+				query.outFields = ['*'];
+				query.orderByFields=["OBJECTID"];
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				
+				//si hay conexion
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{
+					//si no hay actividades asociadas a esa solicitud
+					if (featureSet.features.length<=0){
+						// TODO Auto-generated method stub
+						Alert.show("No se han encontrado actividades asociadas.");
+					}else{
+						featurePodas = featureSet;
+						//Alert.show("HOLA 2");
+						var k:int;
+						coleccionActividades.removeAll();
+						for(k=0;k<featureSet.features.length;k++){
+							
+							var recordGraphic:Graphic = featureSet.features[k];
+							coleccionActividades.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+								ID_ACTIVIDAD:recordGraphic.attributes["ID_ACTIVIDAD"], 
+								FECHA_ACTIVIDAD:dateFormatter.format(new Date(recordGraphic.attributes["FECHA_ACTIVIDAD"])),
+								NUM_LIBRO_OBRA:recordGraphic.attributes["NUM_LIBRO_OBRA"],
+								SUPERVISOR:recordGraphic.attributes["SUPERVISOR"],
+								PERMISO_PREVENTIVO:recordGraphic.attributes["PERMISO_PREVENTIVO"],
+								HORA_SOLICITUD_PP:recordGraphic.attributes["HORA_SOLICITUD_PP"],
+								HORA_CANCELACION_PP:recordGraphic.attributes["HORA_CANCELACION_PP"],
+								CANT_TRABAJADOR_ALTURA:recordGraphic.attributes["CANT_TRABAJADOR_ALTURA"],
+								CANT_TRABAJADOR_PISO:recordGraphic.attributes["CANT_TRABAJADOR_PISO"], 
+								gra:recordGraphic });
+							
+							DataActividades.selectedIndex = 0;
+						}
+					}
+					
+				}
+				//no hay conexion
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error al cargar las actividades.  Contáctese con el administrador de GISRED.","Carga de Actividades");
+				}
+				bkmActividades.redrawRequested=true;
+				DataActividades.dataProvider = coleccionActividades;
+				bkmActividades.redrawRequested=true;
+			}
+			
+			//MENU DE BOTONES ---------------------------------------------------------------------------------------------------------
+			public function funcionesBtn(event:MouseEvent):void{
+				
+				switch(event.currentTarget.id)
+				{
+					
+					
+					//va a la ventana modificar solicitud
+					case "BtnModSolicitud":
+					{
+						currentState = "bkmModsol";
+						wTemplate.width = 500;
+						wTemplate.height = 500;
+						break;
+					}
+						
+						
+					case "btnIrVerActividades":
+					{                                       
+						cargarHeaderActividades();
+						cargarActividadesRelacionadas();
+						wTemplate.width = 800;
+						wTemplate.height = 500;
+						currentState = "bkmActividades";
+						break;
+						
+					}
+						//cierra la solicitud
+					case "BtnCloseSolicitud":
+					{
+						LimpiaFormCierre();
+						cargarHeaderCierreSol();
+						buscarGrupoCompra();
+						currentState = "bkmCerrarSolictud";
+						wTemplate.width = 500;
+						wTemplate.height = 450;
+						break;
+						
+						
+					}
+						
+						//Vuelve a la ventana de listado de solicitudes tras estar en la ventana de la lista de act. 
+					case "BtnVolverSolicitud":
+					{
+						currentState = "bkmSoli";
+						wTemplate.width = 800;
+						wTemplate.height = 500;
+						ConsultaSolicitudes();
+						break;
+					}
+						
+					case "BtnDetalleVolverSolicitud":
+					{
+						currentState = "bkmActividades";
+						wTemplate.width = 800;
+						wTemplate.height = 500;
+						break;
+					}
+						//va a la ventana de detalle de actividad desde ver fotos
+					case "BtnVerVolverMenuListado":
+					{
+						currentState = "bkmDetalleActividad";
+						wTemplate.width = 800;
+						wTemplate.height = 500;
+						break;
+					}
+						
+					case "BtnVolverCloseSoliciud":
+					{
+						currentState = "bkmSoli";
+						wTemplate.width = 800;
+						wTemplate.height = 500;
+						break;
+					}
+						
+						//va a la ventana de detalle de actividad.     
+					case "BtnVerDetalleActividad":
+					{
+						cargarHeaderDetalleActividad();   
+						cargarDetalleAsociado();
+						currentState = "bkmDetalleActividad";
+						wTemplate.width = 800;
+						wTemplate.height = 500;
+						break;
+					}
+						
+						//va a la ventana de ver fotos con posibilidad de modificarlas
+					case "BtnVerFotos":
+					{
+						imageAntes.source = "";
+						imageDespues.source = "";
+						
+						cargarFotosDesdeServicio();
+						currentState = "bkmVerFotos";
+						wTemplate.width = 770;
+						wTemplate.height = 340;
+						break;
+					}                                 
+					case "BtnGrabaClosesolicitud":
+					{
+						GrabaCierreSolicitud();
+						break;
+					}
+					case "BtnLiquidarOT":
+					{
+						DataOT.dataProvider = "";
+						//Elegir ots segun contratista asignado.
+						llenarArrayContratistas();
+				//		llenarNumEstadoPago();
+						btnLiqFinal.enabled = false;
+						currentState = "bkmLiquidarOT";
+						wTemplate.width = 800;
+						wTemplate.height = 500; 
+						
+						break;
+					}                          
+					case "BtnVolverListOT":
+					{
+						ConsultaSolicitudes();
+						currentState = "bkmSoli";
+						wTemplate.width = 800;
+						wTemplate.height = 500;    
+						break;
+					}
+						
+					case "btnLiqFinal":
+					{
+						errors =new Array();
+						errors = Validator.validateAll(validarFechaUF);
+						if (errors.length == 0){
+							
+							liquidarOTSelected();
+							//Alert.show("Todo ok");
+							
+						}else{
+							Alert.show("Debe llenar los campos fecha y el valor de la UF");
+						}
+						
+						
+						
+						break;
+					}
+					case "BtnVolverAListOT":
+					{
+						ConsultaSolicitudes();
+						currentState = "bkmSoli";
+						wTemplate.width = 800;
+						wTemplate.height = 500;    
+						break;
+					}
+						
+						
+					default:
+					{
+						break;
+					}
+				}
+			}
+			
+			
+			
+			
+			
+			//funcion que permite cargar las fotos desde el servicio rest a un canvas
+			public function cargarFotosDesdeServicio():void {
+				imageAntes.source = "";
+				imageDespues.source = "";
+				//Alert.show(String(DataDetalleActividad.selectedItem['OBJECTID']));
+				
+				//el objeto imagen que tendrá el canvas
+				var verImageDespues:Image = new Image;
+				var verImageAntes:Image = new Image;
+				//imagen configuraciones
+				verImageDespues.scaleContent = true;
+				verImageDespues.maintainAspectRatio =false;
+				verImageDespues.percentWidth = 150;
+				verImageDespues.percentHeight = 150;
+				
+				verImageAntes.scaleContent = true;
+				verImageAntes.maintainAspectRatio =false;
+				verImageAntes.percentWidth = 150;
+				verImageAntes.percentHeight = 150;
+				
+				
+				
+				var myDetalle:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_DETALLE_ACTIVIDADES);
+				
+				var objActividad:int= DataDetalleActividad.selectedItem['OBJECTID'];  
+				//Alert.show(String(objActividad));
+				myDetalle.queryAttachmentInfos(objActividad,new AsyncResponder(onResult,onFault));  
+				
+				function onResult(event:Array, token:Object=null):void{  
+					//tiene attachment
+					if (event.length>0) 
+					{
+						
+						verImageDespues.source =  event[1].url;
+						pbVerDespues.addChild(verImageDespues);
+						verImageAntes.source =  event[0].url;
+						pbVerAntes.addChild(verImageAntes);
+						
+					}
+						//no tiene attachment
+					else  
+					{
+						Alert.show("El detalle de actividad no tiene fotos.");
+					}
+					
+				}
+				function onFault(event:Object,token:Object=null):void{
+					Alert.show("No se pudo conectar al servicio de fotos adjuntas. Contáctese con el administrador de GISRED.");
+				}      
+			}
+			
+			public function cargarHeaderDetalleActividad():void{
+				codigo_sap = DataSolicitud.selectedItem.CODIGO_SAP;
+				numActividad = DataActividades.selectedItem.ID_ACTIVIDAD;
+				numLibroObra = DataActividades.selectedItem.NUM_LIBRO_OBRA;
+				nomSupervisor = DataActividades.selectedItem.SUPERVISOR;
+				tdescripcion =DataActividades.selectedItem.DESCRIPCION;
+			}
+			
+			//carga el detalle asociado a la actividad
+			public function cargarDetalleAsociado():void {
+				coleccionDetalleActividades.removeAll();
+				var queryTask:QueryTask = new QueryTask(widgets.MantenimientoPodas.URLS.URL_DETALLE_ACTIVIDADES);
+				var query:Query = new Query();
+				//Alert.show("HOLA");
+				query.where = "CODIGO_SAP=" + codigo_sap + "AND ID_ACTIVIDAD=" + int(DataActividades.selectedItem.ID_ACTIVIDAD);                           
+				query.outFields = ['*'];
+				query.returnGeometry = true;
+				query.orderByFields = ["OBJECTID"];
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				//si hay conexion
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{
+					//si no hay detalle de actividades asociadas a esa actividad
+					if (featureSet.features.length<=0){
+						// TODO Auto-generated method stub
+						Alert.show("No se han encontrado detalles de actividades asociadas. " +
+							"¿Desea agregar un nuevo detalle?","Informacion Detalle Actividades Asociadas",mx.controls.Alert.YES | mx.controls.Alert.NO,null,alertClickHandler);
+						
+						function alertClickHandler(evt:CloseEvent):void 
+						{
+							if (evt.detail == Alert.YES)
+							{      
+								
+								currentState = "bkmAddDetalleActividad";
+								wTemplate.width = 500;
+								wTemplate.height = 430;
+							}                                 
+						}
+						
+					}else{
+						featureDetalle = featureSet;
+						
+						var k:int;
+						coleccionDetalleActividades.removeAll();
+						for(k=0;k<featureSet.features.length;k++){
+							
+							var recordGraphic:Graphic = featureSet.features[k];
+							coleccionDetalleActividades.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+								ID_ACTIVIDAD:recordGraphic.attributes["ID_ACTIVIDAD"], 
+								ID_ARBOL:recordGraphic.attributes["ID_ARBOL"],
+								NOMBRE_ARBOL:recordGraphic.attributes["NOMBRE_ARBOL"],
+								CANTIDAD:recordGraphic.attributes["CANTIDAD"],
+								NIVEL_TENSION:recordGraphic.attributes["NIVEL_TENSION"],
+								ID_TIPO_PODA:recordGraphic.attributes["ID_TIPO_PODA"],
+								NOMBRE_TIPO_PODA:recordGraphic.attributes["NOMBRE_TIPO_PODA"],
+								OBSERVACIONES:recordGraphic.attributes["OBSERVACIONES"], 
+								CODIGO_SAP:recordGraphic.attributes["CODIGO_SAP"], 
+								gra:recordGraphic });
+							
+							DataDetalleActividad.selectedIndex = 0;
+							buscarAdjuntos(DataDetalleActividad.selectedItem.OBJECTID, "clickGrilla");
+							
+						}
+					}
+					
+				}
+				//no hay conexion
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error al cargar el detalle de las actividades.  Contáctese con el administrador de GISRED.","Carga de Detalle de Actividades");
+				}
+				bkmDetalleActividad.redrawRequested=true;
+				DataDetalleActividad.dataProvider = coleccionDetalleActividades;
+				bkmDetalleActividad.redrawRequested=true;
+				
+			}
+			//funcion que verifica existencia de adjuntos
+			public function buscarAdjuntos(nobjectid:int, op:String):void{
+				var myDetalle:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_DETALLE_ACTIVIDADES);
+				
+				
+				
+				if (op=="clickGrilla") 
+				{
+					var objActividad:int= nobjectid;  
+					
+					myDetalle.queryAttachmentInfos(objActividad,new AsyncResponder(onResult,onFault));  
+					
+					function onResult(event:Array, token:Object=null):void{  
+						//tiene attachment
+						if (event.length>0) 
+						{
+							//Alert.show("Tiene Attachment");
+							lblHayFotos.text = "Sí";
+							//BtnDetalleAdjuntarfotos.enabled=false;
+							BtnVerFotos.enabled=true;
+						}
+							//no tiene attachment
+						else  
+						{
+							//Alert.show("No Tiene Attachment");
+							lblHayFotos.text = "No";
+							//BtnDetalleAdjuntarfotos.enabled=true;
+							BtnVerFotos.enabled=false;
+						}
+						
+					}
+					function onFault(event:Object,token:Object=null):void{
+						Alert.show("No se pudo conectar al servicio de fotos adjuntas.  Contáctese con el administrador de GISRED.");
+					}      
+				}
+				
+				
+			}
+			
+			protected function bkmSoli_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				txtFilterSolicitud.addEventListener(Event.CHANGE, filterGridSolicitud);
+				ConsultaSolicitudes();
+				DataSolicitud.selectedIndex = 0;
+			}
+			
+			//Consulta las solicitudes existente en la base de datos
+			protected function ConsultaSolicitudes():void
+			{
+				coleccionSolicitud.removeAll();
+				var queryTask:QueryTask = new QueryTask(widgets.MantenimientoPodas.URLS.URL_SOLICITUD);
+				var query:Query = new Query();
+				query.where = "JEFEGRUPO = '" + User.Usuario + "' AND ESTADO_SOLICITUD = 'EJECUTADA'";
+				query.outFields = ['*'];
+				query.returnGeometry = true;                        
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				var arrPod:Array = new Array;
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{                                
+					var k:int;
+					coleccionSolicitud.removeAll();
+					for(k=0;k<featureSet.features.length;k++)
+					{
+						
+						
+						var recordGraphic:Graphic = featureSet.features[k];
+						coleccionSolicitud.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+							CODIGO_SAP:recordGraphic.attributes["CODIGO_SAP"], 
+							DESCRIPCION:recordGraphic.attributes["DESCRIPCION"], 
+							ALIMENTADOR:recordGraphic.attributes["ALIMENTADOR"],
+							SOLICITANTE:recordGraphic.attributes["SOLICITANTE"],
+							SED:recordGraphic.attributes["SED"],
+							FECHA_SOLICITUD_CREACION:dateFormatter.format(new Date(recordGraphic.attributes["FECHA_SOLICITUD_CREACION"])),
+							FECHA_SOLICITUD_CIERRE:dateFormatter.format(new Date(recordGraphic.attributes["FECHA_SOLICITUD_CIERRE"])),
+							NOMBRE_CALLE:recordGraphic.attributes["NOMBRE_CALLE"],
+							ID_SEGMENTO:recordGraphic.attributes["ID_SEGMENTO"],
+							COMUNA:recordGraphic.attributes["COMUNA"],
+							ARRANQUE:recordGraphic.attributes["ARRANQUE"],
+							ID_ARRANQUE:recordGraphic.attributes["ID_ARRANQUE"],
+							ESTADO_SOLICITUD:recordGraphic.attributes["ESTADO_SOLICITUD"],    
+							EMERGENCIA:recordGraphic.attributes["EMERGENCIA"],  
+							NUM_OC:recordGraphic.attributes["NUM_OC"],    
+							NUM_SOLPE:recordGraphic.attributes["NUM_SOLPE"],
+							NUM_OI:recordGraphic.attributes["NUNUM_OI"],
+							MONTO_PAGO:recordGraphic.attributes["MONTO_PAGO"],
+							NOMBRE_AREA :recordGraphic.attributes["NOMBRE_AREA"],
+							
+							
+							gra:recordGraphic });
+					}
+					DataSolicitud.dataProvider = coleccionSolicitud;
+					DataSolicitud.selectedIndex = 0;
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					
+					Alert.show("Error en consulta","Carga solicitudes");
+				}
+			}      
+			//Filtra Listado de Solicitudes ingresadas en Textbox
+			protected function filterGridSolicitud(event:Event):void
+			{
+				/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
+				Everything else is dynamic. Do not edit variable names. */
+				var filterText:String = StringUtil.trim(txtFilterSolicitud.text.toLowerCase()); //Trimmed text String to filter by
+				var columnArray:Array = ['CODIGO_SAP','DESCRIPCION','ALIMENTADOR','SOLICITANTE','SED','FECHA_SOLICITUD_CREACION','FECHA_SOLICITUD_CIERRE','COMUNA','ESTADO']; //Datagrid column names to filter on
+				var gridDataProvider:ArrayCollection = this.coleccionSolicitud as ArrayCollection; //Name of datagrid's dataprovider. In this case e.g. databases
+				var dataGridName:String = 'DataSolicitud'; //Name of the datagrid you are filtering by
+				
+				//Do not edit code past this point
+				var filteredData:Array = [];
+				var added:Boolean=false;
+				var i:int;
+				var j:int;
+				
+				// Loop Through Grid
+				for(i=0; i < gridDataProvider.length; i++){    
+					added = false;
+					
+					//Loop through grid column
+					for(j=0; j<columnArray.length; j++){            
+						if(gridDataProvider[i][columnArray[j]]!=null){
+							
+							//Grab datagrid cell contents, trim it, and convert to lowercase for comparison.
+							var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
+							
+							//Compare the datagrid string(filterString) to the user typed string(filterText).  
+							if(!added){      
+								//If the datagrid string matches the users string, put it into the array.
+								if(filterString.indexOf(filterText) != -1){
+									filteredData.push(gridDataProvider[i]);
+									added = true;
+								} 
+							}else{
+								//Do nothing, break out.
+								break;
+							}
+						}    
+					}
+				}
+				//Set datagrid dataprovider
+				if(filterText.length == 0){
+					this[dataGridName].dataProvider = gridDataProvider; //Display the original unfiltered data
+				}else{
+					this[dataGridName].dataProvider = filteredData; //Pusht he filtered data into the datagrid
+				}
+			}            
+			
+			protected function buscarGrupoCompra():void
+			{
+				// TODO Auto-generated method stub
+				var nombre:String = Generica.AreaMtto;
+				
+				
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = widgets.MantenimientoPodas.URLS.URL_TIPO_AREAS_MANTENIMIENTO;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["*"];
+				query.returnGeometry = false;
+				query.where = "NOMBRE_AREA= '" + nombre + "'";
+				
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+				
+					Generica.grupoCompra = featureSet.features[0].attributes["NOMBRE_GRUPO_COMPRA"];
+					cargarOIPEP(featureSet.features[0].attributes["OBJECTID"]);
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("no se pueden cargar los grupo de compra "+ info.toString());
+				}
+			}
+			
+			protected function cargarOIPEP(oid:Number):void
+			{
+				
+				ArrayOIPEP.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = widgets.MantenimientoPodas.URLS.URL_TIPO_CUENTAS;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["*"];
+				query.returnGeometry = false;
+				query.where = "ARCGIS.DBO.TIPO_CUENTAS_OI_PEP.AREA= " + oid;;
+				
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					for each (var myGraphic:Graphic in featureSet.features)
+					{
+						ArrayOIPEP.addItem({descripcion:myGraphic.attributes['CUENTA']}); 
+						
+					}
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("no se pueden cargar los usuarios "+ info.toString());
+				}
+			}
+			//Calcula el total de $ de una OT
+			protected function calculoMontoOT():void
+			{
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = widgets.MantenimientoPodas.URLS.URL_DETALLE_ACTIVIDADES;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["*"];
+				query.returnGeometry = false;
+				query.where = "CODIGO_SAP = " + codigo_sap;
+				
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					for each (var myGraphic:Graphic in featureSet.features)
+					{
+						ArrayOIPEP.addItem({descripcion:myGraphic.attributes['CUENTA']}); 
+						
+					}
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("no se pueden cargar los usuarios "+ info.toString());
+				}
+			}
+			//Función que permite colocar la fecha y hora actual al archivo excel de luminarias
+			private function CurrentDateTimeString():String
+			{               
+				var CurrentDateTime:Date = new Date();
+				var CurrentDF:DateFormatter = new DateFormatter();
+				CurrentDF.formatString = "DD/MM/YYYY"
+				var DateTimeString:String = CurrentDF.format(CurrentDateTime);
+				return DateTimeString;
+			}
+			//cONSULTA uf DEL dIA
+			protected function ufDia():void
+			{
+				var fecha:String = CurrentDateTimeString();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = widgets.MantenimientoPodas.URLS.URL_TIPO_UF_MES;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["*"];
+				query.returnGeometry = false;
+				query.where = "FECHA = '" + fecha + "'";
+				
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					/*for each (var myGraphic:Graphic in featureSet.features)
+					{
+					ArrayOIPEP.addItem({descripcion:myGraphic.attributes['CUENTA']}); 
+					
+					}*/
+					Alert.show(String(featureSet.features[0].attributes["VALOR_UF"]));
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("no se puede obtener el valor UF: "+ info.toString());
+				}                          
+			}
+			protected function GrabaCierreSolicitud():void
+			{
+				Alert.show("¿Está seguro que desea cerrar la OT?", "Cierre de OT",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler);
+				
+				function alertClickHandler(evt:CloseEvent):void 
+				{
+					if (evt.detail == Alert.YES)
+					{      
+						
+						ejecutaCierreSolicitud();                             
+						
+					}                                 
+				}
+			}
+			
+			protected function ejecutaCierreSolicitud():void
+			{
+				//limpiar campos
+				pp.removeAll();
+				pps = "";
+				nls = "";
+				
+				var Cierresolicitud:* = new Object;
+				
+				Cierresolicitud["OBJECTID"]= int(DataSolicitud.selectedItem['OBJECTID']);
+				Cierresolicitud["FECHA_SOLICITUD_CIERRE"]= dfCierreSol.selectedDate;
+				//Cierresolicitud["NOMBRE_AREA"]= DDLArea.selectedItem.descripcion;
+				Cierresolicitud["NOMBRE_AREA"]= lblArea.text;
+				Cierresolicitud["NUM_OI"]= DDLOiPep.selectedItem.descripcion;
+				Cierresolicitud["NUM_SOLPE"]= TxtSOLPE.text;
+				Cierresolicitud["NUM_OC"]= TxtOC.text;
+				Cierresolicitud["ESTADO_SOLICITUD"]= "CERRADA";
+				//Cierresolicitud["RES_LIBRO"]= "";
+				
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = widgets.MantenimientoPodas.URLS.URL_ACTIVIDADES;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["PERMISO_PREVENTIVO,NUM_LIBRO_OBRA"];
+				query.returnGeometry = false;
+				query.where = "COD_SAP = " + DataSolicitud.selectedItem['CODIGO_SAP'];
+				query.returnDistinctValues = true;
+				queryTask.execute(query, new AsyncResponder(onResult1, onFault1));
+				
+				// add the graphic on the map
+				function onResult1(featureSet:FeatureSet, token:Object = null):void
+				{
+					for(var k:int=0;k<featureSet.features.length;k++)
+					{
+						var recordGraphic:Graphic = featureSet.features[k];
+						//ArrayContratistas.addItem({descripcion:myGraphic.attributes['ASIGNADA']}); 
+						pp.addItem({Permiso_pp:recordGraphic.attributes["PERMISO_PREVENTIVO"],
+							num_lib:recordGraphic.attributes["NUM_LIBRO_OBRA"]});
+					}					
+					
+					for (var i:int = 0; i < pp.length; i++)
+					{
+						//Generica.permisosPreventivos = 
+						pps = pps.concat(pp[i].Permiso_pp).concat(",");
+						nls = nls.concat(pp[i].num_lib).concat(",");
+						//Alert.show(pp[i].Permiso_pp);
+					}
+					pps = pps.substring(0 , pps.length -1);
+					nls = nls.substring(0 , nls.length -1);
+					
+					//	Alert.show(pps);
+					Cierresolicitud["RES_PP"]=pps;
+					Cierresolicitud["RES_LIBRO"]=nls;
+					
+					var graficoEditadoActual:Graphic = new Graphic;
+					
+					graficoEditadoActual = new Graphic(null,null,Cierresolicitud);                                
+					myPodaLayer.applyEdits(null,[graficoEditadoActual],null, false,new AsyncResponder(onResult, onFault));
+					//Alert.show(pps);
+						
+						function onResult():void
+						{      
+							Alert.show("OT Cerrada");               
+							currentState = "bkmSoli";
+							wTemplate.width = 800;
+							wTemplate.height = 500;
+							ConsultaSolicitudes();
+						}
+						
+						function onFault(info:Object, token:Object = null):void
+						{
+							Alert.show("Error al Cerrar OT: "+info.toString());
+						}
+				}
+				function onFault1(info:Object, token:Object = null):void
+				{
+					Alert.show("no se pueden cargar los usuarios "+ info.toString());
+				}			
+			}
+			
+			//limpia el form de cierre al volver o grabar
+			protected function LimpiaFormCierre():void
+			{
+				dfCierreSol.selectedDate = null;
+				//DDLArea.selectedIndex = -1;
+				//lblGrupoCompra.text = "";				
+				DDLOiPep.selectedIndex = -1;
+				TxtOC.text = "";
+				TxtSOLPE.text = "";
+				
+			}
+			
+			protected function bkmInit_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				var verImageGISRED:Image = new Image;
+				
+				//imagen configuraciones
+				verImageGISRED.scaleContent = true;
+				verImageGISRED.maintainAspectRatio =false;
+				verImageGISRED.percentWidth = 300;
+				verImageGISRED.percentHeight = 300;
+				verImageGISRED.source =  "assets/images/128x128.png";
+				pbGisred.addChild(verImageGISRED);
+				
+			}
+			
+			protected function basewidget1_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				ConsultarAcceso();
+			}
+			
+			protected function ConsultarAcceso():void
+			{
+				
+				var permiso:String="NO";
+				var registro:int=0;
+				
+				var queryTaskUserSelected:QueryTask = new QueryTask();
+				queryTaskUserSelected.url = widgets.MantenimientoPodas.URLS.URL_USUARIOS;
+				queryTaskUserSelected.useAMF = false;
+				var queryEquipoSelected:Query = new Query();
+				queryEquipoSelected.outFields = ["PERMISO"];
+				queryEquipoSelected.returnGeometry = true;     
+				queryEquipoSelected.orderByFields = ["PERMISO"];
+				
+				queryEquipoSelected.where = "CUENTA_VIALACTEA = '" + User.Usuario + "' AND MODULO='CIERRE'" ;
+				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryEquipoSelected.outSpatialReference = map.spatialReference;
+				queryTaskUserSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					if(featureSet.features.length == 0 ){
+						
+						//     Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
+						//currentState = "bkmInit"; 
+						currentState ="bkmInit";
+						lblwarning.visible = true;
+						lblwarning2.visible = true;
+						pbGisred.visible = true;
+					}
+						//si hay, cuales son los permisos
+					else{  
+						
+						ColeccionUser.addAll(new ArrayCollection(featureSet.attributes));
+						
+						for(var i:int=0;i<=ColeccionUser.length-1;i++){
+							
+							if (ColeccionUser[i].PERMISO == 'AGREGAR')
+							{
+								//Alert.show("add");
+								Generica.Insert = true;
+								
+							}
+							else if(ColeccionUser[i].PERMISO == 'BORRAR')
+							{
+								//Alert.show("del");
+								Generica.Delete = true;
+								
+							}
+							else if(ColeccionUser[i].PERMISO == 'EDITAR')
+							{
+								//Alert.show("edit");
+								Generica.Modify = true;
+								
+								
+							}
+							else if(ColeccionUser[i].PERMISO == 'FULL')
+							{
+								//Alert.show("full");
+								Generica.Modify = true;
+								BtnCloseSolicitud.visible = true;
+								Generica.Insert = true;
+								BtnLiquidarOT.visible=true;
+								
+								
+							}
+							else
+							{
+								Generica.Insert = false;
+								Generica.Delete = false;
+								Generica.Modify = false;
+							}
+							currentState ="bkmSoli";
+							
+						}
+					}
+				}      
+				
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
+				}
+				
+			}
+			/*
+			protected function bkmLiquidarOT_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				ConsultaLiqOT();
+				DataOT.selectedIndex = 0;
+			}
+			*/
+			[Bindable]public var numLibrObra:String;
+			protected function ConsultaLiqOT(contratista:String):void
+			{
+			
+				//Alert.show(User.Usuario + "" + contratista);
+					var queryTask:QueryTask = new QueryTask(widgets.MantenimientoPodas.URLS.URL_SOLICITUD);
+					var query:Query = new Query();
+					query.where = "JEFEGRUPO = '" + User.Usuario + "' AND ESTADO_SOLICITUD = 'CERRADA' AND ASIGNADA='" + contratista + "'";
+					query.outFields = ['*'];
+					query.returnGeometry = true;                        
+					queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+					
+					var arrPod:Array = new Array;
+					
+					function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+					{    
+						Generica.nom_area = featureSet.features[0].attributes["NOMBRE_AREA"];
+						obtenerInfoArea(Generica.nom_area);
+						
+						var libros:String;
+						
+						var k:int;
+						coleccionOT.removeAll();
+						for(k=0;k<featureSet.features.length;k++)
+						{
+							obtenerInfoLibro(featureSet.features[k].attributes["CODIGO_SAP"]);
+							var fileTimer:Timer = new Timer(5000);
+							//fileTimer.addEventListener(TimerEvent.TIMER, checkFile);
+							
+							
+							var recordGraphic:Graphic = featureSet.features[k];
+						//	Alert.show(Generica.numerosLibroObra);
+							coleccionOT.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+								CODIGO_SAP:recordGraphic.attributes["CODIGO_SAP"], 
+								DESCRIPCION:recordGraphic.attributes["DESCRIPCION"], 
+								ALIMENTADOR:recordGraphic.attributes["ALIMENTADOR"],
+								SOLICITANTE:recordGraphic.attributes["SOLICITANTE"],
+								SED:recordGraphic.attributes["SED"],
+								FECHA_SOLICITUD_CREACION:dateFormatter.format(new Date(recordGraphic.attributes["FECHA_SOLICITUD_CREACION"])),
+								FECHA_SOLICITUD_CIERRE:dateFormatter.format(new Date(recordGraphic.attributes["FECHA_SOLICITUD_CIERRE"])),
+								NOMBRE_CALLE:recordGraphic.attributes["NOMBRE_CALLE"],
+								ID_SEGMENTO:recordGraphic.attributes["ID_SEGMENTO"],
+								COMUNA:recordGraphic.attributes["COMUNA"],
+								ARRANQUE:recordGraphic.attributes["ARRANQUE"],
+								ID_ARRANQUE:recordGraphic.attributes["ID_ARRANQUE"],
+								ESTADO_SOLICITUD:recordGraphic.attributes["ESTADO_SOLICITUD"],    
+								EMERGENCIA:recordGraphic.attributes["EMERGENCIA"],  
+								NUM_OC:recordGraphic.attributes["NUM_OC"],    
+								NUM_SOLPE:recordGraphic.attributes["NUM_SOLPE"],
+								NUM_OI:recordGraphic.attributes["NUM_OI"],
+								MONTO_PAGO:recordGraphic.attributes["MONTO_PAGO"],
+								NOMBRE_AREA:recordGraphic.attributes["NOMBRE_AREA"],
+								RES_PP:recordGraphic.attributes["RES_PP"],
+								RES_LIBRO:recordGraphic.attributes["RES_LIBRO"],
+								gra:recordGraphic });
+							
+							//Alert.show(String(Generica.numerosLibroObra));
+						}
+						DataOT.dataProvider = coleccionOT;
+					//	DataOT.setStyle(
+						
+						//evita que se seleccione alguno
+						//DataOT.selectedIndex = 0;
+					}
+					function onFaultQuery(info:Object, token:Object = null):void
+					{   
+						
+						Alert.show("Error en consulta","Carga solicitudes");
+					}
+				
+				
+			}      
+			
+			
+			public function obtenerInfoLibro(cod_sap:int):void{
+				Generica.numerosLibroObra = new String;
+				//Alert.show(String(cod_sap));
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = widgets.MantenimientoPodas.URLS.URL_ACTIVIDADES;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["NUM_LIBRO_OBRA"];
+				query.returnGeometry = false;
+				query.where = "COD_SAP = "+cod_sap;
+				
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					for(var k:int=0;k<featureSet.features.length;k++)
+					{
+						
+						numLibrObra = Generica.numerosLibroObra + featureSet.features[k].attributes["NUM_LIBRO_OBRA"]+ ",";
+										
+						
+					}
+					
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("no se pueden cargar los usuarios "+ info.toString());
+				}
+				//return Generica.numerosLibroObra;
+				
+			}
+			
+			
+			
+			protected function DataSolicitud_doubleClickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				var queryTaskOT:QueryTask = new QueryTask();
+				queryTaskOT.showBusyCursor = true;
+				
+				queryTaskOT.url=URLS.URL_SOLICITUD;
+				queryTaskOT.useAMF=false;
+				
+				var querycentral:Query = new Query();
+				querycentral.outSpatialReference=  map.spatialReference;
+				querycentral.returnGeometry=true;
+				
+				
+				querycentral.where="OBJECTID=" + DataSolicitud.selectedItem['OBJECTID'];
+				
+				
+				queryTaskOT.execute(querycentral, new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					map.zoomTo(featureSet.features[0].geometry);				
+					map.level = 16;
+					
+					//var mp:MapPoint=featureSet.features[0].geometry as MapPoint;
+					
+					//var g:Graphic = new Graphic(new MapPoint(mp.x,mp.y, new SpatialReference(102100)));
+					//g.symbol =  new SimpleMarkerSymbol("circle",12,0xFF00FF,1);
+					
+					///	graphicsLayer.add(g);
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show(info.toString(), "Zoom con Problemas");
+				}
+				
+			}
+			
+			//Guarda la seleccion de la grilla en un objeto
+			protected function DataOT_itemClickHandler(event:ListEvent):void
+			{
+				//Guarda los itemes seleccionados en el arreglo
+				
+				selectedItemsDataOT = DataOT.selectedItems;
+				if (selectedItemsDataOT.length > 0) {
+					//Alert.show(selectedItemsDataOT.length.toString());
+					btnLiqFinal.enabled = true;
+					foo.text = "Cantidad: " + String(selectedItemsDataOT.length);
+				
+						//DataOT.selectedIndex = 0;
+				}else{
+					btnLiqFinal.enabled = false;
+					foo.text = "Cantidad: " + String(selectedItemsDataOT.length);
+				}
+				
+			}
+			
+			//Pasa a estado pagado las OT seleccionadas.
+			
+			
+			public function liquidarOTSelected():void {
+					
+					ordenarOTs();
+				//	modEstadoLiquidoAPago();					
+					generateXLS();
+				
+				
+			}
+			
+			public function ordenarOTs():void{
+				
+				
+				
+				//limpia arrays
+				otEmergencia = new Array;
+				otNoEmergencia = new Array;
+				
+				//separa las listas de ot de emergencia o no emergencia
+				for (var i:int = 0; i < selectedItemsDataOT.length; i++)
+				{
+					
+					if (selectedItemsDataOT[i].EMERGENCIA == "Si"){
+						otEmergencia.push(selectedItemsDataOT[i]);
+						
+					}else{
+						otNoEmergencia.push(selectedItemsDataOT[i]);
+						
+					}
+					
+				}
+				foo.text = foo.text + " |  Emergencia: " + String(otEmergencia.length) + " | No Emergencia: " +  String(otNoEmergencia.length) + " procesando" ;
+				//Alert.show("Emergencia: " + String(otEmergencia.length) + " No Emergencia: " +  String(otNoEmergencia.length));
+	
+			}	
+			
+			private var ef:ExcelFile;
+			private var ba:ByteArray;
+			private var fr:FileReference;
+			private var frSave:FileReference;
+			
+			public function generateXLS():void{
+				
+				//Generar  HEADER 
+				var s:Sheet = new Sheet();
+				
+				s.resize(200,12);
+					//LADO IZQUIERDO
+					
+					s.setCell(2,5,"PRESTACION DE SERVICIOS DE MANTENIMIENTO");
+					s.setCell(3,5,"PARA CHILQUINTA ENERGIA S.A");
+					s.setCell(6,3,"Vigencia Contrato");
+					s.setCell(7,3,"Desde:"); 	s.setCell(7,4,Generica.vig_contrato_desde);
+					s.setCell(8,3,"Hasta:");    s.setCell(8,4,Generica.vig_contrato_hasta);
+					s.setCell(10,3,"Periodo estado de pago:");
+					s.setCell(11,3,"Desde:"); 	s.setCell(11,4,dfFechaEstadoDesde.text);
+					s.setCell(12,3,"Hasta:");   s.setCell(12,4,dfFechaEstadoHasta.text);
+					
+					
+					s.setCell(14,3,"Valor UF al:"); s.setCell(14,4,Generica.fechaHoy);
+													s.setCell(15,4,"$  " + txtValorUF.text);
+				
+					//LADO DERECHO
+					
+					s.setCell(6,9,"Contratista:"); 			s.setCell(6,11,String(DDLContratista.selectedItem.descripcion));
+					s.setCell(7,9,"Contrato:"); 			s.setCell(7,11,String(Generica.num_contrato));
+					s.setCell(8,9,"Area:");					s.setCell(8,11,String(Generica.nom_area));
+					s.setCell(9,9,"Grupo Compra (SAP):"); 	s.setCell(9,11,String(Generica.nombre_grupo_compra)); 
+					s.setCell(11,9,"Num. Estado de Pago:");   s.setCell(11,11,String(ddlNumEstadoPago.text));
+					s.setCell(12,9,"Fecha:"); 				s.setCell(12,11,fechaUF.text);
+									
+
+// --------------------------- GENERAR ACT NO EMERGENCIA	 -----------------------------------------------------------------------------							
+					s.setCell(17,2,"DETALLE ESTADO DE PAGO");
+					s.setCell(18,2,"A. ACTIVIDADES DE MANTENIMIENTO CORRECTIVO");
+					s.setCell(20,2,"N.");s.setCell(20,3,"CODIGO_SAP."); s.setCell(20,4,"DESCRIPCION");s.setCell(20,5,"NUM_OC");
+					s.setCell(20,6,"NUM_SOLPE");s.setCell(20,7,"NUM_OI");s.setCell(20,8,"PP");s.setCell(20,9,"NUM_LIBRO");s.setCell(20,10,"MONTO_PAGO");
+					
+					var totalNoEmergencia:Number = 0.0; 
+					
+					var i:int = 21;
+					for(var j:int=0;j<otNoEmergencia.length;j++)
+					{
+						var montoPagoCalculadoNoEm:Number = otNoEmergencia[j].MONTO_PAGO * Number(txtValorUF.text);
+						totalNoEmergencia =  totalNoEmergencia + montoPagoCalculadoNoEm;
+						
+						s.setCell(i,2,String(j+1));
+						s.setCell(i,3,String(otNoEmergencia[j].CODIGO_SAP));
+						s.setCell(i,4,String(otNoEmergencia[j].DESCRIPCION));
+						s.setCell(i,5,String(otNoEmergencia[j].NUM_OC));
+						s.setCell(i,6,String(otNoEmergencia[j].NUM_SOLPE));
+						s.setCell(i,7,String(otNoEmergencia[j].NUM_OI));
+						s.setCell(i,8,String(otNoEmergencia[j].RES_PP));
+						s.setCell(i,9,String(otNoEmergencia[j].RES_LIBRO));
+						s.setCell(i,10,String(montoPagoCalculadoNoEm));
+						
+						i = i +1;						
+						
+					}
+					Generica.totalNoEmergencia = totalNoEmergencia;
+					//GENERAR TOTAL ACT NO EMERGENCIA
+					s.setCell(i+1,7,"TOTAL");
+					s.setCell(i+1,8,String(Generica.totalNoEmergencia));					
+					
+										
+// --------------------------- GENERAR ACT EMERGENCIA	 -----------------------------------------------------------------------------							
+					
+					s.setCell(i+4,2,"B. ACTIVIDADES DE MANTENIMIENTO EMERGENCIA");
+					s.setCell(i+5,2,"N.");s.setCell(i+5,3,"CODIGO_SAP."); s.setCell(i+5,4,"DESCRIPCION");s.setCell(i+5,5,"NUM_OC");
+					s.setCell(i+5,6,"NUM_SOLPE");s.setCell(i+5,7,"NUM_OI");s.setCell(i+5,8,"PP");s.setCell(i+5,9,"NUM_LIBRO");;s.setCell(i+5,10,"MONTO_PAGO");
+					
+					var totalEmergencia:Number = 0.0; 
+					
+					var k:int = i+6;
+					for(var m:int=0;m<otEmergencia.length;m++)
+					{
+						var montoPagoCalculadoEm:Number = otEmergencia[m].MONTO_PAGO * Number(txtValorUF.text);
+						totalEmergencia =  totalEmergencia + montoPagoCalculadoEm;
+						
+						s.setCell(k,2,String(m+1));
+						s.setCell(k,3,String(otEmergencia[m].CODIGO_SAP));
+						s.setCell(k,4,String(otEmergencia[m].DESCRIPCION));
+						s.setCell(k,5,String(otEmergencia[m].NUM_OC));
+						s.setCell(k,6,String(otEmergencia[m].NUM_SOLPE));
+						s.setCell(k,7,String(otEmergencia[m].NUM_OI));						
+						s.setCell(k,8,String(otEmergencia[m].RES_PP));
+						s.setCell(k,9,String(otEmergencia[m].RES_LIBRO));
+						s.setCell(k,10,String(montoPagoCalculadoEm));
+						
+						k = k +1;						
+						
+					}
+					Generica.totalEmergencia = totalEmergencia;
+					//GENERAR TOTAL ACT EMERGENCIA
+					s.setCell(k+1,7,"TOTAL");
+					s.setCell(k+1,8,String(Generica.totalEmergencia));
+					
+//--------------------------- MONTO A PAGAR ---------------------------------------------------------------------------------------------------------------------							
+					
+					Generica.totalMontoAPagar = Generica.totalNoEmergencia + Generica.totalEmergencia;
+					s.setCell(k+4,2,"RESUMEN: MONTO A PAGAR");
+					s.setCell(k+5,2,"A. ACTIVIDADES DE MANTENIMIENTO CORRECTIVO");s.setCell(k+5,8,String(Generica.totalNoEmergencia));
+					s.setCell(k+6,2,"B. ACTIVIDADES DE MANTENIMIENTO EMERGENCIA");s.setCell(k+6,8,String(Generica.totalEmergencia));
+					s.setCell(k+7,7,"TOTAL DE PAGO");s.setCell(k+7,8,String(Generica.totalMontoAPagar));
+					
+					
+//--------------------- GENERAR REPORTE EN EXCEL ----------------------------------------------------------------------------------------------------------						
+		
+				
+				try {
+					var fileTosave:ExcelFile = new ExcelFile();
+					fileTosave.sheets.addItem(s);
+					
+					var fileBytes:ByteArray = fileTosave.saveToByteArray();
+					frSave = new FileReference();
+					frSave.save(fileBytes,"Prest_Srv_Mtto.xls");
+					frSave.addEventListener(Event.COMPLETE,grabadoListo);
+					
+					}catch(e:ErrorMessage){
+					Alert.show("Error al guardar archivo" + e);
+					
+					}
+				
+			}
+			
+			
+			
+			public function grabadoListo(event:Event):void{
+				Alert.show("Reporte creado exitosamente");
+				modEstadoLiquidoAPago()
+				limpiaCampos();
+				
+				foo.text=  " |  Emergencia: " + String(otEmergencia.length) + " | No Emergencia: " +  String(otNoEmergencia.length) + " procesado" ;
+			}
+			
+			public function limpiaCampos():void{
+				DDLContratista.selectedIndex = -1;
+				DataOT.dataProvider = "";
+				fechaUF.text = "";
+				txtValorUF.text = "";
+				dfFechaEstadoDesde.text ="";
+				dfFechaEstadoHasta.text ="";
+				ddlNumEstadoPago.text="";
+				btnLiqFinal.enabled= false;
+			}
+			public function modEstadoLiquidoAPago():void{
+				
+				for (var i:int = 0; i < selectedItemsDataOT.length; i++)
+				{	
+					var ModificacionesOT:* = new Object;
+					ModificacionesOT["OBJECTID"]= selectedItemsDataOT[i].OBJECTID;
+					ModificacionesOT["ESTADO_SOLICITUD"]= "PAGADA";
+					ModificacionesOT["ESTADO_PAGO"]= String(ddlNumEstadoPago.text);
+					
+					var graficoEditadoActual:Graphic = new Graphic;
+					
+					graficoEditadoActual = new Graphic(null,null,ModificacionesOT);
+					var myOT:FeatureLayer = new FeatureLayer(widgets.MantenimientoPodas.URLS.URL_SOLICITUD);
+					myOT.applyEdits(null,[graficoEditadoActual],null, false,new AsyncResponder(onResult, onFault));
+										
+						function onResult():void{      
+									
+							
+						}
+					
+						function onFault(info:Object, token:Object = null):void{
+							Alert.show("Error al modificar las OT.  Contáctese con el administrador de GISRED. "+info.toString());
+						}
+				
+				}
+			}
+			
+			
+			public function llenarArrayContratistas():void{
+				
+				
+				ArrayContratistas.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = widgets.MantenimientoPodas.URLS.URL_SOLICITUD;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["ASIGNADA"];
+				query.returnGeometry = false;
+				query.where = "jefegrupo = '" + User.Usuario + "' and estado_solicitud = 'CERRADA'";
+				query.returnDistinctValues = true;
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					for each (var myGraphic:Graphic in featureSet.features)
+					{
+					
+						ArrayContratistas.addItem({descripcion:myGraphic.attributes['ASIGNADA']}); 
+						
+					}
+					
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("no se pueden cargar los usuarios "+ info.toString());
+				}
+			}
+			
+			protected function DDLContratista_changeHandler(event:IndexChangeEvent):void
+			{
+				// TODO Auto-generated method stub
+				
+					ConsultaLiqOT(String(DDLContratista.selectedItem.descripcion));
+					obtenerInfoContratista(String(DDLContratista.selectedItem.descripcion));
+				
+				
+				
+			}
+			
+		
+			public function obtenerInfoContratista(contratista:String):void{
+				//ArrayInfoContratista.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = widgets.MantenimientoPodas.URLS.URL_CONTRATOS;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["*"];
+				query.returnGeometry = false;
+				query.where = "RAZON_SOCIAL = '" + contratista + "'";
+				query.returnDistinctValues = true;
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					var dateFormatStr:String = "DD-MM-YY"; 
+					Generica.num_contrato = featureSet.features[0].attributes["NUM_CONTRATO"];
+					Generica.vig_contrato_desde = msToDate(featureSet.features[0].attributes["VIGENCIA_DESDE"],dateFormatStr,true);
+					Generica.vig_contrato_hasta = msToDate(featureSet.features[0].attributes["VIGENCIA_HASTA"],dateFormatStr,true);
+					
+					var currentDate:Date=new Date();
+					var month=currentDate.getMonth()+1;
+					var day=currentDate.getDate();
+					var year=currentDate.getFullYear();
+					Generica.fechaHoy = day + "-" + month + "-" + year;
+					
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("no se pueden cargar los usuarios "+ info.toString());
+				}
+				
+			}
+			
+			public function obtenerInfoArea(area:String):void{
+				//ArrayInfoContratista.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = widgets.MantenimientoPodas.URLS.URL_TIPO_AREAS_MANTENIMIENTO;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["*"];
+				query.returnGeometry = false;
+				query.where = "NOMBRE_AREA = '" + area + "'";
+				query.returnDistinctValues = true;
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					Generica.nombre_grupo_compra = featureSet.features[0].attributes["NOMBRE_GRUPO_COMPRA"];
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("no se pueden cargar los usuarios "+ info.toString());
+				}
+				
+			}
+			
+			private function msToDate(ms:Number, dateFormat:String, useUTC:Boolean):String  
+			{  
+				var date:Date = new Date(ms);  
+				if (date.milliseconds == 999){ // workaround for REST bug  
+					date.milliseconds++;  
+				}  
+				if (useUTC){  
+					date.minutes += date.timezoneOffset;  
+				}  
+				if (dateFormat){		
+					
+					dateFormatter.dateTimePattern = dateFormat;  
+					var result:String = dateFormatter.format(date);  
+					if (result){  
+						return result;  
+					}else{  
+						return dateFormatter.errorText;  
+					}  
+				}else{  
+					return date.toLocaleString(); 
+					
+				}  
+			}  
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	<viewer:WidgetTemplate id="wTemplate"                      
+						   width="800" height="500"
+						   visible="true" open="wTemplate_openHandler(event)">
+		
+		<s:Group id="bkmInit" width="100%" height="100%" initialize="bkmInit_initializeHandler(event)"
+				 visible="true" visible.bkmInit="true">	
+			<s:VGroup horizontalAlign="center" height="100%" width="100%" verticalAlign="middle">
+				<mx:Canvas width="200" height="200" id="pbGisred" color="0x000000" horizontalScrollPolicy="off"
+						   verticalScrollPolicy="off" visible="false"/>                                           
+				<s:Label id="lblwarning" text="No tiene permisos para acceder a este módulo." 
+						 fontSize="16" visible="false" paddingTop="10"/>
+				<s:Label id="lblwarning2" text="Comuniquese con el administrador de GISRED" 
+						 fontSize="16" visible="false" paddingTop="10"/>
+			</s:VGroup>
+		</s:Group> 
+		<s:Group id="bkmSoli"
+				 width="100%" height="100%"
+				 visible="false"
+				 visible.bkmSoli="true" initialize="bkmSoli_initializeHandler(event)">
+			
+			<s:VGroup width="100%" top="5" bottom="5" height="100%">
+				<mx:Label id="LblCentral" text="Listado de OT" fontSize="18"/>
+				<s:HGroup width="100%" verticalAlign="middle">
+					<mx:TextInput x="10" id="txtFilterSolicitud" width="100%" height="30" fontSize="14" fontWeight="bold" />
+					<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png"/>
+					
+				</s:HGroup>
+				<mx:DataGrid id="DataSolicitud" resizableColumns="true" sortableColumns="true" editable="false" resize="DataSolicitud_resizeHandler(event)"
+							 width="100%" height="100%" visible="true" selectable="true"  horizontalScrollPolicy="on" doubleClickEnabled="true" doubleClick="DataSolicitud_doubleClickHandler(event)">
+					<mx:columns>        
+						<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID"  visible="false"/>
+						<mx:DataGridColumn  dataField="CODIGO_SAP" headerText="CODIGO SAP" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="DESCRIPCION" headerText="DESCRIPCION" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="ALIMENTADOR" headerText="ALIMENTADOR" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="SOLICITANTE" headerText="SOLICITANTE" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="SED" headerText="SED" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="FECHA_SOLICITUD_CREACION" headerText="FECHA SOLICITUD" width="{anchoColumna}"  />
+						<mx:DataGridColumn  dataField="FECHA_SOLICITUD_CIERRE" headerText="FECHA CIERRE" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="NOMBRE_CALLE" headerText="NOMBRE CALLE" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="ID_SEGMENTO" headerText="ID SEGMENTO" width="{anchoColumna}" visible="false" />
+						<mx:DataGridColumn  dataField="COMUNA" headerText="COMUNA" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="ARRANQUE" headerText="ARRANQUE" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="ID_ARRANQUE" headerText="ID ARRANQUE" width="{anchoColumna}" visible="false" />
+						<mx:DataGridColumn  dataField="ESTADO_SOLICITUD" headerText="ESTADO" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="EMERGENCIA" headerText="EMERGENCIA" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="NUM_OC" headerText="NUMERO OC" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="NUM_SOLPE" headerText="NUMERO SOLPE" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="NUM_OI" headerText="NUMERO OI/PEP" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="MONTO_PAGO" headerText="MONTO PAGO" width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="NOMBRE_AREA" headerText="AREA" width="{anchoColumna}" />
+					</mx:columns>
+				</mx:DataGrid>      
+				
+				<s:HGroup width="100%">
+					
+					<s:HGroup horizontalAlign="left" width="25%">
+						<s:Button id="btnIrVerActividades" label="Ver Actividades" height="30" click="funcionesBtn(event)"/>
+						<s:Button id="BtnCloseSolicitud" label="Cerrar solicitud" height="30" click="funcionesBtn(event)" visible="false"/> 
+					</s:HGroup>
+					<s:HGroup horizontalAlign="right" width="100%">                                       
+						<s:Button id="BtnLiquidarOT" label="Liquidar OTs" height="30" click="funcionesBtn(event)" visible="false"/> 
+					</s:HGroup>
+				</s:HGroup>
+			</s:VGroup>
+		</s:Group>
+		
+		<!-- Grupo listado de Actividades-->   
+		<s:Group id="bkmActividades" width="100%" height="100%"
+				 visible="false" visible.bkmActividades="true">                    
+			<s:VGroup width="100%" height="100%">
+				<mx:Label id="LblActivi" text="Listado de Actividades" fontSize="18"/>
+				<mx:Form id="FormPolPodas" width="100%" height="15%">
+					<s:HGroup width="100%">
+						<s:VGroup width="30%">
+							<mx:FormItem label="CODIGO SAP:" fontWeight="bold">
+								<s:Label id="lblCodigoSAP" text="{codigo_sap}" fontWeight="normal" />
+							</mx:FormItem>
+							<mx:FormItem label="DESCRIPCIÓN:" fontWeight="bold">
+								<s:Label id="lblDescripcion" text="{tdescripcion}"  fontWeight="normal"/>
+							</mx:FormItem>
+							<mx:FormItem label="SOLICITANTE:" fontWeight="bold">
+								<s:Label id="lblSolicitante" text="{solicitante}" fontWeight="normal" />
+							</mx:FormItem>
+						</s:VGroup>
+						<s:VGroup width="30%" paddingLeft="10">                                        
+							<mx:FormItem label="COMUNA:" fontWeight="bold">
+								<s:Label id="lblComuna" text="{ComunaSolictud}" fontWeight="normal"/>
+							</mx:FormItem>
+							<mx:FormItem label="ALIMENTADOR:" fontWeight="bold">
+								<s:Label id="lblAlimentador" text="{AlimentadorSolicitud}" fontWeight="normal"/> 
+							</mx:FormItem>
+							<mx:FormItem label="SED:" fontWeight="bold">
+								<s:Label id="lblSed" text="{SedSolicitud}" fontWeight="normal"/>
+							</mx:FormItem>
+						</s:VGroup>                                         
+						<s:VGroup width="30%">    
+							<mx:FormItem label="ESTADO:" fontWeight="bold">
+								<s:Label id="lblEstado" text="{EstadoSolicitud}" fontWeight="normal"/>
+							</mx:FormItem>
+						</s:VGroup>
+					</s:HGroup>
+				</mx:Form>
+				<mx:HRule width="100%">
+					
+				</mx:HRule>
+				<mx:DataGrid id="DataActividades" resizableColumns="true" sortableColumns="true" editable="false" resize="DataSolicitud_resizeHandler(event)"
+							 width="100%" height="100%" visible="true" selectable="true" horizontalScrollPolicy="on">
+					<mx:columns>        
+						<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID"  visible="false"/>
+						<mx:DataGridColumn  dataField="COD_SAP" headerText="COD SAP"  width="{anchoColumna}" visible="false" />
+						<mx:DataGridColumn  dataField="ID_ACTIVIDAD" headerText="ID ACTIVIDAD"  width="{anchoColumna}"  />
+						<mx:DataGridColumn  dataField="FECHA_ACTIVIDAD" headerText="FECHA ACTIVIDAD"  width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="NUM_LIBRO_OBRA" headerText="NUM LIBRO OBRA"  width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="SUPERVISOR" headerText="SUPERVISOR"  width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="PERMISO_PREVENTIVO" headerText="PERMISO PREVENTIVO"  width="{anchoColumna}" />
+						<mx:DataGridColumn  dataField="HORA_SOLICITUD_PP" headerText="HORA SOLICITUD PP"  width="{anchoColumna}" />                     
+						<mx:DataGridColumn  dataField="HORA_CANCELACION_PP" headerText="HORA CANCELACION PP"  width="{anchoColumna}" />                     
+						<mx:DataGridColumn  dataField="CANT_TRABAJADOR_ALTURA" headerText="CANT TRABAJADOR ALTURA"  width="{anchoColumna}" /> 
+						<mx:DataGridColumn  dataField="CANT_TRABAJADOR_PISO" headerText="CANT TRABAJADOR PISO"  width="{anchoColumna}" />        
+					</mx:columns>
+				</mx:DataGrid>
+				<s:HGroup width="100%">   
+					<s:Button id="BtnVerDetalleActividad" height="30" label="Ver Detalle Actividad" click="funcionesBtn(event)"/>
+					<s:Button id="BtnVolverSolicitud" height="30" label="Volver" click="funcionesBtn(event)"/>
+				</s:HGroup>
+				
+			</s:VGroup>  
+		</s:Group>   
+		<!-- Grupo listado de Detalle de Actividad--> 
+		<s:Group id="bkmDetalleActividad" width="100%" height="100%"
+				 visible="false" visible.bkmDetalleActividad="true" >
+			<s:VGroup width="100%" height="100%">
+				<mx:Label id="LblDetActivi" text="Listado de Detalle Actividades" fontSize="18"/>
+				<mx:Form id="FormDetalleAct" width="100%" height="15%">
+					<s:HGroup width="100%">
+						<mx:FormItem label="CODIGO SAP:" fontWeight="bold">
+							<s:Label id="lblCodigoSAP2" text="{codigo_sap}" fontWeight="normal" />
+						</mx:FormItem>
+						<mx:FormItem label="N° ACTIVIDAD:" fontWeight="bold">
+							<s:Label id="lblNumActividad" text="{numActividad}"  fontWeight="normal"/>
+						</mx:FormItem>
+						<mx:FormItem label="N° LIBRO DE OBRA:" fontWeight="bold">
+							<s:Label id="lblNumLibroObra" text="{numLibroObra}" fontWeight="normal" />
+						</mx:FormItem>
+						<mx:FormItem label="SUPERVISOR:" fontWeight="bold">
+							<s:Label id="lblSupervisor" text="{nomSupervisor}" fontWeight="normal"/>
+						</mx:FormItem>
+					</s:HGroup>
+				</mx:Form>
+				<mx:HRule width="100%">
+					
+				</mx:HRule>
+				<mx:DataGrid id="DataDetalleActividad" resizableColumns="true" sortableColumns="true" editable="false"
+							 width="100%" height="100%" visible="true" selectable="true" horizontalScrollPolicy="on" resize="DataSolicitud_resizeHandler(event)">
+					<mx:columns>        
+						<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID"  visible="true"/>
+						<mx:DataGridColumn  dataField="ID_ACTIVIDAD" headerText="ID ACTIVIDAD"  width="140" visible="false" />
+						<mx:DataGridColumn  dataField="ID_ARBOL" headerText="ID ARBOL"  width="140" visible="false" />
+						<mx:DataGridColumn  dataField="NOMBRE_ARBOL" headerText="NOMBRE ARBOL"  width="140"  />
+						<mx:DataGridColumn  dataField="CANTIDAD" headerText="CANTIDAD"  width="140" />
+						<mx:DataGridColumn  dataField="NIVEL_TENSION" headerText="NIVEL TENSION"  width="140" />
+						<mx:DataGridColumn  dataField="ID_TIPO_PODA" headerText="ID TIPO PODA"  width="140" visible="false" />
+						<mx:DataGridColumn  dataField="NOMBRE_TIPO_PODA" headerText="NOMBRE TIPO PODA"  width="140" />
+						<mx:DataGridColumn  dataField="OBSERVACIONES" headerText="OBSERVACIONES"  width="140" />
+					</mx:columns>
+				</mx:DataGrid>
+				<s:HGroup width="100%">                       
+					<s:Button id="BtnDetalleVolverSolicitud" label="Volver"  height="30" click="funcionesBtn(event)"/>
+					<s:Label id="lblFotos" text="¿Detalle con Fotos Adjuntas? : " fontWeight="normal" paddingLeft="50" paddingTop="5" />
+					<s:Label id="lblHayFotos" text="{fotosAdjuntas}" fontWeight="normal" paddingTop="5" />
+					<s:Button id="BtnVerFotos" label="Ver" height="30" click="funcionesBtn(event)" width="80" enabled="false"/>
+				</s:HGroup>
+				
+			</s:VGroup>  
+		</s:Group>   
+		<!-- Grupo Ver FOTOS-->
+		<s:Group id="bkmVerFotos" width="100%" height="100%"
+				 visible="false" visible.bkmVerFotos="true">
+			<mx:Form id="FormVerFotos" width="100%" height="100%">
+				<mx:FormHeading label="Fotos Asociadas a esta Actividad."/>                    
+				<mx:HBox>
+					<mx:VBox>
+						<mx:FormItem label="Foto Antes">
+							<mx:Canvas width="227" height="156" id="pbVerAntes" color="0x000000" horizontalScrollPolicy="off"
+									   verticalScrollPolicy="off" />                                           
+							<s:Label id="LblVerNomFotoAntes"/>
+						</mx:FormItem>
+					</mx:VBox>
+					<mx:VRule width="100%">
+						
+					</mx:VRule>
+					<mx:VBox>
+						<mx:FormItem label="Foto Después">
+							<mx:Canvas width="227" height="156" id="pbVerDespues" horizontalScrollPolicy="off"
+									   verticalScrollPolicy="off" />
+							<s:Label id="LblVerNomFotoDespues"/>
+							
+						</mx:FormItem>
+					</mx:VBox>
+				</mx:HBox>
+				<mx:FormItem>
+					<s:HGroup width="100%" horizontalAlign="center">                                 
+						<s:Button id="BtnVerVolverMenuListado"  height="30" visible="true" label="Volver" click="funcionesBtn(event)" />              
+					</s:HGroup>
+				</mx:FormItem>
+			</mx:Form>
+		</s:Group>                 
+		<!-- Grupo Cerrar Solicitud-->
+		<s:Group id="bkmCerrarSolictud" width="100%" height="100%"
+				 visible="false" visible.bkmCerrarSolictud="true">
+			<s:VGroup width="100%" top="5" bottom="5" height="100%">
+				<mx:Label id="LblModSol" text="Cierre de OT" fontSize="18"/>
+				<mx:Form id="FormCierreSol" width="100%" height="100%">
+					<s:VGroup width="100%">
+						<s:HGroup width="100%">                               
+							<mx:FormItem label="CODIGO SAP:" fontWeight="bold">
+								<s:Label id="lblCodigoSAP1" text="{codigo_sap}" fontWeight="normal" />
+							</mx:FormItem>
+							<mx:FormItem label="DESCRIPCIÓN:" fontWeight="bold">
+								<s:Label id="lblDescripcion1" text="{tdescripcion}"  fontWeight="normal"/>
+							</mx:FormItem>                                        
+						</s:HGroup>
+						<s:HGroup width="100%">
+							<mx:FormItem label="SOLICITANTE:" fontWeight="bold">
+								<s:Label id="lblSolicitante1" text="{solicitante}" fontWeight="normal" />
+							</mx:FormItem>      
+							<mx:FormItem label="FECHA CREACION:" fontWeight="bold">
+								<s:Label id="lblDateCreate" text="{datecreate}" fontWeight="normal" />
+							</mx:FormItem>
+						</s:HGroup>
+					</s:VGroup>
+					
+					<mx:HRule width="100%"/>
+					<mx:FormItem label="FECHA CIERRE:" fontWeight="bold">
+						<s:HGroup>
+							<mx:DateField id="dfCierreSol" width="{anchoObj}" yearNavigationEnabled="true" formatString="DD-MM-YYYY" />
+							<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/images/informacion.png" toolTip="Debe seleccionar la fecha de cierre de la OT." />   
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:FormItem label="AREA:" fontWeight="bold">
+						<s:HGroup>
+							<!-- <s:DropDownList id="DDLArea" width="{anchoObj}" prompt="Seleccione Area" dataProvider="{ArrayArea}" labelField="descripcion" fontWeight="normal"  change="DDLArea_changeHandler(event)" /> 
+							-->
+							<s:Label id="lblArea" fontWeight="normal" width="150" text="{Generica.AreaMtto}"/>
+						</s:HGroup>                                    
+					</mx:FormItem>
+					<mx:FormItem label="Grupo Compra:" fontWeight="bold">                            
+						<s:Label id="lblGrupoCompra" text="{Generica.grupoCompra}" fontWeight="normal"/>
+					</mx:FormItem>
+					<mx:FormItem label="OI/PEP:" fontWeight="bold">
+						<s:HGroup>
+							<s:DropDownList id="DDLOiPep" width="{anchoObj}" prompt="Seleccione OI/PEP" dataProvider="{ArrayOIPEP}"  labelField="descripcion" fontWeight="normal" />
+							<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/images/informacion.png" toolTip="Debe seleccionar el número de OI o PEP correspondiente." />
+						</s:HGroup>                                    
+					</mx:FormItem>
+					<mx:FormItem label="OC:" fontWeight="bold">
+						<s:HGroup>
+							<s:TextInput id="TxtOC" width="{anchoObj}" fontWeight="normal" />
+							<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/images/informacion.png" toolTip="Debe ingresar  número de OC correspondiente." />
+						</s:HGroup>                                    
+					</mx:FormItem>
+					<mx:FormItem label="SOLPE:" fontWeight="bold">
+						<s:HGroup>
+							<s:TextInput id="TxtSOLPE" width="{anchoObj}" fontWeight="normal" />
+							<mx:Image  width="17" height="17"  source="widgets/MantenimientoPodas/images/informacion.png" toolTip="Debe ingresar  número de SOLPE correspondiente." />
+						</s:HGroup>                                    
+					</mx:FormItem>
+					<mx:FormItem>
+					</mx:FormItem>
+					<s:HGroup width="100%" horizontalAlign="center">                                
+						<s:Button id="BtnGrabaClosesolicitud" label="Grabar" height="30" click="funcionesBtn(event)" />
+						<s:Button id="BtnVolverCloseSoliciud" label="Volver"  height="30" click="funcionesBtn(event)"/>
+					</s:HGroup>
+					
+				</mx:Form>
+			</s:VGroup>
+		</s:Group>
+		<!-- Grupo Liquidar OT-->
+		<s:Group id="bkmLiquidarOT" width="100%" height="100%"
+				 visible="false" visible.bkmLiquidarOT="true" >
+			<s:VGroup width="100%" top="5" bottom="5" height="100%">
+				<s:HGroup>
+					<mx:Label id="LblLiquidarSol" text="Liquidación de OT" fontSize="18"/>
+					
+				</s:HGroup>
+				
+				<mx:Form id="FormLiquidarOT" width="100%" height="100%">
+					<s:HGroup width="100%" verticalAlign="middle" >
+						<mx:FormItem label="1.- Elija un contratista">
+							<s:DropDownList id="DDLContratista" width="150" prompt="Seleccione Contratista" dataProvider="{ArrayContratistas}" labelField="descripcion" change="DDLContratista_changeHandler(event)"/>
+						</mx:FormItem>				
+						<mx:FormItem label="Fecha Emision Pago">
+							<mx:DateField id="fechaUF" width="110" yearNavigationEnabled="true" formatString="DD-MM-YYYY" />
+						</mx:FormItem>
+						<mx:FormItem label="Valor UF $">
+							<mx:TextInput  x="10" id="txtValorUF" width="90" fontWeight="bold" restrict="0-9\\.\\"   />
+						</mx:FormItem>
+					</s:HGroup>
+					
+									
+					<s:Label text="2.- Seleccione las OT a liquidar">
+						
+					</s:Label>
+					<xx:CheckBoxDataGrid id="DataOT" sortableColumns="true" editable="false" 
+										 width="100%" height="100%" visible="true" selectable="true" allowMultipleSelection="true" itemClick="DataOT_itemClickHandler(event)">
+						<xx:columns>
+							<mx:DataGridColumn  dataField="OBJECTID" headerText=" " width="20" sortable="false" itemRenderer="comun.Check.CheckBoxRenderer"  /> 
+							<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID"  visible="false"/>
+							<mx:DataGridColumn  dataField="CODIGO_SAP" headerText="CODIGO SAP"  />
+							<mx:DataGridColumn  dataField="DESCRIPCION" headerText="DESCRIPCION"  />
+							<mx:DataGridColumn  dataField="SOLICITANTE" headerText="SOLICITANTE"   visible="false" />
+							<mx:DataGridColumn  dataField="FECHA_SOLICITUD_CREACION" headerText="FECHA SOLICITUD"   />
+							<mx:DataGridColumn  dataField="FECHA_SOLICITUD_CIERRE" headerText="FECHA CIERRE"  />   
+							<mx:DataGridColumn  dataField="ESTADO_SOLICITUD" headerText="ESTADO"   visible="false" />
+							<mx:DataGridColumn  dataField="EMERGENCIA" headerText="EMERGENCIA"  />
+							<mx:DataGridColumn  dataField="NUM_OC" headerText="OC"  />
+							<mx:DataGridColumn  dataField="NUM_SOLPE" headerText="SOLPE"  />
+							<mx:DataGridColumn  dataField="NUM_OI" headerText="OI/PEP"  />
+							<mx:DataGridColumn  dataField="MONTO_PAGO" headerText="MONTO PAGO"  />
+							<mx:DataGridColumn  dataField="NOMBRE_AREA" headerText="AREA"  />
+							<mx:DataGridColumn  dataField="RES_PP" headerText="PPS"  />
+							<mx:DataGridColumn  dataField="RES_LIBRO" headerText="LIBROS"  />
+						</xx:columns>
+					</xx:CheckBoxDataGrid>
+					<s:HGroup>
+						
+					</s:HGroup>
+					<s:HGroup>
+						<mx:FormItem label="Periodo Estado Pago : Desde">
+							<mx:DateField id="dfFechaEstadoDesde" width="110" yearNavigationEnabled="true" formatString="DD-MM-YYYY" />
+						</mx:FormItem>
+						<mx:FormItem label=" : Hasta">
+							<mx:DateField id="dfFechaEstadoHasta" width="110" yearNavigationEnabled="true" formatString="DD-MM-YYYY" />
+						</mx:FormItem>
+						<mx:FormItem label="Num. Estado Pago">
+							<mx:DateField id="ddlNumEstadoPago" width="90" yearNavigationEnabled="true" formatString="MM-YYYY" />
+						</mx:FormItem>
+					</s:HGroup>
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					
+					<s:HGroup width="100%" horizontalAlign="center">
+						<s:Button id="btnLiqFinal" label="Liquidar" height="30" click="funcionesBtn(event)" />
+						<s:Button id="BtnVolverListOT" label="Volver"  height="30" click="funcionesBtn(event)"/>
+					</s:HGroup>
+					
+				</mx:Form>
+				<mx:Label id="foo" text="Cantidad:" paddingRight="1" />
+				
+			</s:VGroup>
+		</s:Group>
+			
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>
+

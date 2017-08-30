@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>ID Tramo: {ARCGIS.dbo.TEMP_TRAMOS_EQU.id_tramo}</title>
+    <fields>
+        <field name="ARCGIS.dbo.TEMP_TRAMOS_EQU.padre" alias="Criticidad:" visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_TRAMOS_EQU.interrupciones" alias="Cant Interrupciones:" visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_TRAMOS_EQU.clientes" alias="Cant: Clientes:" visible="true"/>
+        
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

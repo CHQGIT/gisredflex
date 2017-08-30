@@ -4,20 +4,18 @@
 				   xmlns:viewer="com.esri.viewer.*"				   
 				   xmlns:components="com.esri.viewer.components.*"
 				   xmlns:esri="http://www.esri.com/2008/ags"  
-				   initialize="basewidget1_initializeHandler(event)" 
-				   creationComplete="basewidget1_creationCompleteHandler(event)"
-				   
-				   
-				   >	
+				   initialize="basewidget1_initializeHandler(event)">	
 	
 	<viewer:states>
 		<s:State name="bkmInit"/>
 		<s:State name="bkmConsulta"/>
-	
+		<s:State name="bkmConsultaMeses"/>
+		<s:State name ="bkmConsultaDetalle" />
+		
 	</viewer:states>
 	<viewer:transitions>
 		<s:Transition autoReverse="true" toState="*">
-			<s:Fade targets="{[bkmInit,bkmConsulta]}"/>
+			<s:Fade targets="{[bkmInit,bkmConsulta,bkmConsultaMeses,bkmConsultaDetalle]}"/>
 		</s:Transition>
 	</viewer:transitions>
 	
@@ -30,16 +28,42 @@
 		
 		<s:DateTimeFormatter id="dateFormatter" dateTimePattern="dd/MM/yyyy"/>
 		
-		<esri:SimpleMarkerSymbol id="smsIdentify"
-								 alpha="0.5"
-								 color="0xFF9900"
-								 size="20"
-								 style="circle"/>
-	
+		
+		
 		<mx:WipeUp id="myWU" duration="300"/>
 		<mx:WipeDown id="myWD" duration="500"/>
 		<mx:WipeRight id="myWR" duration="850"/>
 		<esri:GraphicsLayer id="graphicsLayer" />
+		
+		<esri:SimpleMarkerSymbol id="smsIdentify"
+								 alpha="0.5"
+								 color="0x00FFFF"
+								 size="20"
+								 style="circle"/>
+		
+		<esri:SimpleLineSymbol id="slsFind"
+							   width="35"
+							   alpha="0.9"
+							   color="0x00FF00"
+							   style="solid"/>
+		
+		<esri:SimpleLineSymbol id="slsFindMedidor"
+							   width="15"
+							   alpha="0.9"
+							   color="0xFF9900"
+							   style="dot"/>
+		
+		<esri:SimpleLineSymbol id="slsFindMedidorxTramo"
+							   width="5"
+							   alpha="0.9"
+							   color="0xFF0033"
+							   style="solid"/>
+		<esri:SimpleLineSymbol id="slsMedidorFound"
+							   width="20"
+							   alpha="1"
+							   color="0x0066FF"
+							   style="dashdotdot"/>
+		
 		
 	</fx:Declarations>
 	
@@ -49,9 +73,8 @@
 			import com.as3xls.xls.Sheet;
 			import com.esri.ags.FeatureSet;
 			import com.esri.ags.Graphic;
+			import com.esri.ags.SpatialReference;
 			import com.esri.ags.geometry.MapPoint;
-			import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
-			import com.esri.ags.layers.FeatureLayer;
 			import com.esri.ags.layers.GraphicsLayer;
 			import com.esri.ags.portal.PopUpRenderer;
 			import com.esri.ags.tasks.QueryTask;
@@ -60,27 +83,33 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
+			import mx.events.IndexChangedEvent;
 			import mx.events.ListEvent;
 			import mx.messaging.messages.ErrorMessage;
 			import mx.rpc.AsyncResponder;
 			import mx.utils.StringUtil;
 			
+			import spark.events.IndexChangeEvent;
+			
 			import comun.Planificacion.User;
 			import comun.url.URL;
 			
-			import widgets.AdminLectores.utilidad.urls;
-			private var popUpRenderer:PopUpRenderer = new PopUpRenderer();
+			import widgets.AdminAP.utilidad.urls;
+		
 			
+			private var popUpRenderer:PopUpRenderer = new PopUpRenderer();
 			
 			[Bindable] public var idPosteNuevo:String;
 			[Bindable] public var idDirNueva:String;
 			[Bindable] public var rotNuevo:String;
 			[Bindable] public var dirNueva:String;
-			
 			[Bindable] public var coleccionClientes:ArrayCollection = new ArrayCollection;
-			[Bindable] public var coleccionEstados:ArrayCollection = new ArrayCollection;
+			[Bindable] public var coleccionBusqueda:ArrayCollection = new ArrayCollection;
+			[Bindable] public var coleccionTeorica:ArrayCollection = new ArrayCollection;
+			[Bindable] public var coleccionMeses:ArrayCollection = new ArrayCollection;
+			[Bindable] public var coleccionMeses2:ArrayCollection = new ArrayCollection;
 			
-			
+			[Bindable] public var coleccionFacturada:ArrayCollection = new ArrayCollection;
 			[Bindable] public var fs:FeatureSet = new FeatureSet;
 			[Bindable] public var rotu:int;
 			[Bindable] public var rotuloEncontrado:String;
@@ -89,56 +118,25 @@
 			[Bindable] public var anexo1:String;
 			[Bindable] public var anexo2:String;
 			[Bindable] public var tipoEdificacion:String;
+			[Bindable] public var sumf:Number;
+			[Bindable] public var sumt:Number;
+			[Bindable] public var periodo:Number;
+			
 			public var myGraphicsLayer:GraphicsLayer =  new GraphicsLayer;
 			
 			private var ColeccionUser:ArrayCollection = new ArrayCollection;
 			private var text1:String;
 			
-			public var lecturasLayer:ArcGISDynamicMapServiceLayer= new ArcGISDynamicMapServiceLayer(widgets.AdminLectores.utilidad.urls.URL_LECTURAS_DYN);
-			
-			import com.esri.ags.portal.supportClasses.PopUpFieldFormat;
-			import com.esri.ags.portal.supportClasses.PopUpFieldInfo;
-			import com.esri.ags.portal.supportClasses.PopUpInfo;
-			
-			
-			public var field1:PopUpFieldInfo;
-			public var field2:PopUpFieldInfo;
-			public var field3:PopUpFieldInfo;
-			public var field4:PopUpFieldInfo;
-			public var field5:PopUpFieldInfo;
-			public var field6:PopUpFieldInfo;
-			public var field7:PopUpFieldInfo;
-			public var field8:PopUpFieldInfo;
-			public var field9:PopUpFieldInfo;
-			public var field10:PopUpFieldInfo;
-			public var field11:PopUpFieldInfo;
-			public var field12:PopUpFieldInfo;
-			public var field13:PopUpFieldInfo;
-			public var field14:PopUpFieldInfo;
-			public var field15:PopUpFieldInfo;
-			public var field16:PopUpFieldInfo;
-			
-			protected function basewidget1_initializeHandler(event:FlexEvent):void
-			{
-				
-				
-				openLayer();
+			[Bindable]private var coleccion2:ArrayCollection = new ArrayCollection;		
+			[Bindable]private var coleccion3:ArrayCollection = new ArrayCollection;
+			[Bindable]private var g:Graphic;
+						
+			protected function basewidget1_initializeHandler(event:FlexEvent):void{
 				ConsultarAcceso();
-				
-				
-				
-				
-				//DataClientesNuevos.selectedIndex = 1;
 			}
 			
-			public function openLayer():void{
-				lecturasLayer.name = "Ingreso Lectores";
-				map.addLayer(lecturasLayer);				
-				lecturasLayer.visible = true;	
-			}
-			
-			protected function ConsultarAcceso():void{
-			
+			protected function ConsultarAcceso():void {
+				
 				var queryTaskUserSelected:QueryTask = new QueryTask();
 				queryTaskUserSelected.url = comun.url.URL.URL_ACCESO;
 				queryTaskUserSelected.useAMF = false;
@@ -155,7 +153,7 @@
 					
 					if(featureSet.features.length == 0 ){
 						//Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
-						//currentState = "bkmInit"; 
+						
 						currentState ="bkmInit";
 						lblwarning.visible = true;
 						lblwarning2.visible = true;
@@ -165,45 +163,23 @@
 					}
 						//si hay, cuales son los permisos
 					else{   
-						
 						ColeccionUser.addAll(new ArrayCollection(featureSet.attributes));
-						
-						for(var i:int=0;i<=ColeccionUser.length-1;i++){	
-							
-							if(ColeccionUser[i].select_ == 'FALSE'){
-								btnExportarDatosClientes.enabled = false;
-							}else{
-								btnExportarDatosClientes.enabled = true;
-							}
-							
-							if( ColeccionUser[i].update_ == 'FALSE'){
-								DDLEstadoCliente.enabled = false;
-								btnCambiarEstadoCliente.enabled = false;
-								
-								
-							}else{
-								DDLEstadoCliente.enabled = true;
-								btnCambiarEstadoCliente.enabled = true;
-								
-							}
-													
-						}
-						
-						
-						cargarListaClientesNuevos();
-						txtFilterClientes.addEventListener(Event.CHANGE,filterGridClientes);
-						
 						currentState ="bkmConsulta";
-						wTemplate.height = 500;
+						wTemplate.height = 350;
 						wTemplate.width = 800;
 						
+						//agregar tipos de busqueda para grid
+						coleccionBusqueda.removeAll();
+						coleccionBusqueda = new ArrayCollection([ {item:"NIS"},{item:"PORCENTAJE"}]);
+						DDLTipoBusqueda.selectedIndex = 0;
+						txtBusqueda.addEventListener(Event.CHANGE,filterGridClientes);
+						
+						//cargar datos a grid.
+						cargarListadoAnalisis();
 					}
 				}
 				
-				
-				
-				function onFault(info:Object, token:Object = null):void
-				{   
+				function onFault(info:Object, token:Object = null):void{   
 					Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
 					currentState ="bkmInit";
 					lblwarning.visible = true;
@@ -214,485 +190,214 @@
 				}
 			}
 			
-			
-			//Filtra Listado de Solicitudes ingresadas en Textbox
-			protected function filterGridClientes(event:Event):void
-			{
-				/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
-				Everything else is dynamic. Do not edit variable names. */
-				var filterText:String = StringUtil.trim(txtFilterClientes.text.toLowerCase()); //Trimmed text String to filter by
-				var columnArray:Array = ['OBJECTID','nro_medidor','estado','tipo_edificacion','poste','direccion','estado_revision','lector','lectura_actual','created_user', 'created_date', 'estado_final']; //Datagrid column names to filter on
-				var gridDataProvider:ArrayCollection = this.coleccionClientes as ArrayCollection; //Name of datagrid's dataprovider. In this case e.g. databases
-				var dataGridName:String = 'DataClientesNuevos'; //Name of the datagrid you are filtering by
-				
-				//Do not edit code past this point
-				var filteredData:Array = [];
-				var added:Boolean=false;
-				var i:int;
-				var j:int;
-				
-				// Loop Through Grid
-				for(i=0; i < gridDataProvider.length; i++){    
-					added = false;
-					
-					//Loop through grid column
-					for(j=0; j<columnArray.length; j++){            
-						if(gridDataProvider[i][columnArray[j]]!=null){
-							
-							//Grab datagrid cell contents, trim it, and convert to lowercase for comparison.
-							var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
-							
-							//Compare the datagrid string(filterString) to the user typed string(filterText).  
-							if(!added){      
-								//If the datagrid string matches the users string, put it into the array.
-								if(filterString.indexOf(filterText) != -1){
-									filteredData.push(gridDataProvider[i]);
-									added = true;
-								} 
-							}else{
-								//Do nothing, break out.
-								break;
-							}
-						}    
-					}
-				}
-				
-				//Set datagrid dataprovider
-				if(filterText.length == 0){
-					this[dataGridName].dataProvider = gridDataProvider; //Display the original unfiltered data
-				}else{
-					this[dataGridName].dataProvider = filteredData; //Pusht he filtered data into the datagrid
-				}
-			}	
-			public function cargarListaClientesNuevosRango():void {
-				// TODO Auto-generated method stub
+			public function cargarListadoAnalisis():void{
+								
 				coleccionClientes.removeAll();
 				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURAS);
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = urls.URL_CONSUMO_ANUAL;
+				queryTask.useAMF = false;
 				var query:Query = new Query();
-				query.where = "created_date >=" + "'" +  dateDesde.text + "'" + "and created_date <=" + "'" + dateHasta.text + "'  AND (estado_final IS NULL OR estado_final <>'CARGADO')"; 
-				
+				query.where = "TEO <> 0"
 				query.outFields = ['*'];
-				query.orderByFields = ['created_date'];
 				query.returnGeometry = true;
 				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
-				
-				
-				
-				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
-				{
-					var k:int;
-					
-					
-					for(k=0;k<featureSet.features.length;k++)
-					{
-						
-						
-						var recordGraphic:Graphic = featureSet.features[k];
-						coleccionClientes.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
-							nro_medidor:recordGraphic.attributes["nro_medidor"],
-							estado:recordGraphic.attributes["estado"],
-							tipo_edificacion:recordGraphic.attributes["tipo_edificacion"],
-							poste:recordGraphic.attributes["poste"],
-							direccion:recordGraphic.attributes["direccion"],
-							estado_revision:recordGraphic.attributes["estado_revision"],
-							lector:recordGraphic.attributes["lector"],
-							created_user:recordGraphic.attributes["created_user"],
-							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
-							estado_final:recordGraphic.attributes["estado_final"],
-							lectura_actual: recordGraphic.attributes["lectura_actual"],
-							gra:recordGraphic});			
-					}
-					
-				}
-				function onFaultQuery(info:Object, token:Object = null):void
-				{   
-					Alert.show("Error en consulta","Carga de Lecturas");
-				}
-			}
-			
-			
-			
-			public function cargarListaClientesNuevos():void {
-				// TODO Auto-generated method stub
-				coleccionClientes.removeAll();
-				DataClientesNuevos.dataProvider = coleccionClientes;
-				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURAS);
-				var query:Query = new Query();
-				query.where = "estado_final  IS NULL OR estado_final  <> 'CARGADO'";
-				query.outFields = ['*'];
-				query.orderByFields = ['created_date'];
-				query.returnGeometry = true;
-				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
-				
-				
 				
 				function onResultQuery(featureSet:FeatureSet, token:Object = null):void{
-					var k:int;
-					
-					
-					for(k=0;k<featureSet.features.length;k++)
-					{
+					for(var k: int = 0;k<featureSet.features.length;k++){
 						
-						//Evelyn Hernández - 14.6.2017 - Arreglando problema con valores nulos.
 						var recordGraphic:Graphic = featureSet.features[k];
 						coleccionClientes.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
-							nro_medidor:recordGraphic.attributes["nro_medidor"],
-							estado:recordGraphic.attributes["estado"],
-							tipo_edificacion:recordGraphic.attributes["tipo_edificacion"],
-							poste:recordGraphic.attributes["poste"],
-							direccion:recordGraphic.attributes["direccion"],
-							estado_revision:recordGraphic.attributes["estado_revision"],
-							lector:recordGraphic.attributes["lector"],
-							created_user:recordGraphic.attributes["created_user"],
-							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
-							estado_final:recordGraphic.attributes["estado_final"],
-							lectura_actual: recordGraphic.attributes["lectura_actual"],
+							NIS:recordGraphic.attributes["nis"],							
+							TOTAL_FAC:recordGraphic.attributes["FACT"],
+							TOTAL_TEO:recordGraphic.attributes["TEO"],
+							TOTAL_ANUAL:recordGraphic.attributes["ANUAL"],
+							PORCENTAJE: recordGraphic.attributes["PORCENTAJE"],
+							/*PORCENTAJE:((recordGraphic.attributes["TEO"]==0) || (recordGraphic.attributes["FACT"]==0)) ? "100.00" : 
+							(trim(Math.abs((Number(featureSet.features[k].attributes["ANUAL"])*100.00) /Number(featureSet.features[k].attributes["TEO"])),2)),*/
 							gra:recordGraphic});			
 					}
 					
+					dgAnalisis.dataProvider = coleccionClientes;
 					
 				}
 				function onFaultQuery(info:Object, token:Object = null):void
 				{   
-					Alert.show("Error en consulta","Carga de Lecturas");
+					Alert.show("Error en consulta","Carga de AP Analisis");
 				}
 			}
 			
+			// Redondea un number a 2 decimales 
+			//trace(trim(1.12645, 2));  // Muestra: 1.13
 			
-			protected function basewidget1_creationCompleteHandler(event:FlexEvent):void
-			{
-				// TODO Auto-generated method stub
-				DataClientesNuevos.dataProvider = coleccionClientes;
+			public function trim(theNumber, decPlaces) {
+				if (decPlaces >= 0) {
+					var temp:Number = Math.pow(10, decPlaces);
+					return Math.round(theNumber * temp) / temp;
+				}
 			}
 			
-			public var myGraphic:Graphic;
-			
-			public var acPolyline:ArrayCollection = new ArrayCollection;
-			
-			public function DataClientesNuevos_itemClickHandler(event:ListEvent):void
-			{
-				anexo1="";
-				anexo2="";
-				tipoEdificacion="";
-				//buscar datos de detalle
-				//buscarDetalle(DataClientesNuevos.selectedItem['NIS'], DataClientesNuevos.selectedItem['OBJECTID']);
+			//Filtra o busca según tipo de busqueda
+			protected function filterGridClientes(event:Event):void{
 				
-				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURAS);
+				//preguntar si esta seleccionada nis o query de rango
 				
-				var query:Query = new Query();
-				
-				//7.6.2017: Evelyn Hernández - Arreglando problema de búsqueda de nis con más de una geometría. 
+				//Ninguna busqueda seleccionada
+				if(DDLTipoBusqueda.selectedIndex == -1){
+					Alert.show("Debe seleccionar un tipo de busqueda"); 
+					return;
+				}
+				//buscar por nis (filtrar datos)
+				if(DDLTipoBusqueda.selectedIndex == 0){
+					lblAviso.text =""
+					//Alert.show("Buscar (filtrar) por nis");
+					
+					/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
+					Everything else is dynamic. Do not edit variable names. */
+					var filterText:String = StringUtil.trim(txtBusqueda.text.toLowerCase()); //Trimmed text String to filter by
+					var columnArray:Array = ['NIS']; //Datagrid column names to filter on
+					var gridDataProvider:ArrayCollection = this.coleccionClientes as ArrayCollection; //Name of datagrid's dataprovider. In this case e.g. databases
+					var dataGridName:String = 'dgAnalisis'; //Name of the datagrid you are filtering by
+					
+					//Do not edit code past this point
+					var filteredData:Array = [];
+					var added:Boolean=false;
+					var i:int;
+					var j:int;
+					
+					// Loop Through Grid
+					for(i=0; i < gridDataProvider.length; i++){    
+						added = false;
+						
+						//Loop through grid column
+						for(j=0; j<columnArray.length; j++){            
+							if(gridDataProvider[i][columnArray[j]]!=null){
 								
-				query.where = "OBJECTID="+ DataClientesNuevos.selectedItem['OBJECTID'] + "and nro_medidor=" + DataClientesNuevos.selectedItem['nro_medidor'];
-				query.outFields = ['*'];
-				query.returnGeometry = true;
-				queryTask.execute(query, new AsyncResponder(onResultQuery2, onFaultQuery2));
-				
-				function onResultQuery2(featureSet2:FeatureSet, token:Object = null):void {
-					//Alert.show("Elementos " + featureSet2.features.length + " a:" + featureSet2.features[0].attributes['OBJECTID'] + featureSet2.features[0].attributes['SHAPE']  );
-					
-					//Evelyn Hernández - 14.6.2017 - Arreglada lógica para nis sin geometría ni atributos específicos. 
-						
-					if(!featureSet2.features.length){
-						Alert.show("No hay lecturas para mostrar.");
-						return;	
-					}else{
-						if(!featureSet2.features[0].geometry){
-							myGraphicsLayer.clear();
-							Alert.show("Lectura sin geometría para mostrar");
-							
-						}else{
-							myGraphicsLayer.clear();
-							map.level = 20;
-							var mp:MapPoint=featureSet2.features[0].geometry as MapPoint;
-							
-							var g:Graphic = new Graphic(mp,smsIdentify);
-							
-							
-							myGraphicsLayer.add(g);
-							map.addLayer(myGraphicsLayer);
-							map.zoomTo(featureSet2.features[0].geometry);
-							
-							/*var popupRenderer:ClassFactory = new ClassFactory(PopUpRenderer);
-							
-							
-							// Create the pop-up field infos for each field you want in the pop-up
-							field1 = new PopUpFieldInfo();
-							//field1.fieldName = 'nro_medidor';
-							field1.label = "Número Medidor: "+ featureSet2.features[0].attributes[""];
-							field1.visible = true;
-							
-							field2 = new PopUpFieldInfo();
-							field2.fieldName = "estado";
-							field2.format = new PopUpFieldFormat();
-							field2.label = "Estado: ";
-							field2.visible = true;
-							
-							field3 = new PopUpFieldInfo();
-							field3.fieldName = "tipo_edificacion";
-							field3.format = new PopUpFieldFormat();
-							field3.label = "Tipo Edificación: ";
-							field3.visible = true;
-							
-							field4 = new PopUpFieldInfo();
-							field4.fieldName = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.categoria";
-							field4.format = new PopUpFieldFormat();
-							field4.label = "Categoria: ";
-							field4.visible = true;
-							
-							field5 = new PopUpFieldInfo();
-							field5.fieldName = "poste";
-							field5.format = new PopUpFieldFormat();
-							field5.label = "Poste: ";
-							field5.visible = true;
-							
-							field6 = new PopUpFieldInfo();
-							field6.fieldName = "direccion";
-							field6.format = new PopUpFieldFormat();
-							field6.label = "Dirección: ";
-							field6.visible = true;
-							
-							field7 = new PopUpFieldInfo();
-							field7.fieldName = "estado_revision";
-							field7.format = new PopUpFieldFormat();
-							field7.label = "Estado Revisión: ";
-							field7.visible = true;
-							
-							field8 = new PopUpFieldInfo();
-							field8.fieldName = "created_user";
-							field8.format = new PopUpFieldFormat();
-							field8.label = "Creado por: ";
-							field8.visible = true;
-							
-							field9 = new PopUpFieldInfo();
-							field9.fieldName = "created_date";
-							field9.format = new PopUpFieldFormat();
-							field9.label = "Fecha creación: ";
-							field9.visible = true;
-							
-							field10 = new PopUpFieldInfo();
-							field10.fieldName = "lectura_actual";
-							field10.format = new PopUpFieldFormat();
-							field10.label = "Lectura actual: ";
-							field10.visible = true;
-							
-							field11 = new PopUpFieldInfo();
-							field11.fieldName = "lector";
-							field11.format = new PopUpFieldFormat();
-							field11.label = "Lector: ";
-							field11.visible = true;
-							
-							field12 = new PopUpFieldInfo();
-							field12.fieldName = "estado_final";
-							field12.format = new PopUpFieldFormat();
-							field12.label = "Estado final: ";
-							field12.visible = true;
-							var popUpInfo:PopUpInfo = new PopUpInfo();
-							popUpInfo.popUpFieldInfos = [ field1, field2, field3, field4, field5, field6, field7, field8, field9, field10, field11, field12];
-							popUpInfo.title = "Medidor: " + DataClientesNuevos.selectedItem['nro_medidor'];
-							popUpInfo.showZoomToButton = true;
-							
-							//	Configuración ventana infoWindow con graphic
-							popupRenderer.properties = { "popUpInfo": popUpInfo };
-							popUpRenderer.popUpInfo = popUpInfo;
-							popUpRenderer.graphic = g;
-							map.infoWindow.content = popUpRenderer;
-							map.infoWindow.contentOwner = popUpRenderer.graphic;
-							map.infoWindow.show(mp);
-							
-							
-						
-							map.infoWindow.show(mp);
-							*/
-						}
-						
-					}
-					
-				}
-				function onFaultQuery2(info:Object, token:Object = null):void{   
-					Alert.show("Error al buscar lectura, intente nuevamente");
-				}
-			}
-			
-			public function buscarDetalle(nis:int, objid: int):void{
-				
-				nisBuscado = String(nis);
+								//Grab datagrid cell contents, trim it, and convert to lowercase for comparison.
+								var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
 								
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURAS);
-				var query:Query = new Query();
-				query.where = "nro_medidor="+ nis + "and OBJECTID="+objid;
-				query.outFields = ['*'];
-				query.returnGeometry = true;
-				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
-				
-				function onResultQuery(featureSet2:FeatureSet, token:Object = null):void {
-					//Evelyn Hernández - 14.6.2017  - Cambiada lógica de detalle de nis.
-					if(!featureSet2.features.length){
-						Alert.show("No hay detalle para la lectura");
-						direccionCompleta = "";
-						rotuloEncontrado = "";
-					}else{
-						//buscarDireccion(featureSet2.features[0].attributes['ID_DIRECCION']);
-						//buscarRotulo(featureSet2.features[0].attributes['ID_POSTE_CAMARA']);
-					}
-										
-				}
-				function onFaultQuery(info:Object, token:Object = null):void{   
-					Alert.show("Hubo un problema buscando el detalle de la lectura, intente nuevamente.");
-				}
-			}
-			
-			/*public function buscarDireccion(idDir:int):void {
-				var queryTask2:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_DIRECCIONES);
-				var query2:Query = new Query();
-				query2.where = "id_direccion="+ idDir;
-				query2.outFields = ['*'];
-				query2.returnGeometry = false;
-				queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
-				
-				function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
-					
-					if (featureSet3.attributes.length>0){
-						direccionCompleta = featureSet3.features[0].attributes['nombre_calle'] + " "+ featureSet3.features[0].attributes['numero'] + " - Según SW"  ;
-					}else{
-						buscarEnExternosDir(idDir);
-					}
-				}
-				function onFaultQuery3(info:Object, token:Object = null):void{   
-					Alert.show("Hubo problemas buscando la dirección (antigua) del nis, intente nuevamente");
-				}
-			}
-			
-			public function buscarEnExternosDir(idD:int):void{
-				
-				var queryTask2:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_CREAR_DIRECCION);
-				var query2:Query = new Query();
-				query2.where = "OBJECTID="+ idD;
-				query2.outFields = ['*'];
-				query2.returnGeometry = false;
-				queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
-				
-				function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
-					//Evelyn Hernández - 14.6.2017
-					//Cambiando lógica de direcciones nuevas
-					if(featureSet3.features.length){
-						direccionCompleta = featureSet3.features[0].attributes['CALLE'] + " " + featureSet3.features[0].attributes['NUMERO'] + " - Según TECNORED" ;
-						tipoEdificacion = featureSet3.features[0].attributes['TIPO_EDIFICACION'];
-						
-						if (featureSet3.features[0].attributes['ANEXO1']=="") {
-							anexo1 = ""; 
-							
-							if(featureSet3.features[0].attributes['ANEXO2']==""){
-								anexo2 = ""; 
-							}
-							
-							
-						}else{
-							anexo1 = featureSet3.features[0].attributes['ANEXO1'] + " - Según TECNORED"; 
-							if (featureSet3.features[0].attributes['ANEXO2']==""){
-								anexo2 = ""; 
-							}else {
-								anexo2 =  featureSet3.features[0].attributes['ANEXO2'] + " - Según TECNORED"; 
-							}
-							
+								//Compare the datagrid string(filterString) to the user typed string(filterText).  
+								if(!added){      
+									//If the datagrid string matches the users string, put it into the array.
+									if(filterString.indexOf(filterText) != -1){
+										filteredData.push(gridDataProvider[i]);
+										added = true;
+									} 
+								}else{
+									//Do nothing, break out.
+									break;
+								}
+							}    
 						}
-					}else{
-						direccionCompleta= "";
-						tipoEdificacion = "";
 					}
-									
+					
+					//Set datagrid dataprovider
+					if(filterText.length == 0){
+						this[dataGridName].dataProvider = gridDataProvider; //Display the original unfiltered data
+					}else{
+						this[dataGridName].dataProvider = filteredData; //Pusht he filtered data into the datagrid
+					}
+				
+				//buscar por rango de porcentaje (en servicio)
+				}else{
+					//Alert.show("Buscar por rango");
+					//buscarRangoPorciento();
+					lblAviso.text ="Presione el botón para buscar el rango de porcentaje."
+						
+					/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
+					Everything else is dynamic. Do not edit variable names. */
+					/*var filterText:String = StringUtil.trim(txtBusqueda.text.toLowerCase()); //Trimmed text String to filter by
+					var columnArray:Array = ['PORCENTAJE']; //Datagrid column names to filter on
+					var gridDataProvider:ArrayCollection = this.coleccionClientes as ArrayCollection; //Name of datagrid's dataprovider. In this case e.g. databases
+					var dataGridName:String = 'dgAnalisis'; //Name of the datagrid you are filtering by
+					
+					//Do not edit code past this point
+					var filteredData:Array = [];
+					var added:Boolean=false;
+					var i:int;
+					var j:int;
+					
+					// Loop Through Grid
+					for(i=0; i < gridDataProvider.length; i++){    
+						added = false;
+						
+						//Loop through grid column
+						for(j=0; j<columnArray.length; j++){            
+							if(gridDataProvider[i][columnArray[j]]!=null){
+								
+								//Grab datagrid cell contents, trim it, and convert to lowercase for comparison.
+								var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
+								
+								//Compare the datagrid string(filterString) to the user typed string(filterText).  
+								if(!added){      
+									//If the datagrid string matches the users string, put it into the array.
+									if(filterString.indexOf(filterText) != -1){
+										filteredData.push(gridDataProvider[i]);
+										added = true;
+									} 
+								}else{
+									//Do nothing, break out.
+									break;
+								}
+							}    
+						}
+					}
+					
+					//Set datagrid dataprovider
+					if(filterText.length == 0){
+						this[dataGridName].dataProvider = gridDataProvider; //Display the original unfiltered data
+					}else{
+						this[dataGridName].dataProvider = filteredData; //Pusht he filtered data into the datagrid
+					}	*/
+						
+						
+						
 				}
-				function onFaultQuery3(info:Object, token:Object = null):void{   
-					Alert.show("Hubo un problema buscando la dirección (nueva) asociada al nis, intente nuevamente");
-				}
+				
+			}	
+			
+			public function buscarRangoPorciento():void{
+				
 			}
 			
-			public function buscarRotulo(ipc:int):void{
-				var queryTask2:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_ROTULOS);
-				var query2:Query = new Query();
-				query2.where = "id_nodo="+ ipc;
-				query2.outFields = ['rotulo'];
-				query2.returnGeometry = false;
-				queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
-				
-				function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
-					
-					if (featureSet3.attributes.length>0){
-						rotuloEncontrado = featureSet3.features[0].attributes['rotulo'] + "  - Según SW";
-					}else{
-						buscarEnExternos(ipc);
-					}
-				}
-				function onFaultQuery3(info:Object, token:Object = null):void{   
-					Alert.show("Hubo un problema buscando el rótulo (antiguo) del nis, intente nuevamente");
-					
-				}
-			}
-			
-			public function buscarEnExternos(idpEx:int):void{
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_CREAR_POSTES);
-				var query:Query = new Query();
-				query.where = "OBJECTID="+ idpEx;
-				query.outFields = ['*'];
-				query.returnGeometry = true;
-				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
-				
-				function onResultQuery(featureSet2:FeatureSet, token:Object = null):void {
-					if(!featureSet2.features.length){
-						rotuloEncontrado = "";
-						return;
-					}
-					rotuloEncontrado = featureSet2.features[0].attributes['ROTULO'] + " - Según TECNORED";
-				}
-				function onFaultQuery(info:Object, token:Object = null):void {   
-					Alert.show("Hubo un problema buscando el rótulo (nuevo) del nis, intente nuevamente");
-				}
-			}
-			*/
 			private var ef:ExcelFile;
 			private var ba:ByteArray;
 			private var fr:FileReference;
 			private var frSave:FileReference;
+			
 			protected function btnExportarDatosClientes_clickHandler(event:MouseEvent):void
 			{
 				
 				// TODO Auto-generated method stub
 				switch(event.currentTarget.id)
 				{
-					case "btnExportarDatosClientes":
+					case "btnExportar1":
 					{
 						
 						var s:Sheet = new Sheet();
 						s.resize(coleccionClientes.length+1,12);
-						s.setCell(0,0,"ID");
-						s.setCell(0,1,"NUMERO MEDIDOR");
-						s.setCell(0,2,"ESTADO");
-						s.setCell(0,3,"TIPO_EDIFICACION");
-						s.setCell(0,4,"POSTE");
-						s.setCell(0,5,"DIRECCION");
-						s.setCell(0,6,"ESTADO_REVISION");
-						s.setCell(0,7,"LECTOR");
-						s.setCell(0,8,"CREADO_POR");
-						s.setCell(0,9,"FECHA_CREACION");
-						s.setCell(0,10,"ESTADO_FINAL");
-						s.setCell(0,11,"LECTURA_ACTUAL");
+						s.setCell(0,0,"NIS");
+						s.setCell(0,1,"TOTAL_FACT");
+						s.setCell(0,2,"TOTAL_TEO");
+						s.setCell(0,3,"TOTAL_ANUAL");
+						s.setCell(0,4,"PORCENTAJE(%)");
+						
 						for(var j:int=0;j<coleccionClientes.length;j++)
 						{
-							s.setCell(j+1,0,coleccionClientes[j].OBJECTID);										
-							s.setCell(j+1,1,coleccionClientes[j].nro_medidor);
-							s.setCell(j+1,2,coleccionClientes[j].estado);
-							s.setCell(j+1,3,coleccionClientes[j].tipo_edificacion);
-							s.setCell(j+1,4,coleccionClientes[j].poste);
-							s.setCell(j+1,5,coleccionClientes[j].direccion);
-							s.setCell(j+1,6,coleccionClientes[j].estado_revision);
-							s.setCell(j+1,7,coleccionClientes[j].lector);
-							s.setCell(j+1,8,coleccionClientes[j].created_user);
-							s.setCell(j+1,9,coleccionClientes[j].created_date);
-							s.setCell(j+1,10,coleccionClientes[j].estado_final);
-							s.setCell(j+1,11,coleccionClientes[j].lectura_actual);
+							/*
+							<mx:DataGridColumn dataField="OBJECTID" headerText="OBJECTID" width="30" visible="false"/>                                                         
+							<mx:DataGridColumn dataField="NIS" headerText="NIS" width="50" /> 
+							<mx:DataGridColumn dataField="TOTAL_FAC" headerText="TOTAL_FAC" visible="true" width="50" />
+							<mx:DataGridColumn dataField="TOTAL_TEO" headerText="TOTAL_TEO" visible="true" width="50" />
+							<mx:DataGridColumn dataField="TOTAL_ANUAL" headerText="TOTAL_ANUAL" visible="true" width="50" />
+							<mx:DataGridColumn dataField="PORCENTAJE" headerText="PORCENTAJE (%)" width="50"/>
+							 * */
+							s.setCell(j+1,0,coleccionClientes[j].NIS);										
+							s.setCell(j+1,1,coleccionClientes[j].TOTAL_FAC);
+							s.setCell(j+1,2,coleccionClientes[j].TOTAL_TEO);
+							s.setCell(j+1,3,coleccionClientes[j].TOTAL_ANUAL);
+							s.setCell(j+1,4,coleccionClientes[j].PORCENTAJE);
+							
 						}
 						
 						try {
@@ -701,7 +406,7 @@
 							
 							var fileBytes:ByteArray = fileTosave.saveToByteArray();
 							frSave = new FileReference();
-							frSave.save(fileBytes,"ExportacionAdmLectores.xls");
+							frSave.save(fileBytes,"ExportacionAnalisisAP.xls");
 							frSave.addEventListener(Event.COMPLETE,grabadoListo);
 							
 						}catch(e:ErrorMessage){
@@ -713,8 +418,7 @@
 					}
 						
 						
-					default:
-					{
+					default:{
 						//Alert.show("Ningun archivo ha sido generado");
 						break;
 					}
@@ -725,120 +429,662 @@
 				Alert.show("Listo");
 			}
 			
-			protected function wTemplate_initializeHandler(event:FlexEvent):void
-			{
-				coleccionEstados.removeAll();
-				coleccionEstados = new ArrayCollection(				
-					[ {item:"REVISADO"},
-						{item:""}]);
-				
-				
-				DDLEstadoCliente.dataProvider = coleccionEstados;
-			}
-			
-			protected function btnCambiarEstadoCliente_clickHandler(event:MouseEvent):void
-			{
-				// TODO Auto-generated method stub
-				if (DataClientesNuevos.selectedIndex>=0){
-					//Layer que se ocupa para las actividades
-					var myActLayer:FeatureLayer = new FeatureLayer(urls.URL_LECTURAS);
-					//cambiar estado
-					var ModClientesNuevos:* = new Object;
-					
-					ModClientesNuevos["OBJECTID"]= DataClientesNuevos.selectedItem['OBJECTID'];
-					//Alert.show(String(DDLEstadoCliente.selectedItem.item));
-					ModClientesNuevos["estado_final"]= DDLEstadoCliente.selectedItem.item;
-					
-					
-					var graficoEditadoActual:Graphic = new Graphic;
-					
-					graficoEditadoActual = new Graphic(null,null,ModClientesNuevos);
-					
-					myActLayer.applyEdits(null,[graficoEditadoActual],null, false,new AsyncResponder(onResult, onFault));
-					
-					
-					function onResult():void
-					{      
-						Alert.show("Medidor: " + DataClientesNuevos.selectedItem['nro_medidor'] + " modificado" );
-						cargarListaClientesNuevos();
-						
-					}
-					
-					function onFault(info:Object, token:Object = null):void
-					{
-						Alert.show("Error al modificar el medidor.  Contáctese con el administrador de GISRED. "+info.toString());
-					}
-					
-					
-				}else{
-					Alert.show("Debe seleccionar un medidor de la tabla para cambiar su estado");
-				}
-			}
-			
-			protected function bkmInit_initializeHandler(event:FlexEvent):void
-			{
+			protected function bkmInit_initializeHandler(event:FlexEvent):void{
 				// TODO Auto-generated method stub
 				var verImageGISRED:Image = new Image;
 				
 				//imagen configuraciones
 				verImageGISRED.scaleContent = true;
 				verImageGISRED.maintainAspectRatio =false;
-				verImageGISRED.percentWidth = 850;
+				verImageGISRED.percentWidth = 870;
 				verImageGISRED.percentHeight = 500;
 				verImageGISRED.source =  "assets/images/128x128.png";
 				pbGisred.addChild(verImageGISRED);
 				
 			}
-			protected function btnRangoFecha_clickHandler(event:MouseEvent):void
-			{
+			
+			protected function btnBusquedaImg_clickHandler(event:MouseEvent):void{
 				// TODO Auto-generated method stub
-				cargarListaClientesNuevosRango();
-			}
-			private function dateChooser_init(dt:DateField):void {
-				dt.text = "Desde";
-				dt.dayNames=['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
-				dt.monthNames=[	'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-					'Julio', 'Agosto', 'Septiembre', 'Octubre',
-					'Noviembre', 'Diciembre'];
-				dt.firstDayOfWeek = 1;
-				dt.formatString = "DD/MM/YYYY";
-			}
-			private function dateChooser2_init(dt:DateField):void {
-				dt.text = "Hasta";
-				dt.dayNames=['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
-				dt.monthNames=[	'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-					'Julio', 'Agosto', 'Septiembre', 'Octubre',
-					'Noviembre', 'Diciembre'];
-				dt.firstDayOfWeek = 1;
-				dt.formatString = "DD/MM/YYYY";
 			}
 			
-			protected function image1_clickHandler(event:MouseEvent):void
+			protected function DDLTipoBusqueda_changeHandler(event:IndexChangeEvent):void
 			{
 				// TODO Auto-generated method stub
+				txtBusqueda.text="";
+				lblAviso.text="";
+			}
+			
+			protected function dgAnalisis_itemClickHandler(event:ListEvent):void{
+				// TODO Auto-generated method stub
+				currentState ="bkmConsultaMeses";
+				bkmConsultaMeses.visible = true;
+				wTemplate.height = 350;
+				wTemplate.width = 800;
+				//myViewStack.selectedIndex = 0;
+				//poblar grids teorico / facturado
+				
+				valoresTeoricos(dgAnalisis.selectedItem['NIS']);
+				valoresFacturados(dgAnalisis.selectedItem['NIS']);
+				buscarEquipoAP(dgAnalisis.selectedItem['NIS']);
+				//editar label para nis seleccionado.
+				lblCurrentNISSelected.text = "Seleccionado |  NIS: "+ dgAnalisis.selectedItem['NIS'];
+				
+			}
+			
+			public function valoresTeoricos(nis: int):void{
+				lbltotalsumt.text = "";
+				coleccionTeorica.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = urls.URL_CONSUMOS_TEORICOS;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.where = "nis=" + nis;
+				query.outFields = ['*'];
+				query.returnGeometry = false;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void{
+					var k:int;
+					if(!featureSet.features.length){
+						lbltotalsumt.text = "";
+					}else{
+						//calcular segun la fecha de origen:
+						calcular12Meses(featureSet.features[0].attributes["periodo_ini"], "TEORICO");
+						//Alert.show(coleccionMeses.length.toString());
+						for(var k:int = 0; k<featureSet.features.length; k++){
+							
+							var recordGraphic:Graphic = featureSet.features[k];
+							coleccionTeorica.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+								NIS:recordGraphic.attributes["nis"],							
+								PERIODO:recordGraphic.attributes["periodo_ini"],
+								t_mes0:recordGraphic.attributes["mes_0"],
+								t_mes1:recordGraphic.attributes["mes_1"],
+								t_mes2:recordGraphic.attributes["mes_2"],
+								t_mes3:recordGraphic.attributes["mes_3"],
+								t_mes4:recordGraphic.attributes["mes_4"],
+								t_mes5:recordGraphic.attributes["mes_5"],
+								t_mes6:recordGraphic.attributes["mes_6"],
+								t_mes7:recordGraphic.attributes["mes_7"],
+								t_mes8:recordGraphic.attributes["mes_8"],
+								t_mes9:recordGraphic.attributes["mes_9"],
+								t_mes10:recordGraphic.attributes["mes_10"],
+								t_mes11:recordGraphic.attributes["mes_11"],
+								t_mes12:recordGraphic.attributes["mes_12"],
+								gra:recordGraphic});
+							
+							sumt = Number(
+								featureSet.features[k].attributes["mes_0"]+
+								featureSet.features[k].attributes["mes_1"]+
+								featureSet.features[k].attributes["mes_2"]+
+								featureSet.features[k].attributes["mes_3"]+
+								featureSet.features[k].attributes["mes_4"]+
+								featureSet.features[k].attributes["mes_5"]+
+								featureSet.features[k].attributes["mes_6"]+
+								featureSet.features[k].attributes["mes_7"]+
+								featureSet.features[k].attributes["mes_8"]+
+								featureSet.features[k].attributes["mes_9"]+
+								featureSet.features[k].attributes["mes_10"]+
+								featureSet.features[k].attributes["mes_11"]+
+								featureSet.features[k].attributes["mes_12"]);
+							lbltotalsumt.text = sumt.toString();
+						}
+					}
+					
+					
+					dgTeorico.dataProvider = coleccionTeorica;
+					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","Carga de AP Analisis Teorico");
+				}
+			}
+			
+			public function valoresFacturados(nis:String):void{
+				lbltotalsumf.text = "";
+				coleccionFacturada.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = urls.URL_CONSUMOS_FACTURADOS;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.where = "nis=" + nis;
+				query.outFields = ['*'];
+				query.returnGeometry = false;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void{
+					if(!featureSet.features.length){
+						lbltotalsumf.text = "";
+					}else{
+						calcular12Meses(featureSet.features[0].attributes["periodo_ini"], "FACTURADO");
+						for(var k: int = 0;k<featureSet.features.length;k++){
+							
+							var recordGraphic:Graphic = featureSet.features[k];
+							coleccionFacturada.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+								NIS:recordGraphic.attributes["nis"],							
+								PERIODO:recordGraphic.attributes["periodo_ini"],
+								f_mes0:recordGraphic.attributes["mes_0"],
+								f_mes1:recordGraphic.attributes["mes_1"],
+								f_mes2:recordGraphic.attributes["mes_2"],
+								f_mes3:recordGraphic.attributes["mes_3"],
+								f_mes4:recordGraphic.attributes["mes_4"],
+								f_mes5:recordGraphic.attributes["mes_5"],
+								f_mes6:recordGraphic.attributes["mes_6"],
+								f_mes7:recordGraphic.attributes["mes_7"],
+								f_mes8:recordGraphic.attributes["mes_8"],
+								f_mes9:recordGraphic.attributes["mes_9"],
+								f_mes10:recordGraphic.attributes["mes_10"],
+								f_mes11:recordGraphic.attributes["mes_11"],
+								f_mes12:recordGraphic.attributes["mes_12"],
+								gra:recordGraphic});	
+							
+							sumf = Number(
+								featureSet.features[k].attributes["mes_0"]+
+								featureSet.features[k].attributes["mes_1"]+
+								featureSet.features[k].attributes["mes_2"]+
+								featureSet.features[k].attributes["mes_3"]+
+								featureSet.features[k].attributes["mes_4"]+
+								featureSet.features[k].attributes["mes_5"]+
+								featureSet.features[k].attributes["mes_6"]+
+								featureSet.features[k].attributes["mes_7"]+
+								featureSet.features[k].attributes["mes_8"]+
+								featureSet.features[k].attributes["mes_9"]+
+								featureSet.features[k].attributes["mes_10"]+
+								featureSet.features[k].attributes["mes_11"]+
+								featureSet.features[k].attributes["mes_12"]);
+							
+							lbltotalsumf.text = sumf.toString();
+						}		
+					}
+					
+					
+					dgFacturado.dataProvider = coleccionFacturada;
+					periodo = featureSet.features[0].attributes["periodo_ini"]
+					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","Carga de AP Analisis Facturado");
+				}
+			}
+			
+			
+			//Calculo 12 meses anteriores
+			public function calcular12Meses(perIni:Number, tipoAnalisis:String):void{
+				//para analisis teorico
+				if(tipoAnalisis=="TEORICO"){
+					coleccionMeses.removeAll();
+					
+					//t_mes0.headerText = "Agosto";
+					var dateFormatStr:String = "MM"; 
+					
+					var m0:String = msToDate(perIni,dateFormatStr,true);
+					t_mes0.headerText = int(m0).toString(); 
+					
+					var i:int = int(m0);
+					var m:int = 12;
+					
+					for (i; i <= m; i++){
+						coleccionMeses.addItem({mes:i});
+						
+						if(i==12){
+							i=0;
+							m=int(m0);
+						}
+					}
+					
+					for (var j:int = 0; j < coleccionMeses.length; j++){
+						//Alert.show(coleccionMeses[j]["mes"].toString());
+						switch(j)
+						{
+							case 0:{
+								t_mes12.headerText = coleccionMeses[j]["mes"].toString();
+								break;
+							}
+							case 1:{
+								
+								t_mes11.headerText = coleccionMeses[j]["mes"].toString();
+								break;
+							}
+							case 2:{
+								
+								t_mes10.headerText = coleccionMeses[j]["mes"].toString();
+								break;
+							}
+							case 3:{
+								
+								t_mes9.headerText = coleccionMeses[j]["mes"].toString();
+								break;
+							}
+							case 4:{
+								t_mes8.headerText = coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 5:{
+								t_mes7.headerText = coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 6:{
+								t_mes6.headerText= coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 7:{
+								t_mes5.headerText = coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 8:{
+								t_mes4.headerText = coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 9:{
+								t_mes3.headerText = coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 10:{
+								t_mes2.headerText= coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 11:{
+								t_mes1.headerText = coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+								
+								
+							default:
+							{
+								break;
+							}
+						}
+					}
+				
+				}
+				if(tipoAnalisis=="FACTURADO"){
+					coleccionMeses.removeAll();
+					
+					//t_mes0.headerText = "Agosto";
+					var dateFormatStr:String = "MM"; 
+					
+					var m0:String = msToDate(perIni,dateFormatStr,true);
+					f_mes0.headerText = int(m0).toString(); 
+					
+					var i:int = int(m0);
+					var m:int = 12;
+					
+					for (i; i <= m; i++){
+						coleccionMeses.addItem({mes:i});
+						
+						if(i==12){
+							i=0;
+							m=int(m0);
+						}
+					}
+					
+					for (var j:int = 0; j < coleccionMeses.length; j++){
+						//Alert.show(coleccionMeses[j]["mes"].toString());
+						switch(j)
+						{
+							case 0:{
+								f_mes12.headerText = coleccionMeses[j]["mes"].toString();
+								break;
+							}
+							case 1:{
+								
+								f_mes11.headerText = coleccionMeses[j]["mes"].toString();
+								break;
+							}
+							case 2:{
+								
+								f_mes10.headerText = coleccionMeses[j]["mes"].toString();
+								break;
+							}
+							case 3:{
+								
+								f_mes9.headerText = coleccionMeses[j]["mes"].toString();
+								break;
+							}
+							case 4:{
+								f_mes8.headerText = coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 5:{
+								f_mes7.headerText = coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 6:{
+								f_mes6.headerText= coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 7:{
+								f_mes5.headerText = coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 8:{
+								f_mes4.headerText = coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 9:{
+								f_mes3.headerText = coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 10:{
+								f_mes2.headerText= coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+							case 11:{
+								f_mes1.headerText = coleccionMeses[j]["mes"].toString();
+								
+								break;
+							}
+								
+								
+							default:
+							{
+								break;
+							}
+						}
+					}
+					
+				}
+				
+			}
+			
+			/*
+			* return a date string from a number and a format string and use UTC value
+			* @param Number ms the number representation of the date
+			* @param String dateFormat the date format to return the string in
+			* @param Boolean useUTC wheter ofr not the date is UTC or local time
+			*/
+			private function msToDate(ms:Number, dateFormat:String, useUTC:Boolean):String  
+			{  
+				var date:Date = new Date(ms);  
+				if (date.milliseconds == 999){ // workaround for REST bug  
+					date.milliseconds++;  
+				}  
+				if (useUTC){  
+					date.minutes += date.timezoneOffset;  
+				}  
+				if (dateFormat){		
+					
+					dateFormatter.dateTimePattern = dateFormat;  
+					var result:String = dateFormatter.format(date);  
+					if (result){  
+						return result;  
+					}else{  
+						return dateFormatter.errorText;  
+					}  
+				}else{  
+					return date.toLocaleString(); 
+					
+				}  
+			}  
+			
+			//buscar id equipo ap
+			protected function buscarEquipoAP(nis:int):void
+			{
+				graphicsLayer.clear();
+				var queryTaskEquipo:QueryTask = new QueryTask();
+				queryTaskEquipo.url = urls.URL_MEDIDOR;
+				queryTaskEquipo.useAMF = false;
+				var queryEquipo:Query = new Query();
+				queryEquipo.outFields = ["id_medidor","nis"];
+				queryEquipo.returnGeometry = true;
+				queryEquipo.where = "nis="+ nis;
+				queryTaskEquipo.execute(queryEquipo, new AsyncResponder(onResult, onFault));
+				
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					for each (var myGraphic:Graphic in featureSet.features)
+					{	
+						myGraphic.symbol=slsFindMedidor;
+						graphicsLayer.add(myGraphic); 
+						map.zoomTo(myGraphic.geometry);
+						gridEquipoxTramo(featureSet.features[0].attributes["id_medidor"]);
+						luminariasAsociadas(featureSet.features[0].attributes["id_medidor"]);
+					}
+					map.addLayer(graphicsLayer);
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("no se puede cargar equipo "+ info.toString());
+				}
+				
+			}
+			
+			public function luminariasAsociadas(id:String):void
+			{
+				coleccion2.removeAll();
+				var queryTaskEq:QueryTask = new QueryTask();
+				queryTaskEq.url = urls.URL_LUMINARIAS;
+				queryTaskEq.useAMF = false;
+				var queryEq:Query = new Query();
+				queryEq.outFields = ["*"];
+				queryEq.returnGeometry = true;				
+				queryEq.where = "ID_EQUIPO_AP =" + id ;
+				queryEq.spatialRelationship ="esriSpatialRelIntersects";
+				queryEq.outSpatialReference = map.spatialReference;
+				queryTaskEq.execute(queryEq, new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					try{
+						coleccion2.addAll(new ArrayCollection(featureSet.attributes));
+						for (var i:int; i<featureSet.features.length; i++) 
+						{
+							var mp:MapPoint=featureSet.features[i].geometry as MapPoint;
+							var g:Graphic = new Graphic(new MapPoint(mp.x,mp.y, new SpatialReference(102100)));
+							g.symbol =  new SimpleMarkerSymbol("diamond", 15,0x00FF00,0.7);
+							graphicsLayer.add(g);
+						}
+						
+						map.addLayer(graphicsLayer);
+						dgListadoLuminarias.dataProvider = coleccion2;
+					}catch(err:Error){
+						Alert.show("No se pudo cargar los datos, por favor refrescar la página");
+					}
+				}
+				function onFault(info:Object, token:Object = null):void
+				{   
+					Alert.show("equipos no encontrados");
+				}
+			}
+			
+			protected function gridEquipoxTramo(seleccionado:int):void
+			{   
+				var queryTaskEquipoSelected:QueryTask = new QueryTask();
+				queryTaskEquipoSelected.url = urls.URL_TRAMOS;
+				queryTaskEquipoSelected.useAMF = false;
+				var queryEquipoSelected:Query = new Query();
+				queryEquipoSelected.outFields = ["*"];
+				queryEquipoSelected.returnGeometry = true;				
+				queryEquipoSelected.where = "id_equipo_ap =" + seleccionado;			
+				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryEquipoSelected.outSpatialReference = map.spatialReference;
+				queryTaskEquipoSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
+				
+				var arrPoints:Array = new Array;
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					try{
+						for each (var myGraphic:Graphic in featureSet.features)
+						{
+							myGraphic.symbol=slsFindMedidorxTramo;
+							graphicsLayer.add(myGraphic); 
+							
+						}
+						
+					}catch(err:Error){
+						Alert.show("no se pudo cargar el tramo del equipo asociado");
+					}
+				}
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					Alert.show("id de equipo no encontrada para asociacion con tramo");
+				}
+			}
+			
+			protected function btnVolverAtras_clickHandler(event:MouseEvent):void{
+				currentState ="bkmConsulta";
+				bkmConsulta.visible = true;
+				wTemplate.height = 350;
+				wTemplate.width = 800;
+			}
+			
+			protected function btnVerDetalle_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				currentState ="bkmConsultaDetalle";
+				bkmConsultaDetalle.visible = true;
+				wTemplate.height = 350;
+				wTemplate.width = 800;
+				
+				lblCurrentNISSelected2.text = "Seleccionado |  NIS: "+ dgAnalisis.selectedItem['NIS'];
+			}
+			
+			protected function btnVolverInicio_clickHandler(event:MouseEvent):void
+			{
+				
+				currentState ="bkmConsulta";
+				bkmConsulta.visible = true;
+				wTemplate.height = 350;
+				wTemplate.width = 800;
+			}
+			
+			protected function btnVolverAtrasMeses_clickHandler(event:MouseEvent):void
+			{
+				currentState ="bkmConsultaMeses";
+				bkmConsultaMeses.visible = true;
+				wTemplate.height = 350;
+				wTemplate.width = 800;
+				
+			}
+			
+			protected function dgListadoLuminarias_itemClickHandler(event:ListEvent):void
+			{
+				// TODO Auto-generated method stub
+				graphicsLayer.remove(g);	
+				var queryTaskLumSel:QueryTask = new QueryTask();
+				queryTaskLumSel.url = urls.URL_LUMINARIAS;
+				queryTaskLumSel.useAMF = false;
+				var queryLumSel:Query = new Query();
+				queryLumSel.outFields = ["*"];
+				queryLumSel.returnGeometry = true;
+				queryLumSel.where = "ID_LUMINARIA =" + dgListadoLuminarias.selectedItem['ID_LUMINARIA'];	
+				queryLumSel.spatialRelationship ="esriSpatialRelIntersects";
+				queryLumSel.outSpatialReference = map.spatialReference;
+				queryTaskLumSel.execute(queryLumSel, new AsyncResponder(onResult, onFault));
+				
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					try{
+						
+						map.zoomTo(featureSet.features[0].geometry);				
+						map.level = 18;
+						
+						var mp:MapPoint=featureSet.features[0].geometry as MapPoint;
+						
+						g = new Graphic(new MapPoint(mp.x,mp.y, new SpatialReference(102100)));
+						g.symbol =  new SimpleMarkerSymbol("circle",20,0xFF00FF,1);
+						graphicsLayer.add(g);
+						
+						
+						
+					}catch(err:Error){
+						Alert.show("no se pudo hacer zoom a la luminaria seleccionada");
+					}
+					
+				}
+				
+				function onFault(info:Object, token:Object = null):void{   
+					Alert.show("id de luminaria no encontrada");
+				}
+				
+			}
+			
+			protected function canvasFacturado_tabEnabledChangeHandler(event:Event):void{
+				// TODO Auto-generated method stub
+				dgFacturado.dataProvider = coleccionFacturada;
+				Alert.show("hola"+event.currentTarget.id);
+				//calcular12Meses(periodo, "FACTURADO");
+			}
+			
+			protected function imgBusqueda_clickHandler(event:MouseEvent):void{
+				// TODO Auto-generated method stub
+				//Buscar rango de porcentaje entre [-% y +%]
+				
+				
 				coleccionClientes.removeAll();
-				cargarListaClientesNuevos();
-				DataClientesNuevos.dataProvider = coleccionClientes;
+				var neg:Number = Number(txtBusqueda.text);
+				neg = -neg;
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = urls.URL_CONSUMO_ANUAL;
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.where = "(PORCENTAJE > " + txtBusqueda.text + "OR PORCENTAJE <"+neg + ") AND TEO <> 0";
+				query.outFields = ['*'];
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void{
+					for(var k: int = 0;k<featureSet.features.length;k++){
+						
+						var recordGraphic:Graphic = featureSet.features[k];
+						coleccionClientes.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+							NIS:recordGraphic.attributes["nis"],							
+							TOTAL_FAC:recordGraphic.attributes["FACT"],
+							TOTAL_TEO:recordGraphic.attributes["TEO"],
+							TOTAL_ANUAL:recordGraphic.attributes["ANUAL"],
+							PORCENTAJE: recordGraphic.attributes["PORCENTAJE"],
+							/*PORCENTAJE:((recordGraphic.attributes["TEO"]==0) || (recordGraphic.attributes["FACT"]==0)) ? "100.00" : 
+							(trim(Math.abs((Number(featureSet.features[k].attributes["ANUAL"])*100.00) /Number(featureSet.features[k].attributes["TEO"])),2)),*/
+							gra:recordGraphic});			
+					}
+					
+					dgAnalisis.dataProvider = coleccionClientes;
+					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","Búsqueda de Analisis por Porcentaje");
+				}
+				
 			}
 			
-			protected function wTemplate_closedHandler(event:Event):void
-			{
+			protected function btnRecargar_clickHandler(event:MouseEvent):void{
 				// TODO Auto-generated method stub
-				// TODO Auto-generated method stub
-				map.removeLayer(lecturasLayer);
+				cargarListadoAnalisis();
 			}
 			
-			protected function wTemplate_openHandler(event:Event):void
-			{
+			protected function btnExportar1_clickHandler(event:MouseEvent):void{
 				// TODO Auto-generated method stub
-				openLayer();
+				
 			}
 			
 		]]>
 	</fx:Script>
 	<viewer:WidgetTemplate id="wTemplate"                      
-						   width="850" height="500"
-						   visible="true" initialize="wTemplate_initializeHandler(event)" closed="wTemplate_closedHandler(event)" open="wTemplate_openHandler(event)">
+						   width="870" height="500"
+						   visible="true">
 		
 		<s:Group id="bkmInit" width="100%" height="100%" initialize="bkmInit_initializeHandler(event)"
 				 visible="false" visible.bkmInit="true">	
@@ -852,99 +1098,135 @@
 			</s:VGroup>
 		</s:Group> 
 		
-		<s:Group id="bkmConsulta"
-				 width="100%" height="100%"
-				 visible="false"
-				 visible.bkmConsulta="true">
-			
-			
-				
-			<mx:Canvas id="ListadoClientes" label="Lista Lecturas" width="100%" height="100%">
-				<s:VGroup width="100%" top="5" bottom="5" height="80%">
-					<mx:Label id="Lblclie" text="Listado de Lecturas" fontSize="18"/>
+		<s:Group id="bkmConsulta" width="100%" height="100%" visible="false" visible.bkmConsulta="true">
+			<mx:Canvas id="listadoAnalisis" label="ANÁLISIS" width="100%" height="100%">
+				<s:VGroup width="100%" top="5" bottom="5" height="50%">
+					<mx:Label id="Lblclie"  text="ANÁLISIS DE AP" fontSize="18"/>
 					<s:HGroup width="100%" verticalAlign="middle">
-						<mx:TextInput x="10" id="txtFilterClientes" width="100%" height="30" fontSize="14" fontWeight="bold" />
-						<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png"/>
-						<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/refresh_1.png" click="image1_clickHandler(event)"/>
+						<s:DropDownList id="DDLTipoBusqueda" change="DDLTipoBusqueda_changeHandler(event)" prompt="Seleccione Tipo Busqueda" width="150" labelField="item" dataProvider="{coleccionBusqueda}"/>
+						
+						<mx:TextInput x="10" id="txtBusqueda" width="80%" height="30" fontSize="14" fontWeight="bold" />
+						<s:Label id="lblAviso" text="" fontSize="10" visible="true" paddingTop="1"/>
+						<mx:Image id="imgBusqueda" click="imgBusqueda_clickHandler(event)" x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png" />
+						
 					</s:HGroup>
-					<mx:DataGrid id="DataClientesNuevos" resizableColumns="true" sortableColumns="true" editable="false"  
-								 width="100%" height="100%" visible="true" selectable="true" itemClick="DataClientesNuevos_itemClickHandler(event)">
+						<mx:DataGrid itemClick="dgAnalisis_itemClickHandler(event)"  id="dgAnalisis" resizableColumns="true" sortableColumns="true" editable="false" width="100%" height="100%" visible="true" selectable="true" >
+							<mx:columns>        
+								<mx:DataGridColumn dataField="OBJECTID" headerText="OBJECTID" width="30" visible="false"/>                                                         
+								<mx:DataGridColumn dataField="NIS" headerText="NIS" width="50" /> 
+								<mx:DataGridColumn dataField="TOTAL_FAC" headerText="TOTAL_FAC" visible="true" width="50" />
+								<mx:DataGridColumn dataField="TOTAL_TEO" headerText="TOTAL_TEO" visible="true" width="50" />
+								<mx:DataGridColumn dataField="TOTAL_ANUAL" headerText="TOTAL_ANUAL" visible="true" width="50" />
+								<mx:DataGridColumn dataField="PORCENTAJE" headerText="PORCENTAJE (%)" width="50"/>
+						    </mx:columns>
+						</mx:DataGrid> 
+						
+						<mx:HRule width="100%">
+							
+						</mx:HRule>
+					<s:HGroup horizontalAlign="right" width="100%">
+						<s:Button id="btnExportar1" label="Exportar" click="btnExportarDatosClientes_clickHandler(event)"/>
+						<s:Button id="btnRecargar" label="Cargar Listado Completo" click="btnRecargar_clickHandler(event)"/>
+					</s:HGroup>
+					
+				</s:VGroup>
+			</mx:Canvas>
+		</s:Group>
+		
+		<s:Group id="bkmConsultaMeses" width="100%" height="100%" visible="false" visible.bkmConsultaMeses="true">
+			<s:VGroup width="100%" height="100%" top="5" bottom="5">
+				<s:HGroup width="100%">
+					<mx:Label id="lblCurrentNISSelected" fontSize="12"/>
+				</s:HGroup>
+					
+				<mx:HRule width="100%"></mx:HRule>
+				<mx:Label fontSize="12" text="Teórico"/>
+					<mx:DataGrid width="100%" height="15%" id="dgTeorico" resizableColumns="true" sortableColumns="true" editable="false" visible="true" selectable="true" >
 						<mx:columns>        
-							<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID" width="30" visible="true"/>                                                         
-							
-							<mx:DataGridColumn dataField="nro_medidor" headerText="NUM.MEDIDOR" width="50" /> 
-							<mx:DataGridColumn dataField="estado" headerText="ESTADO" visible="true" width="50" />
-							<mx:DataGridColumn dataField="tipo_edificacion" headerText="EDIFICACION" width="50"/>
-							<mx:DataGridColumn dataField="poste" headerText="POSTE" visible="true" width="50" />
-							<mx:DataGridColumn dataField="direccion" headerText="DIRECCION" visible="true" width="50" />
-							<mx:DataGridColumn dataField="lectura_actual" headerText="LECTURA_ACTUAL" visible="true" width="50" />
-							<mx:DataGridColumn dataField="estado_revision" headerText="ESTADO_REVISION" visible="false" width="50" />
-							<mx:DataGridColumn dataField="lector" headerText="LECTOR" visible="true" width="50" />
-							<mx:DataGridColumn dataField="created_user" headerText="CREADO POR" visible="true" width="50" />
-							<mx:DataGridColumn dataField="created_date" headerText="FECHA CREACION" visible="true" width="50" />
-							<mx:DataGridColumn dataField="estado_final" headerText="ESTADO FINAL" visible="true" width="50" />
-							
-							
+							<mx:DataGridColumn  dataField="NIS" headerText="OBJECTID" minWidth="30" width="30" visible="false"/>                                                         
+							<mx:DataGridColumn id="t_mes0" dataField="t_mes0" headerText="MES 0" width="50" minWidth="50" /> 
+							<mx:DataGridColumn id="t_mes1" dataField="t_mes1" headerText="MES 1" width="50" minWidth="50"/> 
+							<mx:DataGridColumn id="t_mes2" dataField="t_mes2" headerText="MES 2" width="50" minWidth="50"/> 
+							<mx:DataGridColumn id="t_mes3" dataField="t_mes3" headerText="MES 3" width="50" minWidth="50"/> 
+							<mx:DataGridColumn id="t_mes4" dataField="t_mes4" headerText="MES 4" width="50" minWidth="50"/> 
+							<mx:DataGridColumn id="t_mes5" dataField="t_mes5" headerText="MES 5" width="50" minWidth="50"/> 
+							<mx:DataGridColumn id="t_mes6" dataField="t_mes6" headerText="MES 6" width="50" minWidth="50"/> 
+							<mx:DataGridColumn id="t_mes7" dataField="t_mes7" headerText="MES 7" width="50" minWidth="50"/> 
+							<mx:DataGridColumn id="t_mes8" dataField="t_mes8" headerText="MES 8" width="50" minWidth="50"/> 
+							<mx:DataGridColumn id="t_mes9" dataField="t_mes9" headerText="MES 9" width="50" minWidth="50"/> 
+							<mx:DataGridColumn id="t_mes10" dataField="t_mes10" headerText="MES 10" width="50" minWidth="50"/> 
+							<mx:DataGridColumn id="t_mes11" dataField="t_mes11" headerText="MES 11" width="50" minWidth="50"/> 
+							<mx:DataGridColumn id="t_mes12" dataField="t_mes12" headerText="MES 12" width="50" /> 
+						</mx:columns>
+					</mx:DataGrid>
+					<s:HGroup width="100%" >
+						<!--<mx:Image width="20" source="assets/images/sumatoria_icon.png" id="icono_sumatoriaT" />-->
+						<mx:Label id="lblsum12t" fontSize="12" text="Σ Teórico 12 MESES: " />
+						<mx:Label id="lbltotalsumt" fontSize="12" text="{sumt}"/>
+					</s:HGroup>
+				
+				
+				<mx:Label fontSize="12" text="Facturado"/>
+				<mx:DataGrid width="100%" height="15%" dataProvider="{coleccionFacturada}" id="dgFacturado" resizableColumns="true" sortableColumns="true" editable="false" visible="true" selectable="true" >
+					<mx:columns>        
+						<mx:DataGridColumn  dataField="NIS" headerText="OBJECTID" minWidth="30" width="30" visible="false"/>                                                         
+						<mx:DataGridColumn id="f_mes0" dataField="f_mes0" headerText="MES 0" width="50" minWidth="50" /> 
+						<mx:DataGridColumn id="f_mes1" dataField="f_mes1" headerText="MES 1" width="50" minWidth="50"/> 
+						<mx:DataGridColumn id="f_mes2" dataField="f_mes2" headerText="MES 2" width="50" minWidth="50"/> 
+						<mx:DataGridColumn id="f_mes3" dataField="f_mes3" headerText="MES 3" width="50" minWidth="50"/> 
+						<mx:DataGridColumn id="f_mes4" dataField="f_mes4" headerText="MES 4" width="50" minWidth="50"/> 
+						<mx:DataGridColumn id="f_mes5" dataField="f_mes5" headerText="MES 5" width="50" minWidth="50"/> 
+						<mx:DataGridColumn id="f_mes6" dataField="f_mes6" headerText="MES 6" width="50" minWidth="50"/> 
+						<mx:DataGridColumn id="f_mes7" dataField="f_mes7" headerText="MES 7" width="50" minWidth="50"/> 
+						<mx:DataGridColumn id="f_mes8" dataField="f_mes8" headerText="MES 8" width="50" minWidth="50"/> 
+						<mx:DataGridColumn id="f_mes9" dataField="f_mes9" headerText="MES 9" width="50" minWidth="50"/> 
+						<mx:DataGridColumn id="f_mes10" dataField="f_mes10" headerText="MES 10" width="50" minWidth="50"/> 
+						<mx:DataGridColumn id="f_mes11" dataField="f_mes11" headerText="MES 11" width="50" minWidth="50"/> 
+						<mx:DataGridColumn id="f_mes12" dataField="f_mes12" headerText="MES 12" width="50" /> 
+					</mx:columns>
+				</mx:DataGrid> 
+				
+				<s:HGroup>
+					<mx:Label id="lblsum12f" fontSize="12" text="Σ Facturado 12 MESES: " />
+					<mx:Label id="lbltotalsumf" fontSize="12" text="{sumt}"/>
+				</s:HGroup>
+				<s:HGroup horizontalAlign="right" width="100%">
+					<s:Button id="btnVerDetalle" label="Ver detalle luminarias" click="btnVerDetalle_clickHandler(event)"/>
+					<s:Button id="btnVolverAtras" label="Volver atrás" click="btnVolverAtras_clickHandler(event)" />
+				</s:HGroup>
+				
+			</s:VGroup>
+				
+			
+		</s:Group>
+		
+		<s:Group id="bkmConsultaDetalle" width="100%" height="100%" visible="false" visible.bkmConsultaDetalle="true">
+			<mx:Canvas id="listadoLuminarias" label="Detalle Luminarias" width="100%" height="100%">
+				<s:VGroup width="100%" top="5" bottom="5" height="80%">
+					<mx:Label id="lblLuminarias" text="LISTADO LUMINARIAS" fontSize="18"/>
+					<s:HGroup width="100%" verticalAlign="middle">
+						<s:VGroup width="100%" verticalAlign="middle">
+							<mx:Label id="lblCurrentNISSelected2" fontSize="12"/>
+						</s:VGroup>
+					</s:HGroup>
+					<mx:DataGrid id="dgListadoLuminarias" resizableColumns="true" sortableColumns="true" editable="false" width="100%" height="100%" visible="true" selectable="true" itemClick="dgListadoLuminarias_itemClickHandler(event)" >
+						<mx:columns>        
+							<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID" width="30" visible="false"/>                                                         
+							<mx:DataGridColumn dataField="ID_LUMINARIA" headerText="ID_LUMINARIA" width="50" /> 
+							<mx:DataGridColumn dataField="DESCRIPCION" headerText="DESCRIPCION" visible="true" width="50" />
 						</mx:columns>
 					</mx:DataGrid> 
 					
 					<mx:HRule width="100%">
 						
 					</mx:HRule>
-					<s:HGroup width="100%">
-						<s:HGroup horizontalAlign="left" width="100%">
-							<mx:DateField id="dateDesde" formatString="DD/MM/YYYY" creationComplete="dateChooser_init(dateDesde)"/>
-							<mx:DateField id="dateHasta" formatString="DD/MM/YYYY" creationComplete="dateChooser2_init(dateHasta)"/>
-							<s:Button id="btnRangoFecha" label="Consultar" click="btnRangoFecha_clickHandler(event)"/> 
-						</s:HGroup>
-						<s:HGroup horizontalAlign="right" width="100%">
-							<s:DropDownList id="DDLEstadoCliente"  prompt="Seleccione Estado del Cliente" width="150" labelField="item" dataProvider="{coleccionEstados}"/>
-							<s:Button id="btnCambiarEstadoCliente" label="Cambiar" click="btnCambiarEstadoCliente_clickHandler(event)"/>
-							<s:Button id="btnExportarDatosClientes" label="Exportar Listado" click="btnExportarDatosClientes_clickHandler(event)"/>
-						</s:HGroup>
+					<s:HGroup horizontalAlign="right" width="100%">
+						<s:Button id="btnVolverInicio" label="Volver al inicio" click="btnVolverInicio_clickHandler(event)"/>
+						<s:Button id="btnVolverAtrasMeses" label="Volver atrás" click="btnVolverAtrasMeses_clickHandler(event)"/>
 					</s:HGroup>
-					<mx:HRule width="100%">
-						
-					</mx:HRule>
-					<!--<mx:Form id="FormDetalleNIS" width="100%" height="15%">
-						<s:Label text="Detalle de NIS: " fontSize="18" fontWeight="bold"></s:Label>
-						<s:HGroup width="100%" paddingTop="5">
-							<mx:VBox width="50%" paddingLeft="1">
-								<mx:FormItem label="NIS" fontWeight="bold">
-									<s:Label id="lblNIS" text="{nisBuscado}" fontWeight="normal" />
-								</mx:FormItem>
-								<mx:FormItem label="ROTULO" fontWeight="bold">
-									<s:Label id="lblRotulo" text="{rotuloEncontrado}" fontWeight="normal" />
-								</mx:FormItem>
-								<mx:FormItem label="DIRECCION" fontWeight="bold">
-									<s:Label id="lblDireccionCompleta" text="{direccionCompleta}"  fontWeight="normal"/>
-								</mx:FormItem>
-							</mx:VBox>
-							<mx:VBox width="50%" paddingRight="1">
-								<mx:FormItem label="ANEXO 1" fontWeight="bold">
-									<s:Label id="lblAnexo1" text="{anexo1}"  fontWeight="normal"/>
-								</mx:FormItem>
-								<mx:FormItem label="ANEXO 2" fontWeight="bold">
-									<s:Label id="lblAnexo2" text="{anexo2}"  fontWeight="normal"/>
-								</mx:FormItem>
-								<mx:FormItem label="TIPO EDIF." fontWeight="bold">
-									<s:Label id="lblTipoEdificacion" text="{tipoEdificacion}"  fontWeight="normal"/>
-								</mx:FormItem>
-							</mx:VBox>
-						</s:HGroup>
-					</mx:Form>
-					-->
-					
 				</s:VGroup>
-				
-				
 			</mx:Canvas>
-					
-
-
 		</s:Group>
-		
-		
 		
 	</viewer:WidgetTemplate>
 </viewer:BaseWidget>

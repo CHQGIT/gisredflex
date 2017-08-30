@@ -37,6 +37,7 @@
         <excludelayer mapservice="Postes sin apoyos mutuos"></excludelayer>
         <excludelayer mapservice="Capacidad Conductores"></excludelayer>
         <excludelayer mapservice="Clientes No Leidos"></excludelayer>
+         <excludelayer mapservice="Nivel Criticidad"></excludelayer>
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

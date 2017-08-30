@@ -22,7 +22,7 @@
           <excludelayer mapservice="ECSE"></excludelayer>
           <excludelayer mapservice="Cobertura Antena"></excludelayer>
           <excludelayer mapservice="Access Point"></excludelayer>
-    	  
+    	   <excludelayer mapservice="Nivel Criticidad"></excludelayer>
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

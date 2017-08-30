@@ -89,6 +89,8 @@
     <module application="src/index.mxml" destPath="widgets/Ap_No_Leido/Ap_No_Leido.swf" optimize="true" sourcePath="src/widgets/Ap_No_Leido/Ap_No_Leido.mxml"/>
     <module application="src/index.mxml" destPath="widgets/mySplash/SplashWidget.swf" optimize="true" sourcePath="src/widgets/mySplash/SplashWidget.mxml"/>
     <module application="src/index.mxml" destPath="widgets/AdminAP/AdminAP.swf" optimize="true" sourcePath="src/widgets/AdminAP/AdminAP.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/MantenimientoPodas/HistorialSolicitudes.swf" optimize="true" sourcePath="src/widgets/MantenimientoPodas/HistorialSolicitudes.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/AP_Calc_consumo/AP_Calc_consumo.swf" optimize="true" sourcePath="src/widgets/AP_Calc_consumo/AP_Calc_consumo.mxml"/>
   </modules>
   <workers/>
   <buildCSSFiles/>

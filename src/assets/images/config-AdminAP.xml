@@ -154,21 +154,16 @@
   	 			config="widgets/edit/editWidget.xml"
   	 			url="widgets/edit/editWidget.swf">
   	 	</widget>
-  	 	<widgetgroup label="Alumbrado Público" icon="assets/images/icono_ap.png">
+  	 	<widgetgroup label="Alumbrado Público" icon="assets/images/bombilla.png">
 	  	 	<widget label="AP NO Leído"
-	  	 			icon="assets/images/ap_no_leido.png"
+	  	 			icon="assets/images/Meter_neg.png"
 	  	 			config="widgets/Ap_No_Leido/Ap_No_Leido.xml"
 	  	 			url="widgets/Ap_No_Leido/Ap_No_Leido.swf">
 	  	 	</widget>
   	      	<widget label="Análisis AP"
-  	 			icon="assets/images/icono_analisis_ap.png"
+  	 			icon="assets/images/Meter_neg.png"
   	 			config="widgets/AdminAP/AdminAP.xml"
   	 			url="widgets/AdminAP/AdminAP.swf">
-  	 		</widget>
-  	 		<widget label="Consumo AP"
-  	 			icon="assets/images/ap_consumo.png"
-  	 			config="widgets/AP_Calc_consumo/AP_Calc_consumo.xml"
-  	 			url="widgets/AP_Calc_consumo/AP_Calc_consumo.swf">
   	 		</widget>
   	 	</widgetgroup>
   	 	
