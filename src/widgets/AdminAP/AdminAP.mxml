@@ -83,7 +83,7 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
-			import mx.events.IndexChangedEvent;
+			
 			import mx.events.ListEvent;
 			import mx.messaging.messages.ErrorMessage;
 			import mx.rpc.AsyncResponder;
@@ -300,58 +300,9 @@
 				
 				//buscar por rango de porcentaje (en servicio)
 				}else{
-					//Alert.show("Buscar por rango");
-					//buscarRangoPorciento();
+					
 					lblAviso.text ="Presione el botón para buscar el rango de porcentaje."
-						
-					/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
-					Everything else is dynamic. Do not edit variable names. */
-					/*var filterText:String = StringUtil.trim(txtBusqueda.text.toLowerCase()); //Trimmed text String to filter by
-					var columnArray:Array = ['PORCENTAJE']; //Datagrid column names to filter on
-					var gridDataProvider:ArrayCollection = this.coleccionClientes as ArrayCollection; //Name of datagrid's dataprovider. In this case e.g. databases
-					var dataGridName:String = 'dgAnalisis'; //Name of the datagrid you are filtering by
 					
-					//Do not edit code past this point
-					var filteredData:Array = [];
-					var added:Boolean=false;
-					var i:int;
-					var j:int;
-					
-					// Loop Through Grid
-					for(i=0; i < gridDataProvider.length; i++){    
-						added = false;
-						
-						//Loop through grid column
-						for(j=0; j<columnArray.length; j++){            
-							if(gridDataProvider[i][columnArray[j]]!=null){
-								
-								//Grab datagrid cell contents, trim it, and convert to lowercase for comparison.
-								var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
-								
-								//Compare the datagrid string(filterString) to the user typed string(filterText).  
-								if(!added){      
-									//If the datagrid string matches the users string, put it into the array.
-									if(filterString.indexOf(filterText) != -1){
-										filteredData.push(gridDataProvider[i]);
-										added = true;
-									} 
-								}else{
-									//Do nothing, break out.
-									break;
-								}
-							}    
-						}
-					}
-					
-					//Set datagrid dataprovider
-					if(filterText.length == 0){
-						this[dataGridName].dataProvider = gridDataProvider; //Display the original unfiltered data
-					}else{
-						this[dataGridName].dataProvider = filteredData; //Pusht he filtered data into the datagrid
-					}	*/
-						
-						
-						
 				}
 				
 			}	
@@ -712,12 +663,12 @@
 					coleccionMeses.removeAll();
 					
 					//t_mes0.headerText = "Agosto";
-					var dateFormatStr:String = "MM"; 
+					var dateFormatStr2:String = "MM"; 
 					
-					var m0:String = msToDate(perIni,dateFormatStr,true);
-					f_mes0.headerText = int(m0).toString(); 
+					var m00:String = msToDate(perIni,dateFormatStr2,true);
+					f_mes0.headerText = int(m00).toString(); 
 					
-					var i:int = int(m0);
+					var i:int = int(m00);
 					var m:int = 12;
 					
 					for (i; i <= m; i++){
@@ -725,7 +676,7 @@
 						
 						if(i==12){
 							i=0;
-							m=int(m0);
+							m=int(m00);
 						}
 					}
 					
@@ -1023,9 +974,11 @@
 			protected function canvasFacturado_tabEnabledChangeHandler(event:Event):void{
 				// TODO Auto-generated method stub
 				dgFacturado.dataProvider = coleccionFacturada;
-				Alert.show("hola"+event.currentTarget.id);
+				//Alert.show("hola"+event.currentTarget.id);
 				//calcular12Meses(periodo, "FACTURADO");
 			}
+			
+			
 			
 			protected function imgBusqueda_clickHandler(event:MouseEvent):void{
 				// TODO Auto-generated method stub
@@ -1080,11 +1033,23 @@
 				
 			}
 			
+			protected function txtBusqueda_enterFrameHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				myGraphicsLayer.clear();
+			}
+			
 		]]>
 	</fx:Script>
 	<viewer:WidgetTemplate id="wTemplate"                      
 						   width="870" height="500"
-						   visible="true">
+						   visible="true" closed="wTemplate_closedHandler(event)">
 		
 		<s:Group id="bkmInit" width="100%" height="100%" initialize="bkmInit_initializeHandler(event)"
 				 visible="false" visible.bkmInit="true">	
@@ -1105,7 +1070,7 @@
 					<s:HGroup width="100%" verticalAlign="middle">
 						<s:DropDownList id="DDLTipoBusqueda" change="DDLTipoBusqueda_changeHandler(event)" prompt="Seleccione Tipo Busqueda" width="150" labelField="item" dataProvider="{coleccionBusqueda}"/>
 						
-						<mx:TextInput x="10" id="txtBusqueda" width="80%" height="30" fontSize="14" fontWeight="bold" />
+						<mx:TextInput x="10" id="txtBusqueda" width="80%" height="30" fontSize="14" fontWeight="bold" enterFrame="txtBusqueda_enterFrameHandler(event)" />
 						<s:Label id="lblAviso" text="" fontSize="10" visible="true" paddingTop="1"/>
 						<mx:Image id="imgBusqueda" click="imgBusqueda_clickHandler(event)" x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png" />
 						

@@ -191,7 +191,7 @@
 				coleccionPodas.removeAll();
 				var queryTask:QueryTask = new QueryTask(widgets.MantenimientoPodas.URLS.URL_SOLICITUD);
 				var query:Query = new Query();
-				query.where ="1=1 AND ESTADO_SOLICITUD <> 'PAGADA' AND ESTADO_SOLICITUD <> 'CERRADA' AND ESTADO_SOLICITUD <> 'EJECUTADA'  AND ASIGNADA='" + Generica.NombreUsuario + "'" ;
+				query.where ="(ESTADO_SOLICITUD = 'NUEVA' OR ESTADO_SOLICITUD = 'EJECUTADA' OR ESTADO_SOLICITUD = 'EN EJECUCION') AND ASIGNADA='" + Generica.NombreUsuario + "'" ;
 				query.outFields = ['*'];
 				query.returnGeometry = true;
 				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));

@@ -6,14 +6,12 @@
 				   xmlns:esri="http://www.esri.com/2008/ags"  
 				   initialize="basewidget1_initializeHandler(event)" 
 				   creationComplete="basewidget1_creationCompleteHandler(event)"
-				   
-				   
 				   >	
 	
 	<viewer:states>
 		<s:State name="bkmInit"/>
 		<s:State name="bkmConsulta"/>
-	
+		
 	</viewer:states>
 	<viewer:transitions>
 		<s:Transition autoReverse="true" toState="*">
@@ -35,7 +33,7 @@
 								 color="0xFF9900"
 								 size="20"
 								 style="circle"/>
-	
+		
 		<mx:WipeUp id="myWU" duration="300"/>
 		<mx:WipeDown id="myWD" duration="500"/>
 		<mx:WipeRight id="myWR" duration="850"/>
@@ -96,38 +94,8 @@
 			
 			public var lecturasLayer:ArcGISDynamicMapServiceLayer= new ArcGISDynamicMapServiceLayer(widgets.AdminLectores.utilidad.urls.URL_LECTURAS_DYN);
 			
-			import com.esri.ags.portal.supportClasses.PopUpFieldFormat;
-			import com.esri.ags.portal.supportClasses.PopUpFieldInfo;
-			import com.esri.ags.portal.supportClasses.PopUpInfo;
-			
-			
-			public var field1:PopUpFieldInfo;
-			public var field2:PopUpFieldInfo;
-			public var field3:PopUpFieldInfo;
-			public var field4:PopUpFieldInfo;
-			public var field5:PopUpFieldInfo;
-			public var field6:PopUpFieldInfo;
-			public var field7:PopUpFieldInfo;
-			public var field8:PopUpFieldInfo;
-			public var field9:PopUpFieldInfo;
-			public var field10:PopUpFieldInfo;
-			public var field11:PopUpFieldInfo;
-			public var field12:PopUpFieldInfo;
-			public var field13:PopUpFieldInfo;
-			public var field14:PopUpFieldInfo;
-			public var field15:PopUpFieldInfo;
-			public var field16:PopUpFieldInfo;
-			
-			protected function basewidget1_initializeHandler(event:FlexEvent):void
-			{
-				
-				
-				openLayer();
+			protected function basewidget1_initializeHandler(event:FlexEvent):void{
 				ConsultarAcceso();
-				
-				
-				
-				
 				//DataClientesNuevos.selectedIndex = 1;
 			}
 			
@@ -138,7 +106,7 @@
 			}
 			
 			protected function ConsultarAcceso():void{
-			
+				
 				var queryTaskUserSelected:QueryTask = new QueryTask();
 				queryTaskUserSelected.url = comun.url.URL.URL_ACCESO;
 				queryTaskUserSelected.useAMF = false;
@@ -186,7 +154,7 @@
 								btnCambiarEstadoCliente.enabled = true;
 								
 							}
-													
+							
 						}
 						
 						
@@ -385,7 +353,7 @@
 				var query:Query = new Query();
 				
 				//7.6.2017: Evelyn Hernández - Arreglando problema de búsqueda de nis con más de una geometría. 
-								
+				
 				query.where = "OBJECTID="+ DataClientesNuevos.selectedItem['OBJECTID'] + "and nro_medidor=" + DataClientesNuevos.selectedItem['nro_medidor'];
 				query.outFields = ['*'];
 				query.returnGeometry = true;
@@ -395,7 +363,7 @@
 					//Alert.show("Elementos " + featureSet2.features.length + " a:" + featureSet2.features[0].attributes['OBJECTID'] + featureSet2.features[0].attributes['SHAPE']  );
 					
 					//Evelyn Hernández - 14.6.2017 - Arreglada lógica para nis sin geometría ni atributos específicos. 
-						
+					
 					if(!featureSet2.features.length){
 						Alert.show("No hay lecturas para mostrar.");
 						return;	
@@ -504,7 +472,7 @@
 							map.infoWindow.show(mp);
 							
 							
-						
+							
 							map.infoWindow.show(mp);
 							*/
 						}
@@ -520,7 +488,7 @@
 			public function buscarDetalle(nis:int, objid: int):void{
 				
 				nisBuscado = String(nis);
-								
+				
 				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURAS);
 				var query:Query = new Query();
 				query.where = "nro_medidor="+ nis + "and OBJECTID="+objid;
@@ -538,7 +506,7 @@
 						//buscarDireccion(featureSet2.features[0].attributes['ID_DIRECCION']);
 						//buscarRotulo(featureSet2.features[0].attributes['ID_POSTE_CAMARA']);
 					}
-										
+					
 				}
 				function onFaultQuery(info:Object, token:Object = null):void{   
 					Alert.show("Hubo un problema buscando el detalle de la lectura, intente nuevamente.");
@@ -546,110 +514,110 @@
 			}
 			
 			/*public function buscarDireccion(idDir:int):void {
-				var queryTask2:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_DIRECCIONES);
-				var query2:Query = new Query();
-				query2.where = "id_direccion="+ idDir;
-				query2.outFields = ['*'];
-				query2.returnGeometry = false;
-				queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
-				
-				function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
-					
-					if (featureSet3.attributes.length>0){
-						direccionCompleta = featureSet3.features[0].attributes['nombre_calle'] + " "+ featureSet3.features[0].attributes['numero'] + " - Según SW"  ;
-					}else{
-						buscarEnExternosDir(idDir);
-					}
-				}
-				function onFaultQuery3(info:Object, token:Object = null):void{   
-					Alert.show("Hubo problemas buscando la dirección (antigua) del nis, intente nuevamente");
-				}
+			var queryTask2:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_DIRECCIONES);
+			var query2:Query = new Query();
+			query2.where = "id_direccion="+ idDir;
+			query2.outFields = ['*'];
+			query2.returnGeometry = false;
+			queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
+			
+			function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
+			
+			if (featureSet3.attributes.length>0){
+			direccionCompleta = featureSet3.features[0].attributes['nombre_calle'] + " "+ featureSet3.features[0].attributes['numero'] + " - Según SW"  ;
+			}else{
+			buscarEnExternosDir(idDir);
+			}
+			}
+			function onFaultQuery3(info:Object, token:Object = null):void{   
+			Alert.show("Hubo problemas buscando la dirección (antigua) del nis, intente nuevamente");
+			}
 			}
 			
 			public function buscarEnExternosDir(idD:int):void{
-				
-				var queryTask2:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_CREAR_DIRECCION);
-				var query2:Query = new Query();
-				query2.where = "OBJECTID="+ idD;
-				query2.outFields = ['*'];
-				query2.returnGeometry = false;
-				queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
-				
-				function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
-					//Evelyn Hernández - 14.6.2017
-					//Cambiando lógica de direcciones nuevas
-					if(featureSet3.features.length){
-						direccionCompleta = featureSet3.features[0].attributes['CALLE'] + " " + featureSet3.features[0].attributes['NUMERO'] + " - Según TECNORED" ;
-						tipoEdificacion = featureSet3.features[0].attributes['TIPO_EDIFICACION'];
-						
-						if (featureSet3.features[0].attributes['ANEXO1']=="") {
-							anexo1 = ""; 
-							
-							if(featureSet3.features[0].attributes['ANEXO2']==""){
-								anexo2 = ""; 
-							}
-							
-							
-						}else{
-							anexo1 = featureSet3.features[0].attributes['ANEXO1'] + " - Según TECNORED"; 
-							if (featureSet3.features[0].attributes['ANEXO2']==""){
-								anexo2 = ""; 
-							}else {
-								anexo2 =  featureSet3.features[0].attributes['ANEXO2'] + " - Según TECNORED"; 
-							}
-							
-						}
-					}else{
-						direccionCompleta= "";
-						tipoEdificacion = "";
-					}
-									
-				}
-				function onFaultQuery3(info:Object, token:Object = null):void{   
-					Alert.show("Hubo un problema buscando la dirección (nueva) asociada al nis, intente nuevamente");
-				}
+			
+			var queryTask2:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_CREAR_DIRECCION);
+			var query2:Query = new Query();
+			query2.where = "OBJECTID="+ idD;
+			query2.outFields = ['*'];
+			query2.returnGeometry = false;
+			queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
+			
+			function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
+			//Evelyn Hernández - 14.6.2017
+			//Cambiando lógica de direcciones nuevas
+			if(featureSet3.features.length){
+			direccionCompleta = featureSet3.features[0].attributes['CALLE'] + " " + featureSet3.features[0].attributes['NUMERO'] + " - Según TECNORED" ;
+			tipoEdificacion = featureSet3.features[0].attributes['TIPO_EDIFICACION'];
+			
+			if (featureSet3.features[0].attributes['ANEXO1']=="") {
+			anexo1 = ""; 
+			
+			if(featureSet3.features[0].attributes['ANEXO2']==""){
+			anexo2 = ""; 
+			}
+			
+			
+			}else{
+			anexo1 = featureSet3.features[0].attributes['ANEXO1'] + " - Según TECNORED"; 
+			if (featureSet3.features[0].attributes['ANEXO2']==""){
+			anexo2 = ""; 
+			}else {
+			anexo2 =  featureSet3.features[0].attributes['ANEXO2'] + " - Según TECNORED"; 
+			}
+			
+			}
+			}else{
+			direccionCompleta= "";
+			tipoEdificacion = "";
+			}
+			
+			}
+			function onFaultQuery3(info:Object, token:Object = null):void{   
+			Alert.show("Hubo un problema buscando la dirección (nueva) asociada al nis, intente nuevamente");
+			}
 			}
 			
 			public function buscarRotulo(ipc:int):void{
-				var queryTask2:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_ROTULOS);
-				var query2:Query = new Query();
-				query2.where = "id_nodo="+ ipc;
-				query2.outFields = ['rotulo'];
-				query2.returnGeometry = false;
-				queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
-				
-				function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
-					
-					if (featureSet3.attributes.length>0){
-						rotuloEncontrado = featureSet3.features[0].attributes['rotulo'] + "  - Según SW";
-					}else{
-						buscarEnExternos(ipc);
-					}
-				}
-				function onFaultQuery3(info:Object, token:Object = null):void{   
-					Alert.show("Hubo un problema buscando el rótulo (antiguo) del nis, intente nuevamente");
-					
-				}
+			var queryTask2:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_ROTULOS);
+			var query2:Query = new Query();
+			query2.where = "id_nodo="+ ipc;
+			query2.outFields = ['rotulo'];
+			query2.returnGeometry = false;
+			queryTask2.execute(query2, new AsyncResponder(onResultQuery3, onFaultQuery3));
+			
+			function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
+			
+			if (featureSet3.attributes.length>0){
+			rotuloEncontrado = featureSet3.features[0].attributes['rotulo'] + "  - Según SW";
+			}else{
+			buscarEnExternos(ipc);
+			}
+			}
+			function onFaultQuery3(info:Object, token:Object = null):void{   
+			Alert.show("Hubo un problema buscando el rótulo (antiguo) del nis, intente nuevamente");
+			
+			}
 			}
 			
 			public function buscarEnExternos(idpEx:int):void{
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_CREAR_POSTES);
-				var query:Query = new Query();
-				query.where = "OBJECTID="+ idpEx;
-				query.outFields = ['*'];
-				query.returnGeometry = true;
-				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
-				
-				function onResultQuery(featureSet2:FeatureSet, token:Object = null):void {
-					if(!featureSet2.features.length){
-						rotuloEncontrado = "";
-						return;
-					}
-					rotuloEncontrado = featureSet2.features[0].attributes['ROTULO'] + " - Según TECNORED";
-				}
-				function onFaultQuery(info:Object, token:Object = null):void {   
-					Alert.show("Hubo un problema buscando el rótulo (nuevo) del nis, intente nuevamente");
-				}
+			var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_CREAR_POSTES);
+			var query:Query = new Query();
+			query.where = "OBJECTID="+ idpEx;
+			query.outFields = ['*'];
+			query.returnGeometry = true;
+			queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+			
+			function onResultQuery(featureSet2:FeatureSet, token:Object = null):void {
+			if(!featureSet2.features.length){
+			rotuloEncontrado = "";
+			return;
+			}
+			rotuloEncontrado = featureSet2.features[0].attributes['ROTULO'] + " - Según TECNORED";
+			}
+			function onFaultQuery(info:Object, token:Object = null):void {   
+			Alert.show("Hubo un problema buscando el rótulo (nuevo) del nis, intente nuevamente");
+			}
 			}
 			*/
 			private var ef:ExcelFile;
@@ -858,7 +826,7 @@
 				 visible.bkmConsulta="true">
 			
 			
-				
+			
 			<mx:Canvas id="ListadoClientes" label="Lista Lecturas" width="100%" height="100%">
 				<s:VGroup width="100%" top="5" bottom="5" height="80%">
 					<mx:Label id="Lblclie" text="Listado de Lecturas" fontSize="18"/>
@@ -906,42 +874,15 @@
 					<mx:HRule width="100%">
 						
 					</mx:HRule>
-					<!--<mx:Form id="FormDetalleNIS" width="100%" height="15%">
-						<s:Label text="Detalle de NIS: " fontSize="18" fontWeight="bold"></s:Label>
-						<s:HGroup width="100%" paddingTop="5">
-							<mx:VBox width="50%" paddingLeft="1">
-								<mx:FormItem label="NIS" fontWeight="bold">
-									<s:Label id="lblNIS" text="{nisBuscado}" fontWeight="normal" />
-								</mx:FormItem>
-								<mx:FormItem label="ROTULO" fontWeight="bold">
-									<s:Label id="lblRotulo" text="{rotuloEncontrado}" fontWeight="normal" />
-								</mx:FormItem>
-								<mx:FormItem label="DIRECCION" fontWeight="bold">
-									<s:Label id="lblDireccionCompleta" text="{direccionCompleta}"  fontWeight="normal"/>
-								</mx:FormItem>
-							</mx:VBox>
-							<mx:VBox width="50%" paddingRight="1">
-								<mx:FormItem label="ANEXO 1" fontWeight="bold">
-									<s:Label id="lblAnexo1" text="{anexo1}"  fontWeight="normal"/>
-								</mx:FormItem>
-								<mx:FormItem label="ANEXO 2" fontWeight="bold">
-									<s:Label id="lblAnexo2" text="{anexo2}"  fontWeight="normal"/>
-								</mx:FormItem>
-								<mx:FormItem label="TIPO EDIF." fontWeight="bold">
-									<s:Label id="lblTipoEdificacion" text="{tipoEdificacion}"  fontWeight="normal"/>
-								</mx:FormItem>
-							</mx:VBox>
-						</s:HGroup>
-					</mx:Form>
-					-->
+					
 					
 				</s:VGroup>
 				
 				
 			</mx:Canvas>
-					
-
-
+			
+			
+			
 		</s:Group>
 		
 		

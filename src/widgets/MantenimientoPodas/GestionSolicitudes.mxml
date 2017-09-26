@@ -716,7 +716,7 @@
 			{
 				var queryTask:QueryTask = new QueryTask(widgets.MantenimientoPodas.URLS.URL_SOLICITUD);
 				var query:Query = new Query();
-				query.where = "SOLICITANTE='" + Generica.NombreUsuario + "' AND ESTADO_SOLICITUD <> 'CERRADA' AND ESTADO_SOLICITUD <> 'PAGADA'";
+				query.where = "SOLICITANTE='" + Generica.NombreUsuario + "' AND (ESTADO_SOLICITUD <> 'CERRADA' OR ESTADO_SOLICITUD <> 'PAGADA')";
 				query.outFields = ['*'];
 				query.returnGeometry = true;                        
 				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));

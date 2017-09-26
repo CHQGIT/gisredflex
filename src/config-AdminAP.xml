@@ -155,7 +155,7 @@
   	 			url="widgets/edit/editWidget.swf">
   	 	</widget>
   	 	<widgetgroup label="Alumbrado Público" icon="assets/images/icono_ap.png">
-	  	 	<widget label="AP NO Leído"
+	  	 	<widget label="AP No Leído"
 	  	 			icon="assets/images/ap_no_leido.png"
 	  	 			config="widgets/Ap_No_Leido/Ap_No_Leido.xml"
 	  	 			url="widgets/Ap_No_Leido/Ap_No_Leido.swf">
@@ -169,6 +169,11 @@
   	 			icon="assets/images/ap_consumo.png"
   	 			config="widgets/AP_Calc_consumo/AP_Calc_consumo.xml"
   	 			url="widgets/AP_Calc_consumo/AP_Calc_consumo.swf">
+  	 		</widget>
+  	 		<widget label="AP Dashboard"
+  	 			icon="widgets/Link/assets/images/esri.png"
+  	 			config="widgets/Link/LinkWidget_esri.xml"
+  	 			url="widgets/Link/LinkWidget.swf">
   	 		</widget>
   	 	</widgetgroup>
   	 	

@@ -502,6 +502,7 @@
 			protected function wTemplate_openHandler(event:Event):void
 			{
 				// TODO Auto-generated method stub
+				currentState="bkmConsulta"
 				wTemplate.resizable = false;
 			}
 			

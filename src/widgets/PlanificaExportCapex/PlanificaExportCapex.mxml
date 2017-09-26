@@ -170,9 +170,9 @@
 									GP.enabled = true;
 									GP.selected = true;
 									break;
-								case "SGRyP" :
-									SGRyP.enabled = true;
-									SGRyP.selected = true;
+								case "GRyP" :
+									GRyP.enabled = true;
+									GRyP.selected = true;
 									break;
 								case "SGC" :
 								//	SGC.enabled = true;
@@ -197,8 +197,8 @@
 									GF.selected = true;
 									GP.enabled = true;
 									GP.selected = true;
-									SGRyP.enabled = true;
-									SGRyP.selected = true;
+									GRyP.enabled = true;
+									GRyP.selected = true;
 									SGEHyS.enabled = true;
 									SGEHyS.selected = true;
 									//SGC.enabled = true;
@@ -367,7 +367,7 @@
 								}
 							}
 							
-							if (SGRyP.selected == true){							
+							if (GRyP.selected == true){							
 								
 								
 								var queryTaskCapexSelected5:QueryTask = new QueryTask();
@@ -378,7 +378,7 @@
 								queryEquipoSelected5.returnGeometry = true;
 								queryEquipoSelected5.spatialRelationship ="esriSpatialRelIntersects";
 								queryEquipoSelected5.outSpatialReference = map.spatialReference;
-								queryEquipoSelected5.where = "gerencia='SGRyP' AND ano_ejecucion = " + txtAnio.text;
+								queryEquipoSelected5.where = "gerencia='GRyP' AND ano_ejecucion = " + txtAnio.text;
 								queryTaskCapexSelected5.execute(queryEquipoSelected5, new AsyncResponder(onResult4, onFault4));
 								
 								
@@ -386,7 +386,7 @@
 								{
 									
 									if(featureSet.features.length == 0 ){
-										Alert.show("No existen datos para la Subgerencia SGRyP.")
+										Alert.show("No existen datos para la Subgerencia GRyP.")
 									}
 									else{		
 										coleccion.addAll(new ArrayCollection(featureSet.attributes));
@@ -455,7 +455,7 @@
 								{
 									
 									if(featureSet.features.length == 0 ){
-										Alert.show("No existen datos para la Subgerencia SGRyP.")
+										Alert.show("No existen datos para la Subgerencia GRyP.")
 									}
 									else{		
 										coleccion.addAll(new ArrayCollection(featureSet.attributes));
@@ -728,11 +728,11 @@
 		<s:HGroup width="100%" height="100%">
 			<s:VGroup>
 				<s:CheckBox id="GC" width="200" label="Gerencia Comercial" selected="false" enabled="false"/>
-				<s:CheckBox id="GIO" width="140" label="Gerencia Técnica" selected="false" enabled="false"/> 
-				<s:CheckBox id="GMO" width="160" label="Gerencia Operación" selected="false" enabled="false"/>
+				<s:CheckBox id="GIO" width="140" label="Gerencia Ingeniería y Operación" selected="false" enabled="false"/> 
+				<s:CheckBox id="GMO" width="160" label="Gerencia Mantenimiento y Obras" selected="false" enabled="false"/>
 				<s:CheckBox id="GF" width="140" label="Gerencia Finanzas" selected="false" enabled="false"/>
 				<s:CheckBox id="GP" width="140" label="Gerencia Personas" selected="false" enabled="false"/>
-				<s:CheckBox id="SGRyP" width="200" label="Subgerencia Regulación" selected="false" enabled="false"/>
+				<s:CheckBox id="GRyP" width="200" label="Gerencia Regulación y Planificación" selected="false" enabled="false"/>
 				<s:CheckBox id="SGEHyS" width="200" label="Subgerencia EHyS" selected="false" enabled="false"/>
 				<!--<s:CheckBox id="SGC" width="200" label="Subgerencia Comercial" selected="false" enabled="false"/>-->
 				<s:CheckBox id="Innovacion" width="200" label="Innovación" selected="false" enabled="false"/>	

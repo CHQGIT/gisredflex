@@ -51,7 +51,7 @@
 				//extraerZOOM(sseeSelected);
 				//URL DE ACCESO A LA WEB
 				//var url:String = "http://gisred.chilquinta/chilquinta/widgets/GISRED360/Website/index.html";
-				var url:String = "http://localhost:443/index.html";
+				var url:String = "http://gisred.chilquinta/chilquinta/widgets/GISRED360/Website/index.html";
 				var variables:URLVariables = new URLVariables();
 				//variables.numeroFoto = nFoto;
 				variables.latSSEE = lat;

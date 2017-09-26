@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx" 
+				   width="100%" height="32"
+				   creationComplete="init(event)" borderVisible="false"
+				  >
+	
+	<fx:Script>
+		<![CDATA[			
+			import com.as3xls.xls.ExcelFile;
+			import com.as3xls.xls.Sheet;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.events.FlexEvent;
+			
+			import spark.components.DataGrid;
+			import spark.components.gridClasses.GridColumn;
+			
+			//the collection on which the search is to be applied
+			[Bindable]
+			public var searchListCollection:ArrayCollection;
+			
+			//use the datagrid for getting the filter field labels
+			[Bindable]
+			public var dataGrid:DataGrid;
+			
+			[Bindable]
+			private var columns:ArrayList;
+			
+			protected function clearHandler(event:MouseEvent):void
+			{
+				searchText.text='';
+				fieldSelector.selectedIndex=-1;
+				if(searchListCollection!=null){
+					searchListCollection.filterFunction=null;
+					searchListCollection.refresh();
+				}
+			}
+			
+			protected function searchTextChangeHandler(event:Event):void
+			{
+				doSearch();
+			}
+			
+			//exposed public method to be called to force search from other pages
+			public function doSearch():void
+			{
+				if(fieldSelector.selectedIndex!=-1 && searchListCollection!=null){
+					searchListCollection.filterFunction=searchFilterFunction;
+					searchListCollection.refresh();
+				}
+			}
+			
+			private function searchFilterFunction(item:Object):Boolean
+			{
+				if(fieldSelector.selectedItem.dataField!='any'){
+					return searchOperation(item,fieldSelector.selectedItem,searchText.text);	
+				}else{
+					
+					//1. starting iteration from index 1 since index 0 is the 'any' column for search
+					for(var i:Number=1;i<columns.length;i++){
+						//2. call the search operation for each row
+						//3. even if one column matches return the row
+						if(searchOperation(item,columns.getItemAt(i) as GridColumn,searchText.text)==true){
+							return true;
+						}
+					}
+				}
+				//if none of the columns satisfied the filter then you can return false
+				return false;		
+			}
+			
+			private function searchOperation(item:Object,gridColumn:GridColumn,searchWord:String):Boolean
+			{
+				//when the search text is empty show all text
+				if(searchWord==''){
+					return true;
+				}
+				
+				//for complex object hierarchies walk through the object 
+				//get the last string object in the chain you are filtering
+				var object:Object=item;
+				
+				var selectedField:String = gridColumn.dataField;
+				
+				var tokens:Array = selectedField.split(".");
+				
+				for(var i:int=0;i<tokens.length;i++){
+					//if the object is null at any instance return false
+					//since we will not be able to walk down a null object tree
+					if(object==null){
+						return false;
+					}
+					object=object[tokens[i]];
+				}
+				
+				//check again if the object is not null
+				if(object==null){
+					return false;
+				}
+				
+				//do the actual search
+				return object.toString().search(new RegExp(searchWord,"i")) > -1;
+			}
+			
+			//we know for sure it is a grid column
+			//we can get the drop down label
+			protected function getGridColumnLabel(item:GridColumn):String
+			{
+				return item.headerText;
+			}
+			
+			protected function init(event:FlexEvent):void
+			{
+				// get all the columns
+				columns=dataGrid.columns as ArrayList;
+				//insert the any column and make it invisible
+				var anyColumn:GridColumn=new GridColumn();
+				anyColumn.headerText='Any Column(*)';
+				anyColumn.dataField='any';
+				anyColumn.visible=false;
+				columns.addItemAt(anyColumn,0);
+			}
+			
+		
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<!--
+	<s:Rect x="0" y="0" height="100%" width="100%">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="0xdedede" />
+				<s:GradientEntry color="0xffffff" />
+				<s:GradientEntry color="0xffffff" />
+			</s:LinearGradient>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke color="0xdedede"/>
+		</s:stroke>
+	</s:Rect>
+	-->
+	<s:HGroup x="0" y="0" width="100%" height="100%" verticalAlign="middle" paddingLeft="10">
+		<s:TextInput id="searchText" width="25%" height="22" change="searchTextChangeHandler(event)" enabled="{fieldSelector.selectedIndex!=-1}"/>
+		<s:DropDownList id="fieldSelector" width="42%" dataProvider="{dataGrid.columns}" height="22" 
+						prompt="Seleccione Columna" 
+						labelFunction="getGridColumnLabel"
+						change="searchTextChangeHandler(event)"/>
+		<s:Button id="clear" label="Borrar Búsqueda" click="clearHandler(event)" width="33%" height="22"/>
+		
+	</s:HGroup>
+	
+</s:BorderContainer>

@@ -1,0 +1,707 @@
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"				   
+				   xmlns:components="com.esri.viewer.components.*"
+				   xmlns:esri="http://www.esri.com/2008/ags"  
+				   initialize="basewidget1_initializeHandler(event)" 
+				   creationComplete="basewidget1_creationCompleteHandler(event)"
+				   
+				   
+				   >	
+	
+	<viewer:states>
+		<s:State name="bkmInit"/>
+		<s:State name="bkmConsulta"/>
+		<s:State name="bkmConsultaDetalle"/>
+		
+	</viewer:states>
+	<viewer:transitions>
+		<s:Transition autoReverse="true" toState="*">
+			<s:Fade targets="{[bkmInit,bkmConsulta,bkmConsultaDetalle]}"/>
+		</s:Transition>
+	</viewer:transitions>
+	
+	<fx:Declarations>
+		<s:GlowFilter id="glowFilter"
+					  alpha="1"
+					  color="{getStyle('focusColor')}"
+					  inner="true"
+					  strength="2"/>
+		
+		<s:DateTimeFormatter id="dateFormatter" dateTimePattern="dd/MM/yyyy"/>
+		
+		<esri:SimpleMarkerSymbol id="smsIdentify"
+								 alpha="0.5"
+								 color="0xFF9900"
+								 size="20"
+								 style="circle"/>
+		
+		<mx:WipeUp id="myWU" duration="300"/>
+		<mx:WipeDown id="myWD" duration="500"/>
+		<mx:WipeRight id="myWR" duration="850"/>
+		<esri:GraphicsLayer id="graphicsLayer" />
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.as3xls.xls.ExcelFile;
+			import com.as3xls.xls.Sheet;
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
+			import com.esri.ags.layers.FeatureLayer;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.portal.PopUpRenderer;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.messaging.messages.ErrorMessage;
+			import mx.rpc.AsyncResponder;
+			import mx.utils.StringUtil;
+			
+		
+			import comun.url.URL;
+			import comun.Planificacion.User;
+			
+			import widgets.AdminLectores.utilidad.urls;
+			private var popUpRenderer:PopUpRenderer = new PopUpRenderer();
+			
+			
+			[Bindable] public var idPosteNuevo:String;
+			[Bindable] public var idDirNueva:String;
+			[Bindable] public var rotNuevo:String;
+			[Bindable] public var dirNueva:String;
+			
+			[Bindable] public var coleccionLecturas:ArrayCollection = new ArrayCollection;
+			
+			[Bindable] public var coleccionEstados:ArrayList =  new ArrayList;
+			[Bindable] public var coleccionEstadoFinal:ArrayList =  new ArrayList;
+			[Bindable] public var coleccionDenuncia:ArrayList =  new ArrayList;
+			[Bindable] public var coleccionCausaDetalle:ArrayList =  new ArrayList;
+			[Bindable] public var coleccionCausa:ArrayList =  new ArrayList;
+			[Bindable] public var coleccionInspectores:ArrayList =  new ArrayList;
+			
+			[Bindable] public var lecturaSelected:int;
+			[Bindable] public var inspectorSelected:String;
+			
+			[Bindable] public var fs:FeatureSet = new FeatureSet;
+			[Bindable] public var rotu:int;
+			[Bindable] public var rotuloEncontrado:String;
+			[Bindable] public var direccionCompleta:String;
+			[Bindable] public var nisBuscado:String;
+			[Bindable] public var anexo1:String;
+			[Bindable] public var anexo2:String;
+			[Bindable] public var tipoEdificacion:String;
+			public var myGraphicsLayer:GraphicsLayer =  new GraphicsLayer;
+			
+			private var ColeccionUser:ArrayCollection = new ArrayCollection;
+			private var text1:String;
+			[Bindable] private var anchoObj:int =200;
+			public var lecturasLayer:ArcGISDynamicMapServiceLayer= new ArcGISDynamicMapServiceLayer(widgets.AdminLectores.utilidad.urls.URL_LECTURAS_DYN);
+			
+			
+		
+			
+			
+			
+			protected function basewidget1_initializeHandler(event:FlexEvent):void{	
+				ConsultarAcceso();
+				
+				//llenar combos
+				fillCombos();
+				//DataLecturas.selectedIndex = 1;
+			}
+			
+			public function fillCombos():void{
+				
+				coleccionInspectores.removeAll();
+				
+				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LISTADO_INSPECTORES);
+				var query:Query = new Query();
+				query.where = "1=1"; 
+				query.outFields = ['*'];
+				query.orderByFields = ['usuario'];
+				query.returnGeometry = false;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void{
+					
+					for(var k:int=0;k<featureSet.features.length;k++){
+						
+						
+						var recordGraphic:Graphic = featureSet.features[k];
+						coleccionInspectores.addItem({
+							OBJECTID:recordGraphic.attributes["OBJECTID"], 
+							usuario:recordGraphic.attributes["usuario"],
+							nombre:recordGraphic.attributes["nombre"],
+							gra:recordGraphic});			
+					}
+					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","Carga de Listado Inspectores");
+				}
+			}
+			
+			public function openLayer():void{
+				lecturasLayer.name = "Ingreso Lectores";
+				map.addLayer(lecturasLayer);				
+				lecturasLayer.visible = true;	
+			}
+			
+			protected function ConsultarAcceso():void{
+				
+				var queryTaskUserSelected:QueryTask = new QueryTask();
+				queryTaskUserSelected.url = comun.url.URL.URL_ACCESO;
+				queryTaskUserSelected.useAMF = false;
+				var queryEquipoSelected:Query = new Query();
+				queryEquipoSelected.outFields = ["*"];
+				queryEquipoSelected.returnGeometry = true;     
+				queryEquipoSelected.orderByFields = ["usuario"];
+				queryEquipoSelected.where = "usuario = '" + User.Usuario + "' AND MODULO ='INGRESO_CLIENTES' AND widget='LECTURAS_COORDINADOR'" ;
+				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryEquipoSelected.outSpatialReference = map.spatialReference;
+				queryTaskUserSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void{
+					
+					if(featureSet.features.length == 0 ){
+						//Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
+						//currentState = "bkmInit"; 
+						currentState ="bkmInit";
+						lblwarning.visible = true;
+						lblwarning2.visible = true;
+						pbGisred.visible = true;
+						wTemplate.height = 500;
+						wTemplate.width = 870;
+					}
+						//si hay, cuales son los permisos
+					else{   
+						
+						ColeccionUser.addAll(new ArrayCollection(featureSet.attributes));
+						
+						for(var i:int=0;i<=ColeccionUser.length-1;i++){	
+							
+							if(ColeccionUser[i].select_ == 'FALSE'){
+								btnExportarDatosClientes.enabled = false;
+							}else{
+								btnExportarDatosClientes.enabled = true;
+							}
+							
+							if( ColeccionUser[i].update_ == 'FALSE'){
+								//DDLEstadoCliente.enabled = false;
+								//btnCambiarEstadoCliente.enabled = false;
+								
+								
+							}else{
+								//DDLEstadoCliente.enabled = true;
+								//btnCambiarEstadoCliente.enabled = true;
+								
+							}
+							
+						}
+						
+						
+						cargarLista();
+						txtFilterClientes.addEventListener(Event.CHANGE,filterGridClientes);
+						
+						currentState ="bkmConsulta";
+						wTemplate.height = 500;
+						wTemplate.width = 870;
+						
+					}
+				}
+				
+				
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
+					currentState ="bkmInit";
+					lblwarning.visible = true;
+					lblwarning2.visible = true;
+					pbGisred.visible = true;
+					wTemplate.width = 870;
+					wTemplate.height = 500;
+				}
+			}
+			
+			public function cargarLista():void {
+				// TODO Auto-generated method stub
+				coleccionLecturas.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURA_INSPECCION);
+				var query:Query = new Query();
+				query.where = "inspeccion = 'SI'"; 
+				query.outFields = ['*'];
+				query.orderByFields = ['created_date'];
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void{
+					
+					for(var k:int=0;k<featureSet.features.length;k++){
+						
+						
+						var recordGraphic:Graphic = featureSet.features[k];
+						coleccionLecturas.addItem({
+							OBJECTID:recordGraphic.attributes["OBJECTID"], 
+							nro_medidor:recordGraphic.attributes["nro_medidor"],
+							estado:recordGraphic.attributes["estado"],
+							poste:recordGraphic.attributes["poste"],
+							direccion:recordGraphic.attributes["direccion"],
+							inspector:recordGraphic.attributes["inspector"],
+							inspeccion:recordGraphic.attributes["inspeccion"],
+							ot:recordGraphic.attributes["ot"],
+							estado_revision:recordGraphic.attributes["estado_revision"],
+							estado_denuncio:recordGraphic.attributes["estado_denuncio"],
+							lector:recordGraphic.attributes["lector"],
+							gra:recordGraphic});			
+					}
+					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","Carga de Lecturas");
+				}
+			}
+			
+			//Filtra Listado de Solicitudes ingresadas en Textbox
+			protected function filterGridClientes(event:Event):void
+			{
+				/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
+				Everything else is dynamic. Do not edit variable names. */
+				var filterText:String = StringUtil.trim(txtFilterClientes.text.toLowerCase()); //Trimmed text String to filter by
+				var columnArray:Array = ['OBJECTID','nro_medidor','estado','poste','direccion','estado_revision',
+					'lector','ot','inspector', 'estado_denuncio']; //Datagrid column names to filter on
+				var gridDataProvider:ArrayCollection = this.coleccionLecturas as ArrayCollection; //Name of datagrid's dataprovider. In this case e.g. databases
+				var dataGridName:String = 'DataLecturas'; //Name of the datagrid you are filtering by
+				
+				//Do not edit code past this point
+				var filteredData:Array = [];
+				var added:Boolean=false;
+				var i:int;
+				var j:int;
+				
+				// Loop Through Grid
+				for(i=0; i < gridDataProvider.length; i++){    
+					added = false;
+					
+					//Loop through grid column
+					for(j=0; j<columnArray.length; j++){            
+						if(gridDataProvider[i][columnArray[j]]!=null){
+							
+							//Grab datagrid cell contents, trim it, and convert to lowercase for comparison.
+							var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
+							
+							//Compare the datagrid string(filterString) to the user typed string(filterText).  
+							if(!added){      
+								//If the datagrid string matches the users string, put it into the array.
+								if(filterString.indexOf(filterText) != -1){
+									filteredData.push(gridDataProvider[i]);
+									added = true;
+								} 
+							}else{
+								//Do nothing, break out.
+								break;
+							}
+						}    
+					}
+				}
+				
+				//Set datagrid dataprovider
+				if(filterText.length == 0){
+					this[dataGridName].dataProvider = gridDataProvider; //Display the original unfiltered data
+				}else{
+					this[dataGridName].dataProvider = filteredData; //Pusht he filtered data into the datagrid
+				}
+			}	
+			
+			protected function basewidget1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				DataLecturas.dataProvider = coleccionLecturas;
+			}
+			
+			public var myGraphic:Graphic;
+			
+			public var acPolyline:ArrayCollection = new ArrayCollection;
+			
+			public function DataClientesNuevos_itemClickHandler(event:ListEvent):void{
+				currentState ="bkmConsultaDetalle";
+				wTemplate.height = 250;
+				wTemplate.width = 870;
+				var inspec:String = (DataLecturas.selectedItem['inspector']==null) ? "" : DataLecturas.selectedItem['inspector'];
+				lblCurrentLecturaSelected.text = "OBJECTID: " + DataLecturas.selectedItem['OBJECTID'] 
+				lblCurrentLecturaSelected2.text = "MEDIDOR: " + DataLecturas.selectedItem['nro_medidor'] 
+				lblCurrentLecturaSelected3.text= "INSPECTOR: " + inspec;
+				lecturaSelected = DataLecturas.selectedItem['OBJECTID'];
+				inspectorSelected = DataLecturas.selectedItem['inspector'];
+			}
+			
+			
+			
+			private var ef:ExcelFile;
+			private var ba:ByteArray;
+			private var fr:FileReference;
+			private var frSave:FileReference;
+			protected function btnExportarDatosClientes_clickHandler(event:MouseEvent):void
+			{
+				
+				// TODO Auto-generated method stub
+				switch(event.currentTarget.id)
+				{
+					case "btnExportarDatosClientes":
+					{
+						
+						var s:Sheet = new Sheet();
+						s.resize(coleccionLecturas.length+1,12);
+						s.setCell(0,0,"ID");
+						s.setCell(0,1,"NUMERO MEDIDOR");
+						s.setCell(0,2,"ESTADO");
+						s.setCell(0,3,"TIPO_EDIFICACION");
+						s.setCell(0,4,"POSTE");
+						s.setCell(0,5,"DIRECCION");
+						s.setCell(0,6,"ESTADO_REVISION");
+						s.setCell(0,7,"LECTOR");
+						s.setCell(0,8,"CREADO_POR");
+						s.setCell(0,9,"FECHA_CREACION");
+						s.setCell(0,10,"ESTADO_FINAL");
+						s.setCell(0,11,"LECTURA_ACTUAL");
+						for(var j:int=0;j<coleccionLecturas.length;j++)
+						{
+							s.setCell(j+1,0,coleccionLecturas[j].OBJECTID);										
+							s.setCell(j+1,1,coleccionLecturas[j].nro_medidor);
+							s.setCell(j+1,2,coleccionLecturas[j].estado);
+							s.setCell(j+1,3,coleccionLecturas[j].tipo_edificacion);
+							s.setCell(j+1,4,coleccionLecturas[j].poste);
+							s.setCell(j+1,5,coleccionLecturas[j].direccion);
+							s.setCell(j+1,6,coleccionLecturas[j].estado_revision);
+							s.setCell(j+1,7,coleccionLecturas[j].lector);
+							s.setCell(j+1,8,coleccionLecturas[j].created_user);
+							s.setCell(j+1,9,coleccionLecturas[j].created_date);
+							s.setCell(j+1,10,coleccionLecturas[j].estado_final);
+							s.setCell(j+1,11,coleccionLecturas[j].lectura_actual);
+						}
+						
+						try {
+							var fileTosave:ExcelFile = new ExcelFile();
+							fileTosave.sheets.addItem(s);
+							
+							var fileBytes:ByteArray = fileTosave.saveToByteArray();
+							frSave = new FileReference();
+							frSave.save(fileBytes,"ExportacionAdmLectores.xls");
+							frSave.addEventListener(Event.COMPLETE,grabadoListo);
+							
+						}catch(e:ErrorMessage){
+							Alert.show("Error al guardar archivo" + e);
+							
+						}
+						
+						break;
+					}
+						
+						
+					default:
+					{
+						//Alert.show("Ningun archivo ha sido generado");
+						break;
+					}
+				}			
+			}
+			
+			public function grabadoListo(event:Event):void{
+				Alert.show("Listo");
+			}
+			
+			protected function bkmInit_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				var verImageGISRED:Image = new Image;
+				
+				//imagen configuraciones
+				verImageGISRED.scaleContent = true;
+				verImageGISRED.maintainAspectRatio =false;
+				verImageGISRED.percentWidth = 850;
+				verImageGISRED.percentHeight = 500;
+				verImageGISRED.source =  "assets/images/128x128.png";
+				pbGisred.addChild(verImageGISRED);
+				
+			}
+			
+			private function dateChooser_init(dt:DateField):void {
+				dt.text = "Desde";
+				dt.dayNames=['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+				dt.monthNames=[	'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+					'Julio', 'Agosto', 'Septiembre', 'Octubre',
+					'Noviembre', 'Diciembre'];
+				dt.firstDayOfWeek = 1;
+				dt.formatString = "DD/MM/YYYY";
+			}
+			
+			private function dateChooser2_init(dt:DateField):void {
+				dt.text = "Hasta";
+				dt.dayNames=['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+				dt.monthNames=[	'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+					'Julio', 'Agosto', 'Septiembre', 'Octubre',
+					'Noviembre', 'Diciembre'];
+				dt.firstDayOfWeek = 1;
+				dt.formatString = "DD/MM/YYYY";
+			}
+			
+			protected function image1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				coleccionLecturas.removeAll();
+				cargarLista();
+				DataLecturas.dataProvider = coleccionLecturas;
+			}
+			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				// TODO Auto-generated method stub
+				map.removeLayer(lecturasLayer);
+			}
+			
+			protected function wTemplate_openHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				openLayer();
+			}
+			
+			protected function btnRangoFecha_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				// TODO Auto-generated method stub
+				cargarListaRango();
+			}
+			
+			public function cargarListaRango():void{
+				coleccionLecturas.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURA_INSPECCION);
+				var query:Query = new Query();
+				query.where = "created_date >=" + "'" +  dateDesde.text + "'" + "and created_date <=" + "'" + dateHasta.text + "'  AND (estado_final IS NULL OR estado_final <>'CARGADO')"; 
+				
+				query.outFields = ['*'];
+				query.orderByFields = ['created_date'];
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void{
+					
+					for(var k:int=0;k<featureSet.features.length;k++){
+						
+						
+						var recordGraphic:Graphic = featureSet.features[k];
+						coleccionLecturas.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
+							nro_medidor:recordGraphic.attributes["nro_medidor"],
+							estado:recordGraphic.attributes["estado"],
+							tipo_edificacion:recordGraphic.attributes["tipo_edificacion"],
+							poste:recordGraphic.attributes["poste"],
+							direccion:recordGraphic.attributes["direccion"],
+							estado_revision:recordGraphic.attributes["estado_revision"],
+							lector:recordGraphic.attributes["lector"],
+							lectura_actual: recordGraphic.attributes["lectura_actual"],
+							estado_final:recordGraphic.attributes["estado_final"],
+							inspeccion:recordGraphic.attributes["inspeccion"],
+							ot:recordGraphic.attributes["ot"],
+							inspector:recordGraphic.attributes["inspector"],
+							causal:recordGraphic.attributes["causal"],
+							estado_denuncio:recordGraphic.attributes["estado_denuncio"],
+							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
+							gra:recordGraphic});			
+					}
+					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","Carga de Lecturas");
+				}
+			}
+			
+			protected function BtnVolver_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				currentState ="bkmConsulta";
+				wTemplate.height = 500;
+				wTemplate.width = 870;
+			}
+			
+			
+			
+			protected function btnGuardarInspector_clickHandler(event:MouseEvent):void{
+				// TODO Auto-generated method stub
+				var Modificaciones:* = new Object;
+				//Alert.show(ddlEstadoInspeccion.selectedItem.toString());
+				Modificaciones["OBJECTID"]= lecturaSelected;
+				Modificaciones["inspector"]= ddlInspector.selectedItem.usuario.toString();
+				Modificaciones["ot"]= txtOT.text;
+				Modificaciones["estado_revision"]= 'asignada';
+				                         
+			
+				
+				var graficoEditadoActual:Graphic = new Graphic;
+				
+				graficoEditadoActual = new Graphic(null,null,Modificaciones);
+				var myDetalleActLayer:FeatureLayer = new FeatureLayer(widgets.AdminLectores.utilidad.urls.URL_LECTURA_INSPECCION);
+				myDetalleActLayer.applyEdits(null,[graficoEditadoActual],null, false,new AsyncResponder(onResult, onFault));
+				
+				
+				function onResult():void{   
+					currentState ="bkmConsulta";
+					wTemplate.height = 500;
+					wTemplate.width = 870;
+					cargarLista();
+					
+					Alert.show("Lectura "+ lecturaSelected + " Modificada");
+					
+				}
+				
+				function onFault(info:Object, token:Object = null):void{
+					Alert.show("Error al modificar la lectura.  Contáctese con el administrador de GISRED. "+info.toString());
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<viewer:WidgetTemplate id="wTemplate"                      
+						   width="870" height="500"
+						   visible="true" closed="wTemplate_closedHandler(event)" open="wTemplate_openHandler(event)">
+		
+		<s:Group id="bkmInit" width="100%" height="100%" initialize="bkmInit_initializeHandler(event)"
+				 visible="false" visible.bkmInit="true">	
+			<s:VGroup horizontalAlign="center" height="100%" width="100%" verticalAlign="middle">
+				<mx:Canvas width="200" height="200" id="pbGisred" color="0x000000" horizontalScrollPolicy="off"
+						   verticalScrollPolicy="off" visible="false"/>                                           
+				<s:Label id="lblwarning" text="No tiene permisos para acceder a este módulo." 
+						 fontSize="16" visible="false" paddingTop="10"/>
+				<s:Label id="lblwarning2" text="Comuniquese con el administrador de GISRED" 
+						 fontSize="16" visible="false" paddingTop="10"/>
+			</s:VGroup>
+		</s:Group> 
+		
+		<s:Group id="bkmConsulta"
+				 width="100%" height="100%"
+				 visible="false"
+				 visible.bkmConsulta="true">
+			
+			
+			
+			<mx:Canvas id="ListadoClientes" label="Lista Lecturas" width="100%" height="100%">
+				<s:VGroup width="100%" top="5" bottom="5" height="80%">
+					<mx:Label id="Lblclie" text="Listado de Lecturas" fontSize="18"/>
+					<s:HGroup width="100%" verticalAlign="middle">
+						<mx:TextInput x="10" id="txtFilterClientes" width="100%" height="30" fontSize="14" fontWeight="bold" />
+						<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png"/>
+						<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/refresh_1.png" click="image1_clickHandler(event)"/>
+					</s:HGroup>
+					<mx:DataGrid id="DataLecturas" resizableColumns="true" sortableColumns="true" editable="false"  
+								 width="100%" height="100%" visible="true" selectable="true" itemClick="DataClientesNuevos_itemClickHandler(event)">
+						<mx:columns>        
+							<mx:DataGridColumn  dataField="OBJECTID" headerText="OBJECTID" width="30" visible="true"/>                                                         
+							
+							<mx:DataGridColumn dataField="nro_medidor" headerText="NUM.MEDIDOR" width="50" /> 
+							<mx:DataGridColumn dataField="estado" headerText="ESTADO" visible="true" width="50" />
+							
+							<mx:DataGridColumn dataField="poste" headerText="POSTE" visible="true" width="50" />
+							<mx:DataGridColumn dataField="direccion" headerText="DIRECCION" visible="true" width="50" />
+							<mx:DataGridColumn dataField="inspector" headerText="INSPECTOR" visible="true" width="50" />
+							<mx:DataGridColumn dataField="ot" headerText="OT" visible="true" width="50" />
+							<mx:DataGridColumn dataField="inspeccion" headerText="INSPECCION" visible="true" width="50" />
+							<mx:DataGridColumn dataField="estado_revision" headerText="ESTADO_REVISION" visible="true" width="50" />
+							<mx:DataGridColumn dataField="lector" headerText="LECTOR" visible="true" width="50" />
+							<mx:DataGridColumn dataField="estado_denuncio" headerText="ESTADO DENUNCIO" visible="true" width="50" />
+						</mx:columns>
+					</mx:DataGrid> 
+					
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					<s:HGroup width="100%">
+						<s:HGroup horizontalAlign="left" width="100%">
+							<mx:DateField id="dateDesde" formatString="DD/MM/YYYY" creationComplete="dateChooser_init(dateDesde)"/>
+							<mx:DateField id="dateHasta" formatString="DD/MM/YYYY" creationComplete="dateChooser2_init(dateHasta)"/>
+							<s:Button id="btnRangoFecha" label="Consultar" click="btnRangoFecha_clickHandler(event)"/> 
+						</s:HGroup>
+						<s:HGroup horizontalAlign="right" width="100%">
+							<s:Button id="btnExportarDatosClientes" label="Exportar Listado" click="btnExportarDatosClientes_clickHandler(event)"/>
+						</s:HGroup>
+					</s:HGroup>
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					
+					
+				</s:VGroup>
+				
+				
+			</mx:Canvas>
+			
+			
+			
+		</s:Group>
+		
+		<s:Group id="bkmConsultaDetalle"
+				 width="100%" height="100%"
+				 visible="false"
+				 visible.bkmConsultaDetalle="true">
+			
+			
+			
+			<mx:Canvas id="ListadoCliente2" label="Lista Lecturas" width="100%" height="100%">
+				<s:VGroup width="100%" top="5" bottom="5" height="100%">
+					<s:HGroup width="100%" height="10%" paddingTop="10" >
+						<s:HGroup width="33%" horizontalAlign="left"><s:Label id="lblCurrentLecturaSelected"></s:Label></s:HGroup>
+						<s:HGroup width="33%" horizontalAlign="center"><s:Label id="lblCurrentLecturaSelected2"></s:Label></s:HGroup>
+						<s:HGroup width="33%" horizontalAlign="right"><s:Label id="lblCurrentLecturaSelected3"></s:Label></s:HGroup>
+					</s:HGroup>
+					
+					<mx:HRule width="100%"></mx:HRule>
+					
+					<s:HGroup width="100%" height="20%" horizontalAlign="center"><s:Label fontSize="16" fontWeight="bold" text="Asigne Inspector y OT: " paddingTop="5" paddingBottom="10"></s:Label></s:HGroup>
+					
+					<s:HGroup height="60%" verticalAlign="middle" width="100%" horizontalAlign="center">
+						<s:HGroup width="50%" horizontalAlign="right" verticalAlign="middle" paddingRight="5"  >
+							<s:Label text="Inspector: "></s:Label>
+							<!-- <s:TextInput id="txtInspector" width="150"></s:TextInput>-->
+							<s:DropDownList id="ddlInspector" labelField="usuario" dataProvider="{coleccionInspectores}" width="150"  prompt="Seleccione" ></s:DropDownList>
+						</s:HGroup>
+						<s:HGroup width="50%" horizontalAlign="left" verticalAlign="middle" paddingLeft="5" >
+							<s:Label text="OT: " width="75"></s:Label>
+							<s:TextInput id="txtOT" width="150"></s:TextInput>
+						</s:HGroup>
+					</s:HGroup>
+					
+					<mx:HRule width="100%"></mx:HRule>
+					<s:HGroup height="10%" width="100%" paddingTop="7" horizontalAlign="center">
+						<s:Button id="btnGuardarInspector" label="Guardar" click="btnGuardarInspector_clickHandler(event)"></s:Button>	
+						<s:Button id="btnVolver" click="BtnVolver_clickHandler(event)" label="Volver"></s:Button>	
+					</s:HGroup>
+				</s:VGroup>
+				
+				
+			</mx:Canvas>
+			
+			
+			
+		</s:Group>
+		
+		
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

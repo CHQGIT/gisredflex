@@ -16,9 +16,10 @@ package widgets.AdminLectores.utilidad
 		public static var URL_LECTURAS:String = "http://gisred.chilquinta/arcgis/rest/services/Varios/Ingreso_Lectores/FeatureServer/0";
 		public static var URL_LECTURAS_DYN:String = "http://gisred.chilquinta/arcgis/rest/services/Varios/Ingreso_Lectores/MapServer";
 		public static var URL_INGRESOSEXTERNOS:String = "http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/FeatureServer";
-		/*public static var URL_CREAR_POSTES:String="http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/FeatureServer/1";
-		public static var URL_CREAR_DIRECCION:String="http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/FeatureServer/2"
-		public static var URL_CREAR_UNION_CDP:String="http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/FeatureServer/3"
+		public static var URL_LECTURA_INSPECCION:String = "http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_movil_lectores/FeatureServer/0";
+		public static var URL_LISTADO_INSPECTORES:String="http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_movil_lectores/FeatureServer/1";
+		public static var URL_LECTURAS_DETALLE:String="http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_movil_lectores/FeatureServer/2";
+		/*public static var URL_CREAR_UNION_CDP:String="http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo/FeatureServer/3"
 		*/	
 		public static var ndo:String; 
 		

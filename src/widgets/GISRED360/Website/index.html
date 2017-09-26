@@ -1,187 +1,155 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>GISRED 360</title>
+        <meta name="description" content="">
+        <meta name="author" content="ehernanr">
+        <meta name="viewport" content="width=device-width; initial-scale=1.0">
+        <!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+        <link rel="shortcut icon" href="/favicon.ico">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <!-- Latest compiled JavaScript -->
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        <!-- CUSTOMS: BY EVE -->
+        <link rel="stylesheet" href="css/index.css">
+        <link rel="stylesheet" href="http://js.arcgis.com/3.13/esri/css/esri.css">
+        <link rel="stylesheet" href="https://js.arcgis.com/3.15/dijit/themes/claro/claro.css">
+        <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        <script src="js/arcgisApi.js"></script>
+        <script src="js/three.min.js"></script>
+        <script src="js/photo-sphere-viewer.min.js"></script>
+        <style>
+</style>
+        <script>
 
-    <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
-    Remove this if you use the .htaccess -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-
-    <title>index</title>
-    <meta name="description" content="">
-    <meta name="author" content="ehernanr">
-
-    <meta name="viewport" content="width=device-width; initial-scale=1.0">
-
-    <!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    
-    
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <!--<link rel="stylesheet" href="css/bootstrap.min.css">-->
-    
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <!-- <script src="js/jquery.min.js"></script> -->
-    
-    <!-- Latest compiled JavaScript -->
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <!--<script src="js/bootstrap.min.js"></script>-->
-    
-     <!-- CUSTOMS: BY EVE -->
-     <link rel="stylesheet" href="css/index.css">
-     
-      
-       <!-- GOOGLE API--> 
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
-    <!-- <script src="js/google.js"></script>   -->
-     
-     <link rel="stylesheet"  href="css/claro.css"/>
-     
-     <script src="http://js.arcgis.com/3.13/"></script>
-     
-      <link rel="stylesheet" href="http://js.arcgis.com/3.13/dojox/layout/resources/ResizeHandle.css"> 
-      <link rel="stylesheet" href="http://js.arcgis.com/3.13/esri/css/esri.css"> 
-      <!--<link rel="stylesheet" href="css/ResizeHandle.css">-->
-      <!--<link rel="stylesheet" href="css/esri.css">-->
-      
-     <style>
-      /* Adjust the position of map resize handle a little bit */
-     .dojoxResizeHandle {
-        right: 0px;
-        bottom: 0px;
-      }
-    </style>
-     
-     <script>
-     
      var dojoConfig = {
-        //Required if you have dojo widgets(aka.dijits) in your HTML 
+        //Required if you have dojo widgets(aka.dijits) in your HTML
         parseOnLoad: true
       };
-      
-  
-     var nomSSEESelected = "";
-     var coordSSEEx;
-     var coordSSEEy;
-     var foto;
-     var token;
+
+  	 var nomSSEESelected;
+  	 var token;
      var customZoom;
-  function initialize() {
-      
-   
-   
+     var coordSSEELong;
+     var coordSSEELat;
+     var foto;
+
+
+   //  var directorioPrincipal = new String("http://gisred.chilquinta/360/");
+     var directorioPrincipal = new String("/chilquinta/assets/images/360/SSEE/");
+     var slash = "/";
+     //var panoNom = new String(nomSSEESelected);
+     var extension = new String(".jpg");
+     var ubicacionFoto;
+  	 var map;
+     var point;
+
+
+
+function initialize() {
+
      coordSSEELong = getURLParameter('latSSEE');
      coordSSEELat = getURLParameter('lonSSEE');
      nomSSEESelected = getURLParameter('nombreSSEE');
+
      customZoom = getURLParameter('zoom');
- 
-    token = getURLParameter('token');
-   
-     //Required if you have dojo widgets (aka. dijits)in your HTML markup 
-    dojo.require("dojo.parser"); 
-    // Import ResizeHandle module 
-    dojo.require("dojox.layout.ResizeHandle");
+     token =  getURLParameter('token');
+    dojo.require("dojo.parser");
     dojo.require("esri.geometry.Point");
     dojo.require("esri.tasks.query");
- 
     dojo.ready(pageReady);
+
     }
 
-  function getURLParameter(name) {
-                return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [,""])
+function getURLParameter(name) {
+    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [,""])[1].replace(/\+/g, '%20')) || null;
+  }
 
-[1].replace(/\+/g, '%20')) || null;
-            }
-        
-     
-    //  google.maps.event.addDomListener(window, 'load', initialize);
 </script>
-   
-<script>
-   
+        <script>
 
-    var map; 
-    var point;
-   
-  
- 
-    function pageReady() {
-      var srvToken = "http://gisred.chilquinta/arcgis/rest/services/Varios/360/MapServer?token=" + token;
+function pageReady() {
+      var urlToken = "http://gisred.chilquinta/arcgis/rest/services/Varios/360/MapServer?token="+token;
       point = new esri.geometry.Point(coordSSEELat, coordSSEELong);
-      map = new esri.Map("mapDiv",{
-      });
-       var layer = new esri.layers.ArcGISDynamicMapServiceLayer(srvToken);
-       // alert(srvToken);
-        map.addLayer(layer);
-        map.on("load", function() {
-       // map.disablePan();
-       // map.disableScrollWheelZoom();
-       // map.hideZoomSlider();
-        //map.centerAt(coordSSEELat, coordSSEELong);
-       
+      map = new esri.Map("mapDiv",{});
+
+     var layer = new esri.layers.ArcGISDynamicMapServiceLayer(urlToken);
+     map.addLayer(layer);
+     /*map.on("load", function() {
        map.centerAndZoom(point,customZoom);
-        });
-         var srvTokenLayer1 = "http://gisred.chilquinta/arcgis/rest/services/Varios/360/MapServer/0?token=" + token;
-      var queryTask = new esri.tasks.QueryTask(srvTokenLayer1);
-     // queryTask.token = token;
-      var query = new esri.tasks.Query();
-      query.where = "SSEE = '"+nomSSEESelected+"'";
-      query.returnGeometry = true;
-      query.outFields = ["SSEE","NOMBRE_FOTO", "IDPUNTO", "ZOOM"];
-      queryTask.execute(query, addPointsToMap);
-      
+     });
+     */
+     var queryTask = new esri.tasks.QueryTask("http://gisred.chilquinta/arcgis/rest/services/Varios/360/MapServer/0?token="+token);
+     var query = new esri.tasks.Query();
+     query.where = "SSEE = '" + nomSSEESelected + "'";
+     query.returnGeometry = true;
+     query.outFields = ["SSEE","NOMBRE_FOTO", "IDPUNTO", "ZOOM"];
+     queryTask.execute(query, addPointsToMap);
+
     }
-    
-   
-    
-      //add points to map and set their symbology + info template
-     function addPointsToMap(featureSet) {
+function addPointsToMap(featureSet) {
+      map.zoomTo(featureSet.features.geometry);
       //Define symbology
-      var defaultRenderer = new esri.renderer.SimpleRenderer(
-              new esri.symbol.SimpleMarkerSymbol().setColor(new dojo.Color([255,255,0,0])));
+      var defaultRenderer = new esri.renderer.SimpleRenderer(new esri.symbol.SimpleMarkerSymbol().setColor(new dojo.Color([255,129,0,0.30])));
       map.graphics.setRenderer(defaultRenderer);
 
       var features = featureSet.features;
+      console.log(map.extent);
       dojo.forEach(features,function(feature){
-        map.graphics.add(feature);
-        
+      map.graphics.add(feature);
+
       });
       dojo.connect(map.graphics,"onClick",identifyFeatures);
      }
 
-    function identifyFeatures(evt){
-    
+function identifyFeatures(evt){
+
       var extentGeom = pointToExtent(map,evt.mapPoint,10);
       var filteredGraphics = dojo.filter(map.graphics.graphics, function(graphic) {
-        return extentGeom.contains(graphic.geometry);
-      });
-
-     
-      var content = "";
-      //content = "<i>Fotos encontradas: " + filteredGraphics.length + "<\/i>";
-      content += "<table border='0' style='width:50%;text-align: left;'><tr><th>NOMBRE FOTO<\/th>";
-
+       		 return extentGeom.contains(graphic.geometry);
+     		 });
+	  var content = "";
       //Build a table containing a row for each feature found
       dojo.forEach(filteredGraphics,function(row){
-        content += "<tr style='width:20%;text-align:left'><td>" +
-              row.attributes.NOMBRE_FOTO + "<\/td><td>";
-      
-      //va a la funcion para cambiar la foto        
-      cambiarFoto(row.attributes.NOMBRE_FOTO, row.attributes.SSEE);        
-      });
-      content += "<\/table>";
+      foto = row.attributes.NOMBRE_FOTO;
 
-      map.infoWindow.setContent(content);
-      map.infoWindow.setTitle("GISRED 360:");
-   //   map.infoWindow.show(evt.screenPoint,map.getInfoWindowAnchor(evt.screenPoint));
-      
-   }
+        ubicacionFoto = directorioPrincipal.concat(nomSSEESelected).concat(slash).concat(foto).concat(extension);
 
-   function pointToExtent(/*esri.Map*/ map, /*esri.geometry.Point (in map coords)*/ point, /*Number*/ toleranceInPixel) {
+
+		var div = document.getElementById('your-pano');
+		var PSV = new PhotoSphereViewer({
+			// Panorama, given in base 64
+			panorama: ubicacionFoto,
+
+			// Container
+			container: div,
+
+			// Deactivate the animation
+			time_anim: false,
+
+			// Display the navigation bar
+			navbar: true,
+
+			// Resize the panorama
+			size: {
+				width: '100%',
+				height: '500px'
+			},
+			min_fov: 30,
+			// No XMP data
+			usexmpdata: false
+		});
+
+
+
+        });
+}
+
+ function pointToExtent(map, point,toleranceInPixel) {
     //calculate map coords represented per pixel
     var pixelWidth = map.extent.getWidth() / map.width;
     //calculate map coords for tolerance in pixel
@@ -192,103 +160,40 @@
       point.x + toleraceInMapCoords,
       point.y + toleraceInMapCoords,
       map.spatialReference );
-    }
-   
-   //cambia la fotografía segun lo seleccionado
-    function cambiarFoto(f,ssee){
-  
-      foto = f;
-      nomSSEESelected = ssee;
-    
-       var panoOptions = {
-        pano: 'reception',
-        visible: true,
-        panoProvider: getCustomPanorama   
-      };
-    
-      var panorama = new google.maps.StreetViewPanorama(document.getElementById('map-canvas'), panoOptions);
-    }
-   
-   function getCustomPanorama(pano, zoom, tileX, tileY) {
-    
-      if (pano === 'reception') {
-          return {
-            location: {
-              pano: 'reception',
-              description: 'GISRED 360'
-            },
-            links: [],
-            copyright: 'Imagery (c) 2015 Google',
-           
-            tiles: {
-              tileSize: new google.maps.Size(980, 560),
-              worldSize: new google.maps.Size(980, 560),
-              centerHeading: 105,
-              getTileUrl: getCustomPanoramaTileUrl
-            }
-          };
-      }
-    }
-    
-    function getCustomPanoramaTileUrl(pano, zoom, tileX, tileY) {
- 
-      var directorioPrincipal = new String("/chilquinta/assets/images/360/SSEE/");
-      var slash = "/";
-     
-      var panoNom = new String(nomSSEESelected);
-      var pic = new String(foto);
-    
-      var extension = new String(".jpg"); 
-    
-      var ubicacionFoto = directorioPrincipal.concat(panoNom).concat(slash).concat(pic).concat(extension);
-    
-     return ubicacionFoto;
-    
-    }
+}
+
+
+
+
     </script>
-
-  </head>
-
-  <body onload="initialize();">
-    
-    <div class="container-fluid" id="contenedorPrincipal">
-      <div class="container" id="contenedorHeader">
-          <div class="page-header">
-              <header>
-                <img class="img-responsive" src="imagenes/gr360_3.png" alt="gr" width="150" height="90">
-              </header>
-          </div>
-      </div>
-      
-     
-          <div class="container" id="contenedorPaneles">
-              <div class="row">
-             
-                <!-- panel izquierdo -->
-                  <div class="col-sm-8">
-                    <p class="lead text-center" >Panorámica  <span class="glyphicon glyphicon-camera"></span></p>
-                    <div class="panel panel-default">  
-                       <div class="panel-body" id="map-canvas">
-                         <img class="img-responsive" src="imagenes/gr360nodisp.jpg" alt="Chania" width="1024" height="768">
-                         </div>
+    </head>
+    <body onload="initialize();" class="claro">
+        <div class="container-fluid" id="contenedorPrincipal">
+            <div class="container" id="contenedorPaneles">
+                <div class="row columnsContainer">
+                    <div class="col-sm-8 containerPano">
+                        <h5>Panorámica</h5>
+                        <div id="your-pano" class="divPano"></div>
                     </div>
-                  </div>
-            
-                   <!-- panel derecho -->  
-                  <div class="col-sm-4"> 
-                      <p class="lead text-center">Plano <span class="glyphicon glyphicon-picture"></span></p>
-                      <div class="panel panel-default">
-                         <div class="panel-body">
+                    <!-- panel izquierdo -->
+                    <!-- panel derecho -->
+                    <div class="col-sm-4 containerPano">
+                        <h5>Plano</h5>
+                        <div class="panel panel-default">
+                            <div class="panel-body">
                                 <div id="mapDiv">
-                                 <div data-dojo-type="dojox.layout.ResizeHandle"data-dojo-
-
-props="targetId:'mapDiv',activeResize:true,intermediateChanges:true"></div>
+                                    <!-- <div data-dojo-type="dojox.layout.ResizeHandle"data-dojo-props="targetId:'mapDiv',activeResize:true,intermediateChanges:true"></div>-->
                                 </div>
-
-                           
-                         </div>
-                      </div>
-                    <!--
+                            </div>
+                        </div>
+                        <div class="container" id="contenedorHeader">
+                            <div class="page-header">
+                                <header class="banner">
+</header>
+                                <h6>GISRED 360 -2016 <br> &copy;Planificacion y Gestión de la información Operacional</h6>
+                            </div>
+                        </div>
+                        <!--
                         <div class="panel panel-default" id="panelLista">
                            <h4 class="text-center">Lista de Fotos</h4>
                               <div class="list-group text-center">
@@ -298,16 +203,11 @@ props="targetId:'mapDiv',activeResize:true,intermediateChanges:true"></div>
                               </div>
                          </div>
                        -->
-                  </div>
-                  
-              </div>   <!-- div row -->  
-            </div> <!-- contenedor paneles cierre -->  
-        
-    </div>   <!-- contenedor principal -->     
-      <div class="container" id="contenedorFooter">
-        <p>GISRED 360,  2015</p>
-      </div>
-   
-  
-</body>
-</html>
+                    </div>
+                </div>
+                <!-- div row -->
+            </div>
+            <!-- contenedor paneles cierre -->
+        </div>
+        <!-- contenedor principal -->
+    </body>

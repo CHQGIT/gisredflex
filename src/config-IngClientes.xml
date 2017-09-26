@@ -34,14 +34,7 @@
         </basemaps>
         <operationallayers>
         
-        <!-- 
-        	<layer type="dynamic"
-     			label="Clientes subterraneos"
-     			imageformat="png32"
-     			url="http://gisred.chilquinta/arcgis/rest/services/Test/Cleintes_subterraneos/MapServer"
-     			visible="false">
-     			
-     		</layer> -->
+       
      		<layer type="dynamic"
      			label="GE_VOLT"
      			imageformat="png32"
@@ -332,7 +325,7 @@
                			url="widgets/IngresoClientes/IngresoClientes.swf" 
                			preload="close"/>               			
                			
-  	       <widgetgroup label="Varios2" icon="assets/images/admclientes1.png">
+  	       <widgetgroup label="Administracion Clientes" icon="assets/images/admclientes1.png">
   	      		<widget label="Administracion clientes" 
        		   			icon="assets/images/adm_clientes.png"
                			config="widgets/AdmIngresoClientes/AdmIngresoClientes.xml"
@@ -344,12 +337,29 @@
                			url="widgets/AdmIngresoClientesCNR/AdmIngresoClientesCNR.swf" 
                			preload="close"/>
                			
-               	<widget label="Administracion Lectores" 
+               	
+         </widgetgroup>
+         
+           <widgetgroup label="Administracion Lecturas" icon="assets/images/admclientes1.png">
+          	    <widget label="Administracion Lectores" 
        		   			icon="assets/images/metericon.png"
                			config="widgets/AdminLectores/AdminLectores.xml"
                			url="widgets/AdminLectores/AdminLectores.swf" 
                			preload="close"/>
-         </widgetgroup>
+               			
+               	<widget label="Administracion Inspecciones" 
+       		   			icon="assets/images/metericon.png"
+               			config="widgets/AdminLectores/AdminLectores.xml"
+               			url="widgets/AdminLectores/AdminInspecciones.swf" 
+               			preload="close"/>	
+               			
+             	<widget label="Asignar Inspector" 
+       		   			icon="assets/images/metericon.png"
+               			config="widgets/AdminLectores/AdminLectores.xml"
+               			url="widgets/AdminLectores/Coordinador.swf" 
+               			preload="close"/>	  				
+            </widgetgroup>
+           
   	 <!--      <widget label="Inspecciones" 
        		   			icon="assets/images/encuesta.png"
                			config="widgets/Mantenimiento_inspecciones/Inspecciones.xml"

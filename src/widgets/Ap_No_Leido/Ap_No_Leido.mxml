@@ -4,7 +4,7 @@
 				   xmlns:viewer="com.esri.viewer.*"				   
 				   xmlns:components="com.esri.viewer.components.*"
 				   xmlns:esri="http://www.esri.com/2008/ags"  initialize="basewidget1_initializeHandler(event)" creationComplete="basewidget1_creationCompleteHandler(event)"
-				   
+				   				   
 				   >	
 	
 	<viewer:states>
@@ -180,15 +180,17 @@
 			}
 			
 			
+		
+			
 			//Filtra Listado de Solicitudes ingresadas en Textbox
 			protected function filterGridClientes(event:Event):void
 			{
 				/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
 				Everything else is dynamic. Do not edit variable names. */
 				var filterText:String = StringUtil.trim(txtFilterClientes.text.toLowerCase()); //Trimmed text String to filter by
-				var columnArray:Array = ['NUMERO_MEDIDOR','TIPO_MEDIDOR','NIS','TIPO_POSTE_CAMARA','ID_POSTE_CAMARA','TIPO_EMPALME','TIPO_DIRECCION','ID_DIRECCION','created_user', 'created_date', 'ESTADO']; //Datagrid column names to filter on
+				var columnArray:Array = ['NIS','N_MEDIDOR','T_EQUIPO','CAJA','ESTADO','ROTULO']; //Datagrid column names to filter on
 				var gridDataProvider:ArrayCollection = this.coleccionAP as ArrayCollection; //Name of datagrid's dataprovider. In this case e.g. databases
-				var dataGridName:String = 'DataClientesNuevos'; //Name of the datagrid you are filtering by
+				var dataGridName:String = 'DataAP'; //Name of the datagrid you are filtering by
 				
 				//Do not edit code past this point
 				var filteredData:Array = [];
@@ -436,11 +438,17 @@
 				cargarAP_No_LEIDO();
 			}
 			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				myGraphicsLayer.clear();
+			}
+			
 		]]>
 	</fx:Script>
 	<viewer:WidgetTemplate id="wTemplate"                      
 						   width="850" height="500"
-						   visible="true" initialize="wTemplate_initializeHandler(event)">
+						   visible="true" initialize="wTemplate_initializeHandler(event)" closed="wTemplate_closedHandler(event)">
 		
 		<s:Group id="bkmInit" width="100%" height="100%" initialize="bkmInit_initializeHandler(event)"
 				 visible="false" visible.bkmInit="true">	
@@ -463,7 +471,7 @@
 				
 			<mx:Canvas id="ListadoClientes" label="Lista Clientes Nuevos" width="100%" height="100%">
 				<s:VGroup width="100%" top="5" bottom="5" height="50%">
-					<mx:Label id="Lblclie" text="AP NO LEIDO" fontSize="18"/>
+					<!--<mx:Label id="Lblclie" text="AP NO LEIDO" fontSize="18"/>-->
 					<s:HGroup width="100%" verticalAlign="middle">
 						<mx:TextInput x="10" id="txtFilterClientes" width="100%" height="30" fontSize="14" fontWeight="bold" />
 						<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png"/>
