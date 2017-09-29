@@ -673,7 +673,7 @@
 						<s:HGroup width="25%" horizontalAlign="left"><s:Label id="lblCurrentLecturaSelected"></s:Label></s:HGroup>
 						<s:HGroup width="25%" horizontalAlign="center"><s:Label id="lblCurrentLecturaSelected2"></s:Label></s:HGroup>
 						<s:HGroup width="25%" horizontalAlign="center"><s:Label id="lblCurrentLecturaSelected3"></s:Label></s:HGroup>
-						<s:HGroup width="25%" horizontalAlign="right"><s:Label id="lblCurrentLecturaSelected4"></s:Label></s:HGroup>
+						
 					</s:HGroup>
 					
 					<mx:HRule width="100%"></mx:HRule>
@@ -691,7 +691,7 @@
 							<s:TextInput id="txtOT" width="150"></s:TextInput>
 						</s:HGroup>
 					</s:HGroup>
-					
+					<s:HGroup width="100%" paddingBottom="10" paddingTop="10" horizontalAlign="center"><s:Label id="lblCurrentLecturaSelected4"></s:Label></s:HGroup>
 					<mx:HRule width="100%"></mx:HRule>
 					<s:HGroup height="10%" width="100%" paddingTop="7" horizontalAlign="center">
 						<s:Button id="btnGuardarInspector" label="Guardar" click="btnGuardarInspector_clickHandler(event)"></s:Button>	
