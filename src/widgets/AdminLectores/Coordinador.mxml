@@ -242,7 +242,7 @@
 				// TODO Auto-generated method stub
 				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURA_INSPECCION);
 				var query:Query = new Query();
-				query.where = "inspeccion = 'SI'"; 
+				query.where = "inspeccion = 'SI' AND (estado_final is null or estado_final = 'NO APLICA')"; 
 				query.outFields = ['*'];
 				query.orderByFields = ['created_date'];
 				query.returnGeometry = true;
@@ -268,6 +268,7 @@
 							estado_revision:recordGraphic.attributes["estado_revision"],
 							estado_denuncio:recordGraphic.attributes["estado_denuncio"],
 							lector:recordGraphic.attributes["lector"],
+							obs: recordGraphic.attributes["obs"],
 							gra:recordGraphic});			
 					}
 					
@@ -344,9 +345,10 @@
 				wTemplate.height = 250;
 				wTemplate.width = 870;
 				var inspec:String = (DataLecturas.selectedItem['inspector']==null) ? "" : DataLecturas.selectedItem['inspector'];
-				lblCurrentLecturaSelected.text = "OBJECTID: " + DataLecturas.selectedItem['OBJECTID'] 
-				lblCurrentLecturaSelected2.text = "MEDIDOR: " + DataLecturas.selectedItem['nro_medidor'] 
+				lblCurrentLecturaSelected.text = "OBJECTID: " + DataLecturas.selectedItem['OBJECTID']; 
+				lblCurrentLecturaSelected2.text = "MEDIDOR: " + DataLecturas.selectedItem['nro_medidor']; 
 				lblCurrentLecturaSelected3.text= "INSPECTOR: " + inspec;
+				lblCurrentLecturaSelected4.text = "OBSERVACION: " + DataLecturas.selectedItem['obs'] ;
 				lecturaSelected = DataLecturas.selectedItem['OBJECTID'];
 				inspectorSelected = DataLecturas.selectedItem['inspector'];
 			}
@@ -627,6 +629,7 @@
 							<mx:DataGridColumn dataField="estado_revision" headerText="ESTADO_REVISION" visible="true" width="50" />
 							<mx:DataGridColumn dataField="lector" headerText="LECTOR" visible="true" width="50" />
 							<mx:DataGridColumn dataField="estado_denuncio" headerText="ESTADO DENUNCIO" visible="true" width="50" />
+							<mx:DataGridColumn dataField="obs" headerText="OBSERVACION" visible="true" width="50" />
 						</mx:columns>
 					</mx:DataGrid> 
 					
@@ -667,9 +670,10 @@
 			<mx:Canvas id="ListadoCliente2" label="Lista Lecturas" width="100%" height="100%">
 				<s:VGroup width="100%" top="5" bottom="5" height="100%">
 					<s:HGroup width="100%" height="10%" paddingTop="10" >
-						<s:HGroup width="33%" horizontalAlign="left"><s:Label id="lblCurrentLecturaSelected"></s:Label></s:HGroup>
-						<s:HGroup width="33%" horizontalAlign="center"><s:Label id="lblCurrentLecturaSelected2"></s:Label></s:HGroup>
-						<s:HGroup width="33%" horizontalAlign="right"><s:Label id="lblCurrentLecturaSelected3"></s:Label></s:HGroup>
+						<s:HGroup width="25%" horizontalAlign="left"><s:Label id="lblCurrentLecturaSelected"></s:Label></s:HGroup>
+						<s:HGroup width="25%" horizontalAlign="center"><s:Label id="lblCurrentLecturaSelected2"></s:Label></s:HGroup>
+						<s:HGroup width="25%" horizontalAlign="center"><s:Label id="lblCurrentLecturaSelected3"></s:Label></s:HGroup>
+						<s:HGroup width="25%" horizontalAlign="right"><s:Label id="lblCurrentLecturaSelected4"></s:Label></s:HGroup>
 					</s:HGroup>
 					
 					<mx:HRule width="100%"></mx:HRule>

@@ -1,79 +1,71 @@
-body {
-height: 100%;
-background-position: bottom; 
-background-repeat: no-repeat;
-background-size: 100%;
-}
-/*20x70x10*/
-#contenedorHeader{
- 
-  width: 99%;
-  height: auto;
-  margin-top: 0px;
-  padding-top: 0px;
-  border-color: #156156;
- 
-}
+html { background-color: #333333; clear: both; }
 
-#contenedorPaneles{
-  width: 99%;
-  height: 90%;
-}
+.web-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column-reverse; }
 
-#contenedorFooter{
- /* width: 100%;
-  height: 10%;
-  text-align: center;
- 
-  margin: 0%; 
-  padding: 15px;
-  border-style: double;
-  border-color: #156156;
-*/  
-width: 100%;
-height: 30px;
-margin: 0 auto 0;
-text-align: center;
+.web-container { display: flex; flex-direction: column-reverse; width: 100%; }
+
+.photo-container { display: flex; border-color: #c0ff00; border-style: dashed; border-width: 2px; margin: 1em; flex-direction: column; }
+
+.map-container { border-color: #c0ff00; border-style: dashed; border-width: 2px; margin: 1em; }
+
+.photo-title, .map-title { justify-content: center; align-content: center; display: flex; color: white; font-size: 2em; font-family: sans-serif; margin: 0.5em; width: 100%; }
+
+.banner-img { display: flex; width: 150px; height: 80px; margin-right: 2em; }
+
+#your-pano { min-height: 500px; height: 500px; width: 100%; }
+
+.banner-container { display: flex; justify-content: center; flex-direction: column; width: 100%; align-items: center; }
+
+.banner-img { display: flex; /* width: 30%; */ height: 100%; align-items: center; align-content: center; justify-content: center; width: 280px; margin-top: 1em; }
+
+.banner-container p { display: none; }
+
+@media (min-width: 600px) and (orientation: landscape) { html { background-color: #333333; clear: both; } }
+
+/*
+@media screen and (min-width: 800px) and (orientation: landscape){
+  html {
+    background-color: green;
+    clear: both;
+    //position: relative;
+    //width: 100%;
+    //height: 100%;
+
+  }
 }
 
-#panelLista{
-  padding: 10px;
-  
+@media screen and (min-width: 1280px) and (orientation: landscape) {
+  html {
+    background-color: blue;
+    clear: both;
+    //position: relative;
+    //width: 100%;
+    //height: 100%;
+
+  }
 }
+*/
+@media screen and (min-width: 1366px) and (orientation: landscape) { html { background-color: #333333; clear: both; }
+  .web-wrapper { width: 100%; height: 100%; display: flex; flex-direction: row; }
+  .web-container { display: flex; flex-direction: column; width: 40%; }
+  .photo-container { width: 70%; }
+  .photo-container, .map-container { border-color: #c0ff00; border-style: dashed; border-width: 2px; margin: 1em; flex-direction: column; min-width: 320px; min-height: 350px; }
+  .photo-title, .map-title { justify-content: center; align-content: center; display: flex; color: white; font-size: 2em; font-family: sans-serif; margin: 0.5em; }
+  .banner-img { display: flex; width: 150px; height: 80px; margin-right: 2em; }
+  #your-pano { min-height: 500px; height: 500px; }
+  .banner-container { display: flex; justify-content: center; flex-direction: row; }
+  .banner-container p { color: #8ab700; display: flex; font-family: monospace; text-align: center; font-size: smaller; margin-top: 3em; }
+  #app { width: 100%; height: 95vh; clear: both; } }
 
-a.list-group-item:active{
- 
-  color: #b2b2b2;
- 
-}
-a.list-group-item:checked{
-  color: #156156;
-}
-
-#contenedorPrincipal{
-width: 100%;
-margin: auto;
-height: auto;
-min-height:100%;
-
-}
-
-#contenedorPrincipal:after{
-width:100%;
-height:100px;
-display:block;
-clear:both;
-
-
-}
-
-.img-responsive{
-  padding: 0px;
-  
-}
-
-#mapa{
-  width: 450px;
-  height: 600px;
-}
-
+@media screen and (min-width: 1680px) and (orientation: landscape) { html { background-color: #333333; clear: both; }
+  .web-wrapper { width: 100%; height: 100%; display: flex; flex-direction: row; }
+  .web-container { display: flex; flex-direction: column; width: 40%; }
+  .photo-container { width: 70%; }
+  .photo-container, .map-container { border-color: #c0ff00; border-style: dashed; border-width: 2px; margin: 1em; flex-direction: column; min-width: 320px; height: 100%; }
+  .photo-title, .map-title { justify-content: center; align-content: center; display: flex; color: white; font-size: 2em; font-family: sans-serif; margin: 0.5em; }
+  .banner-img { display: flex; width: 150px; height: 80px; margin-right: 2em; }
+  #your-pano { height: 100%; }
+  .banner-container { display: flex; justify-content: center; flex-direction: row; }
+  .banner-container p { color: #8ab700; font-family: monospace; text-align: center; font-size: smaller; }
+  #app { width: 100%; height: 95vh; clear: both; }
+  #map { height: 90.7%; } }

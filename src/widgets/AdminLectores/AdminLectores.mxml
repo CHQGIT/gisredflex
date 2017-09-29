@@ -39,6 +39,32 @@
 		<mx:WipeRight id="myWR" duration="850"/>
 		<esri:GraphicsLayer id="graphicsLayer" />
 		
+		<esri:Map id="map">
+			<esri:infoWindowContent>
+				<s:TextArea id="myTextArea"
+							width="250" height="75"/>
+			</esri:infoWindowContent>
+			
+			<esri:FeatureLayer 
+				id="lecturasLayer"
+				outFields="*"
+				mode="onDemand"	
+				graphicAdd="verElemento(event)"
+				url="http://gisred.chilquinta/arcgis/rest/services/Varios/Ingreso_Lectores/FeatureServer/0"
+				>
+			</esri:FeatureLayer>
+			
+		</esri:Map>
+		
+		
+		<esri:SimpleFillSymbol id="mouseOverSymbol" alpha="0.5">
+			<esri:SimpleLineSymbol width="0" color="0xFF0000"/>
+		</esri:SimpleFillSymbol>
+		<esri:SimpleFillSymbol id="defaultsym" alpha="0.2">
+			<esri:SimpleLineSymbol width="1" color="0xEEEEEE"/>
+		</esri:SimpleFillSymbol>
+		
+		
 	</fx:Declarations>
 	
 	<fx:Script>
@@ -47,6 +73,7 @@
 			import com.as3xls.xls.Sheet;
 			import com.esri.ags.FeatureSet;
 			import com.esri.ags.Graphic;
+			import com.esri.ags.events.GraphicEvent;
 			import com.esri.ags.geometry.MapPoint;
 			import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
 			import com.esri.ags.layers.FeatureLayer;
@@ -59,6 +86,7 @@
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			import mx.events.ListEvent;
+			import mx.events.ToolTipEvent;
 			import mx.messaging.messages.ErrorMessage;
 			import mx.rpc.AsyncResponder;
 			import mx.utils.StringUtil;
@@ -92,7 +120,10 @@
 			private var ColeccionUser:ArrayCollection = new ArrayCollection;
 			private var text1:String;
 			
-			public var lecturasLayer:ArcGISDynamicMapServiceLayer= new ArcGISDynamicMapServiceLayer(widgets.AdminLectores.utilidad.urls.URL_LECTURAS_DYN);
+			import org.example.components.PanelToolTip;
+			protected var ptt:PanelToolTip = new PanelToolTip();
+			
+			//public var lecturasLayer:ArcGISDynamicMapServiceLayer= new ArcGISDynamicMapServiceLayer(widgets.AdminLectores.utilidad.urls.URL_LECTURAS_DYN);
 			
 			protected function basewidget1_initializeHandler(event:FlexEvent):void{
 				ConsultarAcceso();
@@ -103,6 +134,33 @@
 				lecturasLayer.name = "Ingreso Lectores";
 				map.addLayer(lecturasLayer);				
 				lecturasLayer.visible = true;	
+			}
+			
+			protected function verElemento(event:GraphicEvent):void
+			{
+				var graphic:Graphic = event.graphic;				
+				graphic.toolTip = " ";
+				graphic.addEventListener(ToolTipEvent.TOOL_TIP_CREATE, stateToolTipCreateHandler, false, 0, true);		
+			}
+			
+			//Crea Tooltip al objeto grafico			
+			protected function stateToolTipCreateHandler(event:ToolTipEvent):void
+			{
+				var graphic:Graphic = event.currentTarget as Graphic;
+				ptt.title = "ID: " + graphic.attributes.OBJECTID;
+				ptt.Poste = graphic.attributes.POSTE;
+				ptt.Medidor = graphic.attributes.nro_medidor;
+				ptt.Revision = graphic.attributes.estado_revision ;
+				ptt.Final = graphic.attributes.estado_final ;
+				
+				
+				/*ptt.TipoConexion = graphic.attributes.TIPO_CONEXION;
+				ptt.Potencia = graphic.attributes.POTENCIA;
+				ptt.Tipo = graphic.attributes.TIPO;
+				ptt.Propiedad = graphic.attributes.PROPIEDAD;
+				ptt.Medido = graphic.attributes.MEDIDO;
+				*/
+				event.toolTip = ptt;
 			}
 			
 			protected function ConsultarAcceso():void{

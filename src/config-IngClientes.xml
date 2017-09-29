@@ -340,21 +340,22 @@
                	
          </widgetgroup>
          
-           <widgetgroup label="Administracion Lecturas" icon="assets/images/admclientes1.png">
+           <widgetgroup label="Administracion Lecturas" icon="assets/images/administracion_lecturas_a.png">
+           
           	    <widget label="Administracion Lectores" 
-       		   			icon="assets/images/metericon.png"
+       		   			icon="assets/images/lectores_ap.png"
                			config="widgets/AdminLectores/AdminLectores.xml"
                			url="widgets/AdminLectores/AdminLectores.swf" 
                			preload="close"/>
                			
                	<widget label="Administracion Inspecciones" 
-       		   			icon="assets/images/metericon.png"
+       		   			icon="assets/images/administracion_lecturas.png"
                			config="widgets/AdminLectores/AdminLectores.xml"
                			url="widgets/AdminLectores/AdminInspecciones.swf" 
                			preload="close"/>	
                			
              	<widget label="Asignar Inspector" 
-       		   			icon="assets/images/metericon.png"
+       		   			icon="assets/images/lecturas_coordinador.png"
                			config="widgets/AdminLectores/AdminLectores.xml"
                			url="widgets/AdminLectores/Coordinador.swf" 
                			preload="close"/>	  				

@@ -97,8 +97,6 @@
 			import comun.Planificacion.User;
 			import comun.url.URL;
 			
-		
-			
 			import widgets.AdminLectores.utilidad.urls;
 			
 			private var popUpRenderer:PopUpRenderer = new PopUpRenderer();
@@ -162,6 +160,7 @@
 				coleccionCausa.addItem("Medidor no existe");
 				coleccionCausa.addItem("Medidor cambiado");
 				coleccionCausa.addItem("Posible adulteración");
+				coleccionCausa.addItem("No Aplica");
 				coleccionCausaDetalle.removeAll();
 			}
 			
@@ -398,6 +397,7 @@
 				lblCurrentLecturaSelected.text = "OBJECTID: " + DataLecturas.selectedItem['OBJECTID'] 
 				lblCurrentLecturaSelected2.text = "MEDIDOR: " + DataLecturas.selectedItem['nro_medidor'] 
 				lblCurrentLecturaSelected3.text= "INSPECTOR: " + inspec;
+				lblCurrentLecturaSelected4.text= "ESTADO: " + DataLecturas.selectedItem['estado']; 
 				lecturaSelected = DataLecturas.selectedItem['OBJECTID'];
 				inspectorSelected = DataLecturas.selectedItem['inspector'];
 				
@@ -412,8 +412,11 @@
 				}
 				
 				if(DataLecturas.selectedItem['estado_final'] !== null){
-					( DataLecturas.selectedItem['estado_final']=='PAGADO')? ddlEstadoFinal.selectedIndex = 0 : ddlEstadoFinal.selectedIndex = 1;
+					 (DataLecturas.selectedItem['estado_final']=='PAGADO')? ddlEstadoFinal.selectedIndex = 1 : ddlEstadoFinal.selectedIndex = 2;
+				}else{
+					ddlEstadoFinal.selectedIndex = 0;
 				}
+				
 				
 				
 				buscarDetalle(lecturaSelected)
@@ -660,32 +663,47 @@
 				{
 				case 'Cliente fuera de ruta':
 				{
+				coleccionCausaDetalle.addItem("");
 				coleccionCausaDetalle.addItem("Ruta ok");
 				coleccionCausaDetalle.addItem("Ruta mala");
 				coleccionCausaDetalle.addItem("Ciclo malo");
+				coleccionCausaDetalle.addItem("No Aplica");
 				break;
 				}
 				case 'Medidor no existe':
 				{
+				coleccionCausaDetalle.addItem("");
 				coleccionCausaDetalle.addItem("Medidor existe ruta ok");
 				coleccionCausaDetalle.addItem("Medidor no existe");
 				coleccionCausaDetalle.addItem("Medidor existe ruta mala");
 				coleccionCausaDetalle.addItem("Medidor mal asociado a producto");
+				coleccionCausaDetalle.addItem("No Aplica");
 				break;
 				}
 				case 'Medidor cambiado':
 				{
+				coleccionCausaDetalle.addItem("");		
 				coleccionCausaDetalle.addItem("Medidor no existe");
 				coleccionCausaDetalle.addItem("Medido mal asociado a producto");
+				coleccionCausaDetalle.addItem("No Aplica");
 				
 				break;
 				}
 				case 'Posible adulteración':
 				{
+				coleccionCausaDetalle.addItem("");
 				coleccionCausaDetalle.addItem("Adulterado");
 				coleccionCausaDetalle.addItem("No adulterado");
+				coleccionCausaDetalle.addItem("No Aplica");
 				break;
+				}	
+				case 'No Aplica':
+				{	
+					coleccionCausaDetalle.addItem("No Aplica");
+					
+					break;
 				}		
+					
 				
 				default:
 				{
@@ -702,10 +720,19 @@
 				Modificaciones["OBJECTID"]= lecturaSelected;
 				Modificaciones["inspeccion"]= ddlEstadoInspeccion.selectedItem.toString();
 				Modificaciones["estado_denuncio"]= ddlEstadoDenuncio.selectedItem.toString();
-				Modificaciones["estado_final"]= ddlEstadoFinal.selectedItem.toString();     
+				
+				if(ddlEstadoFinal.selectedIndex==0){
+					Modificaciones["estado_final"]= null;  
+				}else{
+					Modificaciones["estado_final"]= ddlEstadoFinal.selectedItem.toString();  
+				}
+				//Modificaciones["estado_final"]= ddlEstadoFinal.selectedItem.toString();     
 				Modificaciones["obs"]= txtObservacion.text;
-				Modificaciones["causal"]= ddlCausa.selectedItem.toString();  
-				Modificaciones["detalle_causal"]= ddlCausaDetalle.selectedItem.toString();   
+				
+				Modificaciones["causal"]= ddlCausa.selectedItem.toString(); 
+				(ddlCausaDetalle.selectedIndex==0)? Modificaciones["detalle_causal"]= null : Modificaciones["detalle_causal"]= ddlCausaDetalle.selectedItem.toString();   
+			 
+				//Modificaciones["detalle_causal"]= ddlCausaDetalle.selectedItem.toString();   
 			
 				
 				var graficoEditadoActual:Graphic = new Graphic;
@@ -832,10 +859,10 @@
 			<mx:Canvas id="ListadoCliente2" label="Lista Lecturas" width="100%" height="100%">
 				<s:VGroup width="100%" top="5" bottom="5" height="100%">
 					<s:HGroup width="100%" height="10%" paddingTop="10" >
-						<s:HGroup width="33%" horizontalAlign="left"><s:Label id="lblCurrentLecturaSelected"></s:Label></s:HGroup>
-						<s:HGroup width="33%" horizontalAlign="center"><s:Label id="lblCurrentLecturaSelected2"></s:Label></s:HGroup>
-						<s:HGroup width="33%" horizontalAlign="right"><s:Label id="lblCurrentLecturaSelected3"></s:Label></s:HGroup>
-						
+						<s:HGroup width="25%" horizontalAlign="left"><s:Label id="lblCurrentLecturaSelected"></s:Label></s:HGroup>
+						<s:HGroup width="25%" horizontalAlign="center"><s:Label id="lblCurrentLecturaSelected2"></s:Label></s:HGroup>
+						<s:HGroup width="25%" horizontalAlign="center"><s:Label id="lblCurrentLecturaSelected3"></s:Label></s:HGroup>
+						<s:HGroup width="25%" horizontalAlign="right"><s:Label id="lblCurrentLecturaSelected4"></s:Label></s:HGroup>
 					</s:HGroup>
 					
 					<mx:HRule width="100%"></mx:HRule>
@@ -879,6 +906,7 @@
 							<mx:DataGridColumn dataField="DETALLE_CAUSAL" headerText="DETALLE_CAUSAL" visible="true" width="50" />
 							<mx:DataGridColumn dataField="OBS" headerText="OBS" visible="true" width="50" />
 							<mx:DataGridColumn dataField="ESTADO_DENUNCIO" headerText="ESTADO_DENUNCIO" visible="true" width="50" />
+							<mx:DataGridColumn dataField="ESTADO_REVISION" headerText="ESTADO_REVISION" visible="true" width="50" />
 							<mx:DataGridColumn dataField="INSPECTOR" headerText="INSPECTOR" visible="true" width="50" />
 							<mx:DataGridColumn dataField="created_date" headerText="FECHA CREACION" visible="true" width="50" />
 						</mx:columns>
