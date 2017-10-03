@@ -76,6 +76,7 @@
 			import com.esri.ags.FeatureSet;
 			import com.esri.ags.Graphic;
 			import com.esri.ags.events.GraphicEvent;
+			import com.esri.ags.geometry.MapPoint;
 			import com.esri.ags.layers.FeatureLayer;
 			import com.esri.ags.layers.GraphicsLayer;
 			import com.esri.ags.portal.PopUpRenderer;
@@ -418,6 +419,29 @@
 				}
 				
 				
+				
+				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURA_INSPECCION);
+				var query:Query = new Query();
+				query.where = "OBJECTID=" + DataLecturas.selectedItem['OBJECTID']; 
+				query.outFields = ['*'];
+				
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void{
+					myGraphicsLayer.clear();
+					map.level = 20;
+					var mp:MapPoint=featureSet.features[0].geometry as MapPoint;
+					
+					var g:Graphic = new Graphic(mp,smsIdentify);
+					
+					
+					myGraphicsLayer.add(g);
+					map.addLayer(myGraphicsLayer);
+					map.zoomTo(featureSet.features[0].geometry)
+				}
+				function onFaultQuery(featureSet:FeatureSet, token:Object = null):void{
+					Alert.show("Error haciendo zoom en la lectura seleccionada");
+				}
 				
 				buscarDetalle(lecturaSelected)
 			}
@@ -813,7 +837,7 @@
 							<mx:DataGridColumn dataField="inspector" headerText="INSPECTOR" visible="true" width="50" />
 							<mx:DataGridColumn dataField="causal" headerText="CAUSAL" visible="false" width="50"  />
 							<mx:DataGridColumn dataField="estado_denuncio" headerText="ESTADO DENUNCIO" visible="true" width="50" />
-							
+							<mx:DataGridColumn dataField="geometry" headerText="GEOMETRIA" visible="false" width="50" />
 							<mx:DataGridColumn dataField="created_user" headerText="CREADO POR" visible="true" width="50" />
 							<mx:DataGridColumn dataField="created_date" headerText="FECHA CREACION" visible="true" width="50" />
 							
