@@ -318,6 +318,12 @@
        		   			icon="assets/images/antena.png"
                			config="widgets/eLayerList/eLayerListWidget_Antena.xml"
                			url="widgets/eLayerList/eLayerListWidget.swf" 
+               			preload="close"/> 	
+               			
+               	<widget label="Busqueda Campamentos" 
+       		   			icon="assets/images/icono_campamentos.png"
+               			config="widgets/BusquedaCampamentos/Busqueda_Campamentos.xml"
+               			url="widgets/BusquedaCampamentos/Busqueda_Campamentos.swf" 
                			preload="close"/> 					
   	     </widgetgroup>
   	 <!--      <widget label="Inspecciones" 

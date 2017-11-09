@@ -94,6 +94,7 @@
     <module application="src/index.mxml" destPath="widgets/AdminLectores/AdminLectores.swf" optimize="true" sourcePath="src/widgets/AdminLectores/AdminLectores.mxml"/>
     <module application="src/index.mxml" destPath="widgets/AdminLectores/AdminInspecciones.swf" optimize="true" sourcePath="src/widgets/AdminLectores/AdminInspecciones.mxml"/>
     <module application="src/index.mxml" destPath="widgets/AdminLectores/Coordinador.swf" optimize="true" sourcePath="src/widgets/AdminLectores/Coordinador.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/BusquedaCampamentos/Busqueda_Campamentos.swf" optimize="true" sourcePath="src/widgets/BusquedaCampamentos/Busqueda_Campamentos.mxml"/>
   </modules>
   <workers/>
   <buildCSSFiles/>
