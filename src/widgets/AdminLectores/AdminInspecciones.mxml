@@ -153,6 +153,7 @@
 				coleccionEstadoFinal.addItem("");
 				coleccionEstadoFinal.addItem("PAGADO");
 				coleccionEstadoFinal.addItem("NO APLICA");
+				coleccionEstadoFinal.addItem("CONFIRMADO");
 				
 				coleccionDenuncia.addItem("EN GESTION");
 				coleccionDenuncia.addItem("VALIDADO");
@@ -282,7 +283,7 @@
 				// TODO Auto-generated method stub
 				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURA_INSPECCION);
 				var query:Query = new Query();
-				query.where = "1=1"; 
+				query.where = "estado_final IS NULL OR estado_final = 'CONFIRMADO'" ; 
 				query.outFields = ['*'];
 				query.orderByFields = ['created_date'];
 				query.returnGeometry = true;
@@ -501,7 +502,7 @@
 					{
 						
 						var s:Sheet = new Sheet();
-						s.resize(coleccionLecturas.length+1,12);
+						s.resize(coleccionLecturas.length+1,18);
 						s.setCell(0,0,"ID");
 						s.setCell(0,1,"NUMERO MEDIDOR");
 						s.setCell(0,2,"ESTADO");
@@ -514,6 +515,13 @@
 						s.setCell(0,9,"FECHA_CREACION");
 						s.setCell(0,10,"ESTADO_FINAL");
 						s.setCell(0,11,"LECTURA_ACTUAL");
+						//10.11.17: Agregar todos los campos
+						s.setCell(0,12,"ESTADO_FINAL");
+						s.setCell(0,13,"INSPECCION");
+						s.setCell(0,14,"OT");
+						s.setCell(0,15,"INSPECTOR");
+						s.setCell(0,16,"CAUSAL");
+						s.setCell(0,17,"ESTADO_DENUNCIO");
 						for(var j:int=0;j<coleccionLecturas.length;j++)
 						{
 							s.setCell(j+1,0,coleccionLecturas[j].OBJECTID);										
@@ -528,7 +536,15 @@
 							s.setCell(j+1,9,coleccionLecturas[j].created_date);
 							s.setCell(j+1,10,coleccionLecturas[j].estado_final);
 							s.setCell(j+1,11,coleccionLecturas[j].lectura_actual);
+							//
+							s.setCell(j+1,12,coleccionLecturas[j].estado_final);
+							s.setCell(j+1,13,coleccionLecturas[j].inspeccion);
+							s.setCell(j+1,14,coleccionLecturas[j].ot);
+							s.setCell(j+1,15,coleccionLecturas[j].inspector);
+							s.setCell(j+1,16,coleccionLecturas[j].causal);
+							s.setCell(j+1,17,coleccionLecturas[j].estado_denuncio);
 						}
+					
 						
 						try {
 							var fileTosave:ExcelFile = new ExcelFile();
@@ -608,6 +624,7 @@
 				// TODO Auto-generated method stub
 				// TODO Auto-generated method stub
 				map.removeLayer(lecturasLayer);
+				graphicsLayer.clear();
 			}
 			
 			protected function wTemplate_openHandler(event:Event):void
@@ -840,6 +857,7 @@
 							<mx:DataGridColumn dataField="geometry" headerText="GEOMETRIA" visible="false" width="50" />
 							<mx:DataGridColumn dataField="created_user" headerText="CREADO POR" visible="true" width="50" />
 							<mx:DataGridColumn dataField="created_date" headerText="FECHA CREACION" visible="true" width="50" />
+							
 							
 							
 							

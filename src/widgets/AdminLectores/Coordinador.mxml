@@ -42,6 +42,17 @@
 		<mx:WipeRight id="myWR" duration="850"/>
 		<esri:GraphicsLayer id="graphicsLayer" />
 		
+		<esri:FeatureLayer 
+			id="lecturasLayer"
+			outFields="*"
+			mode="onDemand"	
+			graphicAdd="verElemento(event)"
+			url="http://gisred.chilquinta/arcgis/rest/services/Varios/Ingreso_Lectores/FeatureServer/0"
+			>
+		</esri:FeatureLayer>
+		
+		
+		
 	</fx:Declarations>
 	
 	<fx:Script>
@@ -50,6 +61,8 @@
 			import com.as3xls.xls.Sheet;
 			import com.esri.ags.FeatureSet;
 			import com.esri.ags.Graphic;
+			import com.esri.ags.events.GraphicEvent;
+			import com.esri.ags.geometry.MapPoint;
 			import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
 			import com.esri.ags.layers.FeatureLayer;
 			import com.esri.ags.layers.GraphicsLayer;
@@ -62,13 +75,15 @@
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			import mx.events.ListEvent;
+			import mx.events.ToolTipEvent;
 			import mx.messaging.messages.ErrorMessage;
 			import mx.rpc.AsyncResponder;
 			import mx.utils.StringUtil;
 			
-		
-			import comun.url.URL;
 			import comun.Planificacion.User;
+			import comun.url.URL;
+			
+			import org.example.components.PanelToolTip;
 			
 			import widgets.AdminLectores.utilidad.urls;
 			private var popUpRenderer:PopUpRenderer = new PopUpRenderer();
@@ -104,11 +119,35 @@
 			private var ColeccionUser:ArrayCollection = new ArrayCollection;
 			private var text1:String;
 			[Bindable] private var anchoObj:int =200;
-			public var lecturasLayer:ArcGISDynamicMapServiceLayer= new ArcGISDynamicMapServiceLayer(widgets.AdminLectores.utilidad.urls.URL_LECTURAS_DYN);
+			//public var lecturasLayer:ArcGISDynamicMapServiceLayer= new ArcGISDynamicMapServiceLayer(widgets.AdminLectores.utilidad.urls.URL_LECTURAS_DYN);
 			
-			
+			protected function verElemento(event:GraphicEvent):void
+			{
+				var graphic:Graphic = event.graphic;				
+				graphic.toolTip = " ";
+				graphic.addEventListener(ToolTipEvent.TOOL_TIP_CREATE, stateToolTipCreateHandler, false, 0, true);		
+			}
 		
-			
+			//Crea Tooltip al objeto grafico	
+			protected var ptt:PanelToolTip = new PanelToolTip();
+			protected function stateToolTipCreateHandler(event:ToolTipEvent):void
+			{
+				var graphic:Graphic = event.currentTarget as Graphic;
+				ptt.title = "ID: " + graphic.attributes.OBJECTID;
+				ptt.Poste = graphic.attributes.POSTE;
+				ptt.Medidor = graphic.attributes.nro_medidor;
+				ptt.Revision = graphic.attributes.estado_revision ;
+				ptt.Final = graphic.attributes.estado_final ;
+				
+				
+				/*ptt.TipoConexion = graphic.attributes.TIPO_CONEXION;
+				ptt.Potencia = graphic.attributes.POTENCIA;
+				ptt.Tipo = graphic.attributes.TIPO;
+				ptt.Propiedad = graphic.attributes.PROPIEDAD;
+				ptt.Medido = graphic.attributes.MEDIDO;
+				*/
+				event.toolTip = ptt;
+			}
 			
 			
 			protected function basewidget1_initializeHandler(event:FlexEvent):void{	
@@ -256,20 +295,24 @@
 						
 						
 						var recordGraphic:Graphic = featureSet.features[k];
-						coleccionLecturas.addItem({
-							OBJECTID:recordGraphic.attributes["OBJECTID"], 
+						coleccionLecturas.addItem({OBJECTID:recordGraphic.attributes["OBJECTID"], 
 							nro_medidor:recordGraphic.attributes["nro_medidor"],
 							estado:recordGraphic.attributes["estado"],
+							tipo_edificacion:recordGraphic.attributes["tipo_edificacion"],
 							poste:recordGraphic.attributes["poste"],
 							direccion:recordGraphic.attributes["direccion"],
-							inspector:recordGraphic.attributes["inspector"],
+							estado_revision:recordGraphic.attributes["estado_revision"],
+							lector:recordGraphic.attributes["lector"],
+							lectura_actual: recordGraphic.attributes["lectura_actual"],
+							estado_final:recordGraphic.attributes["estado_final"],
 							inspeccion:recordGraphic.attributes["inspeccion"],
 							ot:recordGraphic.attributes["ot"],
-							estado_revision:recordGraphic.attributes["estado_revision"],
+							inspector:recordGraphic.attributes["inspector"],
+							causal:recordGraphic.attributes["causal"],
 							estado_denuncio:recordGraphic.attributes["estado_denuncio"],
-							lector:recordGraphic.attributes["lector"],
-							obs: recordGraphic.attributes["obs"],
-							gra:recordGraphic});			
+							created_user:recordGraphic.attributes["created_user"],
+							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
+							gra:recordGraphic});						
 					}
 					
 				}
@@ -351,6 +394,30 @@
 				lblCurrentLecturaSelected4.text = "OBSERVACION: " + DataLecturas.selectedItem['obs'] ;
 				lecturaSelected = DataLecturas.selectedItem['OBJECTID'];
 				inspectorSelected = DataLecturas.selectedItem['inspector'];
+				
+				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURA_INSPECCION);
+				var query:Query = new Query();
+				query.where = "OBJECTID=" + DataLecturas.selectedItem['OBJECTID']; 
+				query.outFields = ['*'];
+				
+				query.returnGeometry = true;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void{
+					myGraphicsLayer.clear();
+					map.level = 20;
+					var mp:MapPoint=featureSet.features[0].geometry as MapPoint;
+					
+					var g:Graphic = new Graphic(mp,smsIdentify);
+					
+					
+					myGraphicsLayer.add(g);
+					map.addLayer(myGraphicsLayer);
+					map.zoomTo(featureSet.features[0].geometry)
+				}
+				function onFaultQuery(featureSet:FeatureSet, token:Object = null):void{
+					Alert.show("Error haciendo zoom en la lectura seleccionada");
+				}
+				
 			}
 			
 			
@@ -359,70 +426,6 @@
 			private var ba:ByteArray;
 			private var fr:FileReference;
 			private var frSave:FileReference;
-			protected function btnExportarDatosClientes_clickHandler(event:MouseEvent):void
-			{
-				
-				// TODO Auto-generated method stub
-				switch(event.currentTarget.id)
-				{
-					case "btnExportarDatosClientes":
-					{
-						
-						var s:Sheet = new Sheet();
-						s.resize(coleccionLecturas.length+1,12);
-						s.setCell(0,0,"ID");
-						s.setCell(0,1,"NUMERO MEDIDOR");
-						s.setCell(0,2,"ESTADO");
-						s.setCell(0,3,"TIPO_EDIFICACION");
-						s.setCell(0,4,"POSTE");
-						s.setCell(0,5,"DIRECCION");
-						s.setCell(0,6,"ESTADO_REVISION");
-						s.setCell(0,7,"LECTOR");
-						s.setCell(0,8,"CREADO_POR");
-						s.setCell(0,9,"FECHA_CREACION");
-						s.setCell(0,10,"ESTADO_FINAL");
-						s.setCell(0,11,"LECTURA_ACTUAL");
-						for(var j:int=0;j<coleccionLecturas.length;j++)
-						{
-							s.setCell(j+1,0,coleccionLecturas[j].OBJECTID);										
-							s.setCell(j+1,1,coleccionLecturas[j].nro_medidor);
-							s.setCell(j+1,2,coleccionLecturas[j].estado);
-							s.setCell(j+1,3,coleccionLecturas[j].tipo_edificacion);
-							s.setCell(j+1,4,coleccionLecturas[j].poste);
-							s.setCell(j+1,5,coleccionLecturas[j].direccion);
-							s.setCell(j+1,6,coleccionLecturas[j].estado_revision);
-							s.setCell(j+1,7,coleccionLecturas[j].lector);
-							s.setCell(j+1,8,coleccionLecturas[j].created_user);
-							s.setCell(j+1,9,coleccionLecturas[j].created_date);
-							s.setCell(j+1,10,coleccionLecturas[j].estado_final);
-							s.setCell(j+1,11,coleccionLecturas[j].lectura_actual);
-						}
-						
-						try {
-							var fileTosave:ExcelFile = new ExcelFile();
-							fileTosave.sheets.addItem(s);
-							
-							var fileBytes:ByteArray = fileTosave.saveToByteArray();
-							frSave = new FileReference();
-							frSave.save(fileBytes,"ExportacionAdmLectores.xls");
-							frSave.addEventListener(Event.COMPLETE,grabadoListo);
-							
-						}catch(e:ErrorMessage){
-							Alert.show("Error al guardar archivo" + e);
-							
-						}
-						
-						break;
-					}
-						
-						
-					default:
-					{
-						//Alert.show("Ningun archivo ha sido generado");
-						break;
-					}
-				}			
-			}
 			
 			public function grabadoListo(event:Event):void{
 				Alert.show("Listo");
@@ -526,6 +529,7 @@
 							inspector:recordGraphic.attributes["inspector"],
 							causal:recordGraphic.attributes["causal"],
 							estado_denuncio:recordGraphic.attributes["estado_denuncio"],
+							created_user:recordGraphic.attributes["created_user"],
 							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
 							gra:recordGraphic});			
 					}
@@ -578,6 +582,74 @@
 				function onFault(info:Object, token:Object = null):void{
 					Alert.show("Error al modificar la lectura.  Contáctese con el administrador de GISRED. "+info.toString());
 				}
+			}
+			
+			protected function btnExportarDatosClientes_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+			
+				
+				var s:Sheet = new Sheet();
+				s.resize(coleccionLecturas.length+1,18);
+				s.setCell(0,0,"ID");
+				s.setCell(0,1,"NUMERO MEDIDOR");
+				s.setCell(0,2,"ESTADO");
+				s.setCell(0,3,"TIPO_EDIFICACION");
+				s.setCell(0,4,"POSTE");
+				s.setCell(0,5,"DIRECCION");
+				s.setCell(0,6,"ESTADO_REVISION");
+				s.setCell(0,7,"LECTOR");
+				s.setCell(0,8,"CREADO_POR");
+				s.setCell(0,9,"FECHA_CREACION");
+				s.setCell(0,10,"ESTADO_FINAL");
+				s.setCell(0,11,"LECTURA_ACTUAL");
+				//10.11.17: Agregar todos los campos
+				s.setCell(0,12,"ESTADO_FINAL");
+				s.setCell(0,13,"INSPECCION");
+				s.setCell(0,14,"OT");
+				s.setCell(0,15,"INSPECTOR");
+				s.setCell(0,16,"CAUSAL");
+				s.setCell(0,17,"ESTADO_DENUNCIO");
+				for(var j:int=0;j<coleccionLecturas.length;j++)
+				{	
+					
+					s.setCell(j+1,0,String(coleccionLecturas[j].OBJECTID));										
+					s.setCell(j+1,1,String(coleccionLecturas[j].nro_medidor));
+					s.setCell(j+1,2,String(coleccionLecturas[j].estado));
+					s.setCell(j+1,3,String(coleccionLecturas[j].tipo_edificacion));
+					s.setCell(j+1,4,String(coleccionLecturas[j].poste));
+					s.setCell(j+1,5,String(coleccionLecturas[j].direccion));
+					s.setCell(j+1,6,String(coleccionLecturas[j].estado_revision));
+					s.setCell(j+1,7,String(coleccionLecturas[j].lector));
+					s.setCell(j+1,8,String(coleccionLecturas[j].created_user));
+					s.setCell(j+1,9,String(coleccionLecturas[j].created_date));
+					s.setCell(j+1,10,String(coleccionLecturas[j].estado_final));
+					s.setCell(j+1,11,String(coleccionLecturas[j].lectura_actual));
+					//
+					s.setCell(j+1,12,String(coleccionLecturas[j].estado_final));
+					s.setCell(j+1,13,String(coleccionLecturas[j].inspeccion));
+					s.setCell(j+1,14,String(coleccionLecturas[j].ot));
+					s.setCell(j+1,15,String(coleccionLecturas[j].inspector));
+					s.setCell(j+1,16,String(coleccionLecturas[j].causal));
+					s.setCell(j+1,17,String(coleccionLecturas[j].estado_denuncio));
+				}
+				
+				
+				try {
+				
+					var fileTosave:ExcelFile = new ExcelFile();
+					fileTosave.sheets.addItem(s);
+					
+					var fileBytes:ByteArray = fileTosave.saveToByteArray();
+					frSave = new FileReference();
+					frSave.save(fileBytes,"ExportacionCoordinadores.xls");
+					frSave.addEventListener(Event.COMPLETE,grabadoListo);
+					
+				}catch(e:ErrorMessage){
+					Alert.show("Error al guardar archivo" + e);
+					
+				}
+				
 			}
 			
 		]]>
