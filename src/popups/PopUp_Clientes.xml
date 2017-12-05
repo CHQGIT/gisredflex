@@ -16,6 +16,7 @@
         <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_rotulo_nodo" alias="Rotulo: " visible="true"/>        
         <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_id_sed" alias="SED: " visible="true"/>
         <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.direccion_resu" alias="Dirección: " visible="true"/> 
+        <field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.sector" alias="Sector: " visible="true"/> 
     </fields>
     <showattachments>false</showattachments>
     <showrelatedrecords>false</showrelatedrecords>

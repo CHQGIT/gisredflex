@@ -257,7 +257,7 @@
 						currentState ="bkmConsulta";
 						wTemplate.height = 500;
 						wTemplate.width = 870;
-						
+						openLayer();
 					}
 				}
 				
@@ -310,6 +310,8 @@
 							inspector:recordGraphic.attributes["inspector"],
 							causal:recordGraphic.attributes["causal"],
 							estado_denuncio:recordGraphic.attributes["estado_denuncio"],
+							obs:recordGraphic.attributes["obs"],
+							nis:recordGraphic.attributes["nis"],
 							created_user:recordGraphic.attributes["created_user"],
 							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
 							gra:recordGraphic});						
@@ -384,6 +386,7 @@
 			public var acPolyline:ArrayCollection = new ArrayCollection;
 			
 			public function DataClientesNuevos_itemClickHandler(event:ListEvent):void{
+				lblCurrentLecturaSelected4.text = "";
 				currentState ="bkmConsultaDetalle";
 				wTemplate.height = 250;
 				wTemplate.width = 870;
@@ -392,6 +395,7 @@
 				lblCurrentLecturaSelected2.text = "MEDIDOR: " + DataLecturas.selectedItem['nro_medidor']; 
 				lblCurrentLecturaSelected3.text= "INSPECTOR: " + inspec;
 				lblCurrentLecturaSelected4.text = "OBSERVACION: " + DataLecturas.selectedItem['obs'] ;
+				lblCurrentLecturaSelected5.text = "NIS: " + DataLecturas.selectedItem['nis'] ;
 				lecturaSelected = DataLecturas.selectedItem['OBJECTID'];
 				inspectorSelected = DataLecturas.selectedItem['inspector'];
 				
@@ -484,7 +488,7 @@
 			protected function wTemplate_openHandler(event:Event):void
 			{
 				// TODO Auto-generated method stub
-				openLayer();
+				//openLayer();
 			}
 			
 			protected function btnRangoFecha_clickHandler(event:MouseEvent):void
@@ -531,6 +535,7 @@
 							estado_denuncio:recordGraphic.attributes["estado_denuncio"],
 							created_user:recordGraphic.attributes["created_user"],
 							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
+							obs:recordGraphic.attributes["obs"],
 							gra:recordGraphic});			
 					}
 					
@@ -590,7 +595,7 @@
 			
 				
 				var s:Sheet = new Sheet();
-				s.resize(coleccionLecturas.length+1,18);
+				s.resize(coleccionLecturas.length+1,19);
 				s.setCell(0,0,"ID");
 				s.setCell(0,1,"NUMERO MEDIDOR");
 				s.setCell(0,2,"ESTADO");
@@ -632,6 +637,7 @@
 					s.setCell(j+1,15,String(coleccionLecturas[j].inspector));
 					s.setCell(j+1,16,String(coleccionLecturas[j].causal));
 					s.setCell(j+1,17,String(coleccionLecturas[j].estado_denuncio));
+					s.setCell(j+1,18,String(coleccionLecturas[j].obs))
 				}
 				
 				
@@ -702,6 +708,7 @@
 							<mx:DataGridColumn dataField="lector" headerText="LECTOR" visible="true" width="50" />
 							<mx:DataGridColumn dataField="estado_denuncio" headerText="ESTADO DENUNCIO" visible="true" width="50" />
 							<mx:DataGridColumn dataField="obs" headerText="OBSERVACION" visible="true" width="50" />
+							<mx:DataGridColumn dataField="nis" headerText="NIS" visible="true" width="50" />
 						</mx:columns>
 					</mx:DataGrid> 
 					
@@ -745,7 +752,7 @@
 						<s:HGroup width="25%" horizontalAlign="left"><s:Label id="lblCurrentLecturaSelected"></s:Label></s:HGroup>
 						<s:HGroup width="25%" horizontalAlign="center"><s:Label id="lblCurrentLecturaSelected2"></s:Label></s:HGroup>
 						<s:HGroup width="25%" horizontalAlign="center"><s:Label id="lblCurrentLecturaSelected3"></s:Label></s:HGroup>
-						
+						<s:HGroup width="25%" horizontalAlign="right"><s:Label id="lblCurrentLecturaSelected5"></s:Label></s:HGroup>
 					</s:HGroup>
 					
 					<mx:HRule width="100%"></mx:HRule>

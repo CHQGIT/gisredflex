@@ -222,7 +222,7 @@
 						currentState ="bkmConsulta";
 						wTemplate.height = 500;
 						wTemplate.width = 800;
-						
+						openLayer()
 					}
 				}
 				
@@ -857,7 +857,7 @@
 			protected function wTemplate_openHandler(event:Event):void
 			{
 				// TODO Auto-generated method stub
-				openLayer();
+				//openLayer();
 			}
 			
 		]]>

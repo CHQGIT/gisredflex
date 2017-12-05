@@ -23,6 +23,7 @@
           <excludelayer mapservice="Cobertura Antena"></excludelayer>
           <excludelayer mapservice="Access Point"></excludelayer>
     	   <excludelayer mapservice="Nivel Criticidad"></excludelayer>
+    	     <excludelayer mapservice="Imágenes SSEE"></excludelayer>
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

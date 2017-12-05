@@ -259,6 +259,7 @@
 						currentState ="bkmConsulta";
 						wTemplate.height = 500;
 						wTemplate.width = 870;
+						openLayer();
 						
 					}
 				}
@@ -313,6 +314,9 @@
 							causal:recordGraphic.attributes["causal"],
 							estado_denuncio:recordGraphic.attributes["estado_denuncio"],
 							created_user:recordGraphic.attributes["created_user"],
+							detalle_causal:recordGraphic.attributes["detalle_causal"],
+							obs:recordGraphic.attributes["obs"],
+							nis:recordGraphic.attributes["nis"],
 							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
 							gra:recordGraphic});			
 					}
@@ -386,6 +390,8 @@
 			public var acPolyline:ArrayCollection = new ArrayCollection;
 			
 			public function DataClientesNuevos_itemClickHandler(event:ListEvent):void{
+				txtObservacion.text= DataLecturas.selectedItem['obs'];
+				txtNIS.text= DataLecturas.selectedItem['nis'];
 				ddlEstadoInspeccion.selectedIndex = -1;
 				ddlEstadoDenuncio.selectedIndex = -1;
 				ddlEstadoFinal.selectedIndex = -1;
@@ -398,10 +404,12 @@
 				var inspec:String = (DataLecturas.selectedItem['inspector']==null) ? "" : DataLecturas.selectedItem['inspector'];
 				lblCurrentLecturaSelected.text = "OBJECTID: " + DataLecturas.selectedItem['OBJECTID'] 
 				lblCurrentLecturaSelected2.text = "MEDIDOR: " + DataLecturas.selectedItem['nro_medidor'] 
+					
 				lblCurrentLecturaSelected3.text= "INSPECTOR: " + inspec;
 				lblCurrentLecturaSelected4.text= "ESTADO: " + DataLecturas.selectedItem['estado']; 
 				lecturaSelected = DataLecturas.selectedItem['OBJECTID'];
 				inspectorSelected = DataLecturas.selectedItem['inspector'];
+				
 				
 				//Asignar valores a los campos de la vista 2 - modificables
 				if(DataLecturas.selectedItem['inspeccion'] !== null){
@@ -476,6 +484,7 @@
 							ESTADO_FINAL: recordGraphic.attributes["ESTADO_FINAL"],
 							ESTADO_REVISION:recordGraphic.attributes["ESTADO_REVISION"],
 							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
+							last_edited_date:dateFormatter.format(new Date(recordGraphic.attributes["last_edited_date"])),
 							gra:recordGraphic});			
 					}
 					
@@ -502,7 +511,7 @@
 					{
 						
 						var s:Sheet = new Sheet();
-						s.resize(coleccionLecturas.length+1,18);
+						s.resize(coleccionLecturas.length+1,21);
 						s.setCell(0,0,"ID");
 						s.setCell(0,1,"NUMERO MEDIDOR");
 						s.setCell(0,2,"ESTADO");
@@ -522,6 +531,11 @@
 						s.setCell(0,15,"INSPECTOR");
 						s.setCell(0,16,"CAUSAL");
 						s.setCell(0,17,"ESTADO_DENUNCIO");
+						s.setCell(0,18,"DETALLE CAUSAL");
+						s.setCell(0,19,"OBS")
+						s.setCell(0,20,"NIS");
+						
+						
 						for(var j:int=0;j<coleccionLecturas.length;j++)
 						{
 							s.setCell(j+1,0,coleccionLecturas[j].OBJECTID);										
@@ -543,6 +557,9 @@
 							s.setCell(j+1,15,coleccionLecturas[j].inspector);
 							s.setCell(j+1,16,coleccionLecturas[j].causal);
 							s.setCell(j+1,17,coleccionLecturas[j].estado_denuncio);
+							s.setCell(j+1,18,coleccionLecturas[j].detalle_causal);
+							s.setCell(j+1,19,coleccionLecturas[j].obs);
+							s.setCell(j+1,20,coleccionLecturas[j].nis);
 						}
 					
 						
@@ -630,7 +647,7 @@
 			protected function wTemplate_openHandler(event:Event):void
 			{
 				// TODO Auto-generated method stub
-				openLayer();
+				//openLayer();
 			}
 			
 			protected function btnRangoFecha_clickHandler(event:MouseEvent):void
@@ -674,6 +691,7 @@
 							ot:recordGraphic.attributes["ot"],
 							inspector:recordGraphic.attributes["inspector"],
 							causal:recordGraphic.attributes["causal"],
+							last_edited_date:recordGraphic.attributes["last_edited_date"],
 							estado_denuncio:recordGraphic.attributes["estado_denuncio"],
 							created_user:recordGraphic.attributes["created_user"],
 							created_date:dateFormatter.format(new Date(recordGraphic.attributes["created_date"])),
@@ -774,7 +792,7 @@
 				(ddlCausaDetalle.selectedIndex==0)? Modificaciones["detalle_causal"]= null : Modificaciones["detalle_causal"]= ddlCausaDetalle.selectedItem.toString();   
 			 
 				//Modificaciones["detalle_causal"]= ddlCausaDetalle.selectedItem.toString();   
-			
+				Modificaciones["nis"] = parseInt(txtNIS.text);
 				
 				var graficoEditadoActual:Graphic = new Graphic;
 				
@@ -792,6 +810,8 @@
 					
 					cargarLista();
 					DataLecturas.dataProvider = coleccionLecturas;
+					txtObservacion.text=""
+					txtNIS.text="";
 					Alert.show("Lectura Modificada");
 					
 				}
@@ -854,6 +874,9 @@
 							<mx:DataGridColumn dataField="inspector" headerText="INSPECTOR" visible="true" width="50" />
 							<mx:DataGridColumn dataField="causal" headerText="CAUSAL" visible="false" width="50"  />
 							<mx:DataGridColumn dataField="estado_denuncio" headerText="ESTADO DENUNCIO" visible="true" width="50" />
+							<mx:DataGridColumn dataField="detalle_causal" headerText="DETALLE CAUSAL" visible="false" width="50" />
+							<mx:DataGridColumn dataField="obs" headerText="OBSERVACION" visible="false" width="50" />
+							<mx:DataGridColumn dataField="nis" headerText="NIS" visible="false" width="50" />
 							<mx:DataGridColumn dataField="geometry" headerText="GEOMETRIA" visible="false" width="50" />
 							<mx:DataGridColumn dataField="created_user" headerText="CREADO POR" visible="true" width="50" />
 							<mx:DataGridColumn dataField="created_date" headerText="FECHA CREACION" visible="true" width="50" />
@@ -931,13 +954,22 @@
 							<s:DropDownList id="ddlEstadoFinal" dataProvider="{coleccionEstadoFinal}" width="150" prompt="Seleccione Estado" ></s:DropDownList>
 						</s:HGroup>
 					</s:HGroup>
+					
 					<s:HGroup height="20%" verticalAlign="middle" width="100%" horizontalAlign="center">
 						<s:HGroup width="50%" horizontalAlign="right" verticalAlign="middle" paddingRight="5"  >
 							<s:Label text="Observaciones: "></s:Label>
 							<s:TextInput id="txtObservacion" width="500" maxChars="100"></s:TextInput>
+							
+						</s:HGroup>
+						<s:HGroup width="50%" horizontalAlign="left" verticalAlign="middle" paddingLeft="5" >
+							<s:Label text="NIS: "></s:Label>
+							<s:TextInput id="txtNIS" maxChars="10" restrict="0-9"></s:TextInput>
 						</s:HGroup>
 						
 					</s:HGroup>
+					
+					
+					
 					
 					<mx:HRule width="100%"></mx:HRule>
 					<mx:DataGrid id="DataDetalle" resizableColumns="true" sortableColumns="true" editable="false" dataProvider="{coleccionDetalle}"  
@@ -950,7 +982,8 @@
 							<mx:DataGridColumn dataField="ESTADO_DENUNCIO" headerText="ESTADO_DENUNCIO" visible="true" width="50" />
 							<mx:DataGridColumn dataField="ESTADO_REVISION" headerText="ESTADO_REVISION" visible="true" width="50" />
 							<mx:DataGridColumn dataField="INSPECTOR" headerText="INSPECTOR" visible="true" width="50" />
-							<mx:DataGridColumn dataField="created_date" headerText="FECHA CREACION" visible="true" width="50" />
+							<mx:DataGridColumn dataField="created_date" headerText="FECHA CREACION" visible="false" width="50" />
+							<mx:DataGridColumn dataField="last_edited_date" headerText="FECHA EDICIÓN" visible="true" width="50" />
 						</mx:columns>
 					
 					</mx:DataGrid> 

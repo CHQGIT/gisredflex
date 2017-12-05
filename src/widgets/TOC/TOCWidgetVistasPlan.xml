@@ -46,6 +46,7 @@
 	<excludelayer mapservice="Poligonos Podas"></excludelayer>
 	 <excludelayer mapservice="Unidad vecinal"></excludelayer>
 	 <excludelayer mapservice="PMGD"></excludelayer>
+	   <excludelayer mapservice="Imágenes SSEE"></excludelayer>
 		<!-- <excludelayer mapservice="Symbols"></excludelayer>
 		<excludelayer mapservice="Utilities"></excludelayer> -->
 		<!-- <excludelayer mapservice="Earthquakes"></excludelayer>

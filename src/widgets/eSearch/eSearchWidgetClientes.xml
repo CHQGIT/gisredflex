@@ -32,6 +32,7 @@
 				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_area_tipica" alias="Area Tipica" gridfield="true"/>
 				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_tipo_cliente" alias="Tipo Cliente" gridfield="true"/>
 				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.direccion_resu" alias= "Dirección" gridfield="true"/>
+				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.sector" alias= "Sector" gridfield="true"/>
 				
 			</fields>
 			<zoomscale usegeometry="true" zoompercent="2"></zoomscale>

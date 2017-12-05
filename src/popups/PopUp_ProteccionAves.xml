@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Rotulo: {ARCGIS.DBO.Nodos_006.rotulo}</title>
+    <fields>
+     	<field name="ARCGIS.DBO.Nodos_006.id_nodo" alias="ID Nodo:" visible="true"/>
+        <field name="ARCGIS.DBO.Nodos_006.alimentador" alias="Alimentador:" visible="true"/>
+        <field name="ARCGIS.DBO.Nodos_006.comuna" alias="Comuna:" visible="true"/>
+         <field name="ARCGIS.DBO.MANT_PROT_AVES.dx" alias="Dx:" visible="true"/>
+        <field name="ARCGIS.DBO.MANT_PROT_AVES.zona" alias="Zona:" visible="true"/>
+         <field name="ARCGIS.DBO.MANT_PROT_AVES.elem_prote" alias="Elemento Protección:" visible="true"/>
+       
+           
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

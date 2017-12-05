@@ -320,7 +320,7 @@
 				// TODO Auto-generated method stub
 				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientes.utilidad.urls.URL_ADD_CLIENTE);
 				var query:Query = new Query();
-				query.where = "ESTADO IS NULL OR ESTADO <> 'CARGADO'";
+				query.where = "ESTADO IS NULL";
 				query.outFields = ['*'];
 				query.orderByFields = ['created_date'];
 				query.returnGeometry = true;

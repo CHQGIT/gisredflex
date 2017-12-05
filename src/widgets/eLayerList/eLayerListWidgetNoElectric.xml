@@ -33,9 +33,10 @@
      	   <excludelayer mapservice="STx"></excludelayer>
      	   <excludelayer mapservice="PMGD"></excludelayer>
      	   <excludelayer mapservice="Capacidad Conductores"></excludelayer>
-     	    <excludelayer mapservice="Clientes subterraneos"></excludelayer>
-     	     <excludelayer mapservice="Interrupciones Equipos"></excludelayer>
-     	     <excludelayer mapservice="Nivel Criticidad"></excludelayer>
+     	   <excludelayer mapservice="Clientes subterraneos"></excludelayer>
+     	   <excludelayer mapservice="Interrupciones Equipos"></excludelayer>
+     	   <excludelayer mapservice="Nivel Criticidad"></excludelayer>
+     	  
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

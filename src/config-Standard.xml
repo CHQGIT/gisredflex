@@ -68,8 +68,8 @@
      			label="ECSE"
      			imageformat="png32"
      			url="http://gisred.chilquinta/arcgis/rest/services/Varios/ECSE/MapServer">
-     			<sublayer id="0" label="Encuestado" definitionexpression="ano=2015" visible="false"/>
-     			<sublayer id="0" label="Reemplazo" definitionexpression="ano=2015" visible="false"/>
+     			<sublayer id="0" label="Encuestado" definitionexpression="ano=2017" visible="false"/>
+     			<sublayer id="0" label="Reemplazo" definitionexpression="ano=2017" visible="false"/>
      		</layer>  
      		<layer type="dynamic"
      			label="Cobertura Antena"
@@ -167,6 +167,15 @@
 		                   <sublayer id="8" label="Camaras" popupconfig="popups/PopUp_Camaras.xml"/>
 		                   <sublayer id="9" label="Equipos_Sub" popupconfig="popups/PopUp_Equipos.xml"/>
 		    </layer> -->
+		    
+		    <layer type="dynamic"
+     			label="Imágenes SSEE"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/STx/RASTER_SSEE/MapServer"
+     			visible="false">
+     			
+     		</layer>
+     		
 		     <layer type="dynamic" label="STx" imageformat="png32" url="http://gisred.chilquinta/arcgis/rest/services/STx/STx/MapServer" visible="true"/>
 		    <layer type="dynamic"
 			           label="Vistas" 
@@ -194,6 +203,15 @@
      			<sublayer id="0" popupconfig="popups/PopUp_Criticidad.xml"/>
      		</layer>
        		
+       		<layer type="dynamic"
+     			label="Proteccion Aves"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/MANTENIMIENTO/PROTECCION_AVES/MapServer"
+     			visible="false">
+     			<sublayer id="0" popupconfig="popups/PopUp_ProteccionAves.xml"/>
+     		</layer>
+     		
+     		
        			
         </operationallayers>
     </map>

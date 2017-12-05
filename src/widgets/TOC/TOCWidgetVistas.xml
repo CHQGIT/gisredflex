@@ -49,6 +49,8 @@
 	 <excludelayer mapservice="Cobertura Antena"></excludelayer>
 	 <excludelayer mapservice="Postes sin apoyos mutuos"></excludelayer>
 	  <excludelayer mapservice="GE_VOLT"></excludelayer>
+	   <excludelayer mapservice="Proteccion Aves"></excludelayer>
+	     <excludelayer mapservice="Imágenes SSEE"></excludelayer>
 		<!-- <excludelayer mapservice="Symbols"></excludelayer>
 		<excludelayer mapservice="Utilities"></excludelayer> -->
 		<!-- <excludelayer mapservice="Earthquakes"></excludelayer>

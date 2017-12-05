@@ -38,6 +38,7 @@
        	<excludelayer mapservice="PMGD"></excludelayer>
        	<excludelayer mapservice="Capacidad Conductores"></excludelayer>
            <excludelayer mapservice="Nivel Criticidad"></excludelayer>
+             <excludelayer mapservice="Imágenes SSEE"></excludelayer>
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

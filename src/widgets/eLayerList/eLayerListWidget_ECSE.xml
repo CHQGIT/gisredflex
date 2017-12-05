@@ -38,6 +38,10 @@
         <excludelayer mapservice="Capacidad Conductores"></excludelayer>
         <excludelayer mapservice="Clientes No Leidos"></excludelayer>
          <excludelayer mapservice="Nivel Criticidad"></excludelayer>
+          <excludelayer mapservice="Polígonos Varios"></excludelayer>
+          <excludelayer mapservice="GE_VOLT"></excludelayer>
+           <excludelayer mapservice="Proteccion Aves"></excludelayer>
+             <excludelayer mapservice="Imágenes SSEE"></excludelayer>
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>
