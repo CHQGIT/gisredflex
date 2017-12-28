@@ -223,6 +223,14 @@
      			visible="false">
      			<sublayer id="0" definitionexpression="month(created_date) = month(getdate())" popupconfig="popups/PopUp_Reparto.xml" />
      		</layer>
+     		<layer type="dynamic"
+     			label="Medioambiente"
+     			imageformat="png32"
+     			url="http://gisred.chilquinta/arcgis/rest/services/MEDIOAMBIENTE/RCA/MapServer"
+     			visible="false">
+     			
+     		</layer>
+     		
      		
        			
         </operationallayers>
@@ -267,7 +275,11 @@
                config="widgets/eLayerList/eLayerListWidgetNoElectric.xml"
                url="widgets/eLayerList/eLayerListWidget.swf" 
                preload="close"/>
-                
+         <widget label="Capas Medioambiente" 
+       		   icon="assets/images/medioambiente_icono.png"
+               config="widgets/eLayerList/eLayerListWidgetMedioambiente.xml"
+               url="widgets/eLayerList/eLayerListWidget.swf" 
+               preload="close"/>       
        <!-- Grupo de Busqueda Clientes-->
        <widgetgroup label="Búsquedas Clientes" icon="assets/images/Clientes.png">
                <widget label="Cliente unitario"

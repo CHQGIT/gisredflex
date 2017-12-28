@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Id Equipo: {id_equipo}</title>
+    <fields>
+        <field name="ARCGIS.DBO.TELE_EQUIPOS_CONTROL.remota" alias="Remota" visible="true"/>
+        <field name="ARCGIS.DBO.TELE_EQUIPOS_CONTROL.descripcion" alias="Descripcion" visible="true"/>
+        <field name="ARCGIS.DBO.TELE_EQUIPOS_CONTROL.medio" alias="Medio" visible="true"/>
+                
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

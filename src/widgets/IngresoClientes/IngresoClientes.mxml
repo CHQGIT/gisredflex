@@ -51,6 +51,7 @@
 			<mx:StringValidator id="lblRotuloValidator" source="{lblRotulo}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>    
 			<mx:NumberValidator id="ddlTipoEmpalme1Validator" source="{ddlTipoEmpalme1}" property="selectedIndex" minValue="0" lowerThanMinError="{ddlTipoEmpalme1.prompt}" trigger="{btnAgregarCliente}" triggerEvent="click"/>
 			<mx:StringValidator id="txtOSValidator" source="{txtOS}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>    
+			<mx:StringValidator id="txtFaseValidator" source="{txtFase}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>    
 			
 			
 			<mx:StringValidator id="lblIDDireccionValidator" source="{lblIDDireccion}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>    
@@ -233,7 +234,7 @@
 								tbtnNuevaDireccion.selected = false;
 								currentState ="bkmIngresoClientes";
 								wTemplate.width = 500;
-								wTemplate.height = 535;
+								wTemplate.height = 600;
 						}else
 							{                          
 							Alert.show('Por favor complete los campos requeridos.','Revise los campos requeridos.');                                       
@@ -261,7 +262,7 @@
 							hayDireccion = 0;
 							currentState ="bkmIngresoClientes";
 							wTemplate.width = 500;
-							wTemplate.height = 535;
+							wTemplate.height = 600;
 						}else
 						{                          
 							Alert.show('Por favor complete los campos requeridos.','Revise los campos requeridos.');                                       
@@ -274,7 +275,7 @@
 					case "btnVolverRotulo":
 					{
 						wTemplate.width = 500;
-						wTemplate.height = 535;
+						wTemplate.height = 600;
 						currentState ="bkmIngresoClientes";
 						//desabilitar boton y focos
 						tbtnNuevaDireccion.label = "On";
@@ -293,7 +294,7 @@
 					{
 						hayCliente = 0;
 						wTemplate.width = 500;
-						wTemplate.height = 535;
+						wTemplate.height = 600;
 						currentState ="bkmIngresoClientes";
 						//desabilitar boton y focos
 						tbtnNuevaDireccion.label = "On";
@@ -809,7 +810,7 @@
 				
 						function onResult(featureSet:FeatureSet, token:Object = null):void
 						{
-							Alert.show("no hay antiguas");
+							
 							CalleEncontrada=new ArrayList;
 							if (featureSet.features.length > 0)
 							{
@@ -959,7 +960,7 @@
 					query.returnGeometry = true;
 					//query.where ="1=1"; 
 					//Evelyn Hernández - 5-07-2017 : Arreglado problema cuando existe más de un objeto nodo dentro del rectángulo.
-					query.where ="tipo_nodo = 'ele!poste'"
+					query.where ="tipo_nodo = 'ele!camara' or tipo_nodo='ele!poste'"
 					var queryTask:QueryTask =  new QueryTask;
 					queryTask.url = urls.URL_ROTULOS;
 					queryTask.token = cargarCombos.token as String;
@@ -1166,7 +1167,7 @@
 		]]>
 	</fx:Script>
 	<viewer:WidgetTemplate id="wTemplate"                      
-						   width="500" height="535"
+						   width="500" height="600"
 						   visible="true" closed="wTemplate_closedHandler(event)" open="wTemplate_openHandler(event)" >
 		
 		
@@ -1272,6 +1273,11 @@
 					<mx:FormItem label="OS">
 						<s:HGroup width="100%">
 							<mx:TextInput id="txtOS" width="200" maxChars="50" />
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:FormItem label="FASE">
+						<s:HGroup width="100%">
+							<mx:TextInput id="txtFase" width="200" maxChars="50"/>  
 						</s:HGroup>
 					</mx:FormItem>
 					<mx:HRule width="100%">

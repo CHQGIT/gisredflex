@@ -11,7 +11,7 @@
 			<expressions>
 				<expression alias="Nis" textsearchlabel="Busqueda por SED:" isvaluerequired="true">
 						<values>							
-							<value prompt="Ejemplo: 10001"> ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_id_sed = '[value]'</value>
+							<value prompt="Ejemplo: 10001"> ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_id_sed = [value]</value>
 						</values>
 				</expression>	
 			</expressions>

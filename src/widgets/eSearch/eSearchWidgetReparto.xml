@@ -3,37 +3,29 @@
 <configuration>
 	<layers>
 	<layer>
-				<token/>
-			<definitionexpression></definitionexpression>
+			<token/>
+			
 			<enableexport>true</enableexport>
 			<name>Clientes</name>
-			<url>http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0</url>
+			<url>http://gisred.chilquinta/arcgis/rest/services/Mobile/Reparto/MapServer/0</url>
+			<definitionexpression></definitionexpression>
 			<expressions>
-				<expression alias="nis" textsearchlabel="Busqueda por Nis:" isvaluerequired="true">
+				<expression alias="nis" textsearchlabel="Busqueda de Reparto por Nis:" isvaluerequired="true">
 						<values>							
-							<value prompt="Ejemplo: 100001">ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis = [value]</value>
+							<value prompt="Ejemplo: 123123">nis = [value]</value>
 						</values>
 				</expression>	
 			</expressions>
-			<graphicalsearchlabel>Utilice una de las herramientas de búsqueda gráfica para seleccionar una Zonificación</graphicalsearchlabel>
+			<graphicalsearchlabel>Utilice una de las herramientas de búsqueda gráfica para seleccionar un Reparto</graphicalsearchlabel>
 			<spatialsearchlayer>true</spatialsearchlayer>
 			<titlefield>Clientes</titlefield>
 			<fields all="false">
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis" alias="Nis" gridfield="true"/>
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_estado_suministro" alias="Estado Suministro" gridfield="true"/>
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_tarifa" alias="Tarifa" gridfield="true"/>
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.categoria" alias="Categoria" gridfield="true"/>
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_comuna" alias="Comuna" gridfield="true"/>
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_sector" alias="Cd Sector" gridfield="true"/>
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_area" alias="Cd Area" gridfield="true"/>
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.consumidor" alias="Consumidor" gridfield="true"/>
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nm_tipo_suministro" alias="Tipo Suministro" gridfield="false"/>
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_id_sed" alias="Codigo SED" gridfield="true"/>
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_area_tipica" alias="Area Tipica" gridfield="true"/>
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_tipo_cliente" alias="Tipo Cliente" gridfield="true"/>
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.direccion_resu" alias= "Dirección" gridfield="true"/>
-				<field name="ARCGIS.dbo.CLIENTES_DATA_DATOS_006.sector" alias= "Sector" gridfield="true"/>
-				
+				<field name="nis" alias="Nis" gridfield="true"/>
+				<field name="valor_captura" alias="Valor captura" gridfield="true"/>
+				<field name="empresa" alias="Tarifa" gridfield="true"/>
+				<field name="modulo" alias="Módulo" gridfield="true"/>
+				<field name="created_user" alias="Creador" gridfield="true"/>
+				<field name="created_date" alias="Fecha Creación" gridfield="true"/>
 			</fields>
 			<zoomscale usegeometry="true" zoompercent="2"></zoomscale>
             <autoopendatagrid>true</autoopendatagrid>
