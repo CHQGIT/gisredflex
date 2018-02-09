@@ -66,7 +66,6 @@
 			import comun.Planificacion.User;
 			import comun.url.URL;
 			
-			
 			import widgets.AdmIngresoClientesCNR.utilidad.urls;
 			
 			
@@ -113,7 +112,7 @@
 				queryEquipoSelected.outFields = ["*"];
 				queryEquipoSelected.returnGeometry = true;     
 				queryEquipoSelected.orderByFields = ["usuario"];
-				queryEquipoSelected.where = "usuario = '" + User.Usuario + "' AND MODULO ='INGRESO_CLIENTES' AND widget='ADMINGRESOCLIENTESCNR'" ;
+				queryEquipoSelected.where = "usuario = '" + User.Usuario + "' AND MODULO ='INGRESO_CLIENTES' AND widget='ADMINGRESOCLIENTESCNR' and empresa='Chilquinta'" ;
 				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
 				queryEquipoSelected.outSpatialReference = map.spatialReference;
 				queryTaskUserSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
@@ -239,7 +238,7 @@
 				// TODO Auto-generated method stub
 				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
 				var query:Query = new Query();
-				query.where = "ESTADO IS NULL";
+				query.where = "estado IS NULL AND EMPRESA = 'Chilquinta'";
 				query.outFields = ['*'];
 				query.orderByFields = ['created_date'];
 				query.returnGeometry = true;
@@ -309,7 +308,7 @@
 				// TODO Auto-generated method stub
 				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
 				var query:Query = new Query();
-				query.where = "created_date >=" + "'" +  dateDesde.text + "'" + "and created_date <=" + "'" + dateHasta.text + "'  AND (ESTADO IS NULL OR ESTADO ='NO CARGADO')";
+				query.where = "created_date >=" + "'" +  dateDesde.text + "'" + "and created_date <=" + "'" + dateHasta.text + "'  and (ESTADO IS NULL OR ESTADO ='NO CARGADO') AND (EMPRESA='chilquinta')";
 
 				query.outFields = ['*'];
 				query.orderByFields = ['created_date'];
@@ -389,7 +388,7 @@
 				anexo2="";
 				tipoEdificacion="";
 				//buscar datos de detalle
-				buscarDetalle(DataClientesNuevos.selectedItem['NIS']);
+				buscarDetalle(DataClientesNuevos.selectedItem['NIS'], DataClientesNuevos.selectedItem['OBJECTID']);
 				
 				// TODO Auto-generated method stub
 				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
@@ -427,7 +426,7 @@
 				}
 			}
 			
-			public function buscarDetalle(nis:int):void{
+			public function buscarDetalle(nis:int, oid: int):void{
 				
 				
 				nisBuscado = String(nis);
@@ -435,7 +434,7 @@
 				
 				var queryTask:QueryTask = new QueryTask(widgets.AdmIngresoClientesCNR.utilidad.urls.URL_ADD_CLIENTE);
 				var query:Query = new Query();
-				query.where = "NIS="+ nis;
+				query.where = "NIS="+ nis+ "AND objectid=" + oid;
 				query.outFields = ['*'];
 				query.returnGeometry = true;
 				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
@@ -443,6 +442,7 @@
 				function onResultQuery(featureSet2:FeatureSet, token:Object = null):void {
 					
 					buscarDireccion(featureSet2.features[0].attributes['ID_DIRECCION']);
+				
 					buscarRotulo(featureSet2.features[0].attributes['ID_POSTE_CAMARA']);
 					
 					
@@ -526,6 +526,7 @@
 				function onResultQuery3(featureSet3:FeatureSet, token:Object = null):void {
 					
 					if (featureSet3.attributes.length>0){
+						
 						rotuloEncontrado = featureSet3.features[0].attributes['rotulo'] + "  - Según SW";
 					}else{
 						buscarEnExternos(ipc);
@@ -734,6 +735,14 @@
 				ingresosLayer.visible = true;
 			}
 			
+			protected function image1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				coleccionClientes.removeAll();
+				cargarListaClientesNuevos();
+				DataClientesNuevos.dataProvider = coleccionClientes;
+			}
+			
 		]]>
 	</fx:Script>
 	<viewer:WidgetTemplate id="wTemplate"                      
@@ -768,6 +777,7 @@
 					<s:HGroup width="100%" verticalAlign="middle">
 						<mx:TextInput x="10" id="txtFilterClientes" width="100%" height="30" fontSize="14" fontWeight="bold" />
 						<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png"/>
+						<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/refresh_1.png" click="image1_clickHandler(event)"/>
 					</s:HGroup>
 					<mx:DataGrid id="DataClientesNuevos" resizableColumns="true" sortableColumns="true" editable="false"  
 								 width="100%" height="100%" visible="true" selectable="true" itemClick="DataClientesNuevos_itemClickHandler(event)">

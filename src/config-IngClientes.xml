@@ -337,6 +337,12 @@
                			url="widgets/AdmIngresoClientesCNR/AdmIngresoClientesCNR.swf" 
                			preload="close"/>
                			
+               <widget label="Administracion clientesCNR(Total)" 
+       		   			icon="assets/images/admclientes_cnr.png"
+               			config="widgets/AdmIngresoClientesCNR/AdmIngresoClientesCNR.xml"
+               			url="widgets/AdmIngresoClientesCNR/AdmIngresoClientesCNRTotal.swf" 
+               			preload="close"/>			
+               			
                	
          </widgetgroup>
          

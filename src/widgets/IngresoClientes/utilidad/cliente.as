@@ -65,7 +65,7 @@ package widgets.IngresoClientes.utilidad
 			nuevaPoligono["TIPO_POSTE_CAMARA"]=existenciaPosteCamara;
 			nuevaPoligono["OS"]= os;
 			nuevaPoligono["ID_POSTE_CAMARA"]= idPosteCamara;
-			nuevaPoligono["empresa"]='chilquinta'
+			nuevaPoligono["empresa"]='Chilquinta'
 			
 			
 			//se agrega el punto del cliente con sus datos.

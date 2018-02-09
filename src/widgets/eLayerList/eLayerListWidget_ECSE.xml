@@ -44,6 +44,7 @@
              <excludelayer mapservice="Imágenes SSEE"></excludelayer>
              <excludelayer mapservice="Reparto"></excludelayer>
                <excludelayer mapservice="Equipos Tele"></excludelayer>
+                <excludelayer mapservice="Medioambiente"></excludelayer>
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

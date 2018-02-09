@@ -47,6 +47,7 @@
      	           <excludelayer mapservice="Concesiones"></excludelayer>
      	            <excludelayer mapservice="Clientes"></excludelayer>
      	             <excludelayer mapservice="Luminarias"></excludelayer>
+     	            
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

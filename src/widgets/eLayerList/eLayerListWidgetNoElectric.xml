@@ -36,7 +36,7 @@
      	   <excludelayer mapservice="Clientes subterraneos"></excludelayer>
      	   <excludelayer mapservice="Interrupciones Equipos"></excludelayer>
      	   <excludelayer mapservice="Nivel Criticidad"></excludelayer>
-     	   
+     	    <excludelayer mapservice="Medioambiente"></excludelayer>
      	  
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
