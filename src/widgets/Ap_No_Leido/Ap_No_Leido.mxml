@@ -238,7 +238,7 @@
 				// TODO Auto-generated method stub
 				coleccionAP.removeAll();
 				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask('http://gisred.chilquinta/arcgis/rest/services/GESTION_AP/AP_ANALISIS/MapServer/0');
+				var queryTask:QueryTask = new QueryTask('https://gisredint.chilquinta.cl/arcgis/rest/services/GESTION_AP/AP_ANALISIS/MapServer/0');
 				var query:Query = new Query();
 				query.where = "ARCGIS.dbo.view_ap_cant_no_leido_equipo.CANTIDAD IS NOT NULL";
 				query.outFields = ['*'];
@@ -292,7 +292,7 @@
 			{
 										
 				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask("http://gisred.chilquinta/arcgis/rest/services/GESTION_AP/AP_ANALISIS/MapServer/0/query");
+				var queryTask:QueryTask = new QueryTask("https://gisredint.chilquinta.cl/arcgis/rest/services/GESTION_AP/AP_ANALISIS/MapServer/0/query");
 				var query:Query = new Query();
 				query.where = "ARCGIS.DBO.Nodos_006.rotulo ='"+ DataAP.selectedItem['ROTULO'] + "'";
 				query.outFields = ['*'];

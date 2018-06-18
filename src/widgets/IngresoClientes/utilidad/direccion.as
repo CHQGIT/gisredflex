@@ -8,6 +8,7 @@ package widgets.IngresoClientes.utilidad
 	import com.esri.ags.symbols.SimpleMarkerSymbol;
 	import mx.controls.Alert;
 	import mx.rpc.AsyncResponder;
+	import widgets.IngresoClientes.utilidad.cargarCombos;
 	
 	
 	

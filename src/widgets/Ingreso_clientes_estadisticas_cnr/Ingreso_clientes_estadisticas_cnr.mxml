@@ -69,7 +69,7 @@
 				query.outStatistics = [ statsDef1 ];
 				query.where = "created_date >=" + "'" +  dateDesde.text + "'" + "and created_date <=" + "'" + dateHasta.text + "'";
 				
-				queryTask.url = "http://gisred.chilquinta/arcgis/rest/services/Mobile/Ingreso_externo_nuevo_cnr/MapServer/0";
+				queryTask.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Mobile/Ingreso_externo_nuevo_cnr/MapServer/0";
 				queryTask.execute(query,new AsyncResponder(onResult, onFault));
 				
 				function onResult(featureSet:FeatureSet, token:Object = null):void

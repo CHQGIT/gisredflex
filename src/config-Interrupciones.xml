@@ -31,7 +31,7 @@
         	<layer type="bing" label="Calles" icon="https://www.arcgis.com/sharing/rest/content/items/0914b1220e3a4484b3fbece2b746558d/info/thumbnail/tempbing_road_manchester2.png" style="road" culture="es-ES" visible="true"/>
             <layer type="bing" label="Satelite" icon="https://www.arcgis.com/sharing/rest/content/items/1a1096e7254a483db4404a09c95034b2/info/thumbnail/tempbing_aerial_manchester2.png" style="aerial" culture="es-ES" visible="false"/>
 			<layer type="bing" label="Satelite With label" icon="https://www.arcgis.com/sharing/rest/content/items/1a1096e7254a483db4404a09c95034b2/info/thumbnail/tempbing_aerial_manchester2.png"  style="aerialWithLabels" culture="es-ES" visible="false"/>
-            <layer type="dynamic" label="Local Landbase" icon="assets/images/mapabase.png" url="http://gisred.chilquinta/arcgis/rest/services/MapaBase/MapServer" visible="false"/>
+            <layer type="dynamic" label="Local Landbase" icon="assets/images/mapabase.png" url="https://gisredint.chilquinta.cl/arcgis/rest/services/MapaBase/MapServer" visible="false"/>
         </basemaps>
         <operationallayers>
      		
@@ -45,14 +45,14 @@
         	<layer type="dynamic"
 			           label="Luminarias" 
 			           imageformat="png32"
-			           url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Luminarias/MapServer" 
+			           url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Luminarias/MapServer" 
 			           visible="true">       			
        		</layer>
        		
         	<layer type="dynamic"
 			           label="Linea Gas" 
 			           imageformat="png32"
-			           url="http://gisred.chilquinta/arcgis/rest/services/Varios/GAS/MapServer" 
+			           url="https://gisredint.chilquinta.cl/arcgis/rest/services/Varios/GAS/MapServer" 
 			           visible="true"
 			           info="widgets/InfoTemplates/AttRelateInfoWinWidget.swf"
                  	   infoconfig="widgets/InfoTemplates/IWT_Cameras.xml"
@@ -60,19 +60,19 @@
        		</layer>      
        		
        			    
-			<!-- <layer type="dynamic"  imageformat="png32" label="Clientes1" url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Clientes/MapServer" visible="false"/> -->        
-            <layer type="dynamic"  imageformat="png32" label="Clientes" url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer" visible="true">
+			<!-- <layer type="dynamic"  imageformat="png32" label="Clientes1" url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Clientes/MapServer" visible="false"/> -->        
+            <layer type="dynamic"  imageformat="png32" label="Clientes" url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer" visible="true">
             	<sublayer id="0" popupconfig="popups/PopUp_Clientes.xml"/></layer>
-            <layer type="dynamic"  imageformat="png32" label="Direcciones" url="http://gisred.chilquinta/arcgis/rest/services/Cartografia/DMPS/MapServer" mode="onDemand" visible="true">
+            <layer type="dynamic"  imageformat="png32" label="Direcciones" url="https://gisredint.chilquinta.cl/arcgis/rest/services/Cartografia/DMPS/MapServer" mode="onDemand" visible="true">
              	<sublayer id="0" label="Direcciones" popupconfig="popups/PopUp_Direcciones.xml"/></layer>
-            <layer type="dynamic" label="Concesiones" imageformat="png32" url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Concesiones006/MapServer" alpha="0.4" visible="true">
+            <layer type="dynamic" label="Concesiones" imageformat="png32" url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Concesiones006/MapServer" alpha="0.4" visible="true">
             	<sublayer id="0" popupconfig="popups/PopUp_Concesion_Distribucion.xml"/>
                 <sublayer id="1" popupconfig="popups/PopUp_Concesion_Transmision.xml"/>
             </layer>
              <layer type="dynamic"     		
      			label="Tramos"
      			imageformat="png32"
-     			url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Tramos_006/MapServer"
+     			url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Tramos_006/MapServer"
      			visible="true">
      			 <sublayer id="0" label="Tramos MT" popupconfig="popups/PopUp_Tramo_MT.xml"/>
      			 <sublayer id="1" label="Tramos BT" popupconfig="popups/PopUp_Tramo_BT.xml"/>
@@ -83,7 +83,7 @@
      		<layer type="dynamic"
      			label="Nodos"
      			imageformat="png32"
-     			url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer"
+     			url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer"
      			visible="true">
      			 <sublayer id="0" label="Postes" popupconfig="popups/PopUp_Poste.xml"/>
      		</layer>     
@@ -91,7 +91,7 @@
      		<layer type="dynamic"
      			label="Equipos Pto"
      			imageformat="png32"
-     			url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer"
+     			url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer"
      			visible="true">
      			  <sublayer id="0" label="SSEE" popupconfig="popups/PopUp_SSEE.xml"/>
      			  <sublayer id="1" label="Subestaciones" popupconfig="popups/PopUp_SED.xml"/>
@@ -102,12 +102,12 @@
      			<layer type="dynamic"
      			label="Equipos linea"
      			imageformat="png32"
-     			url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_Linea_006/MapServer"
+     			url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Equipos_Linea_006/MapServer"
      			visible="true">
      			<sublayer id="0" label="Equipos" popupconfig="popups/PopUp_Equipos.xml"/>
      		</layer> 
             <!-- 
-            <layer type="dynamic" label="Electricidad" imageformat="png32" url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Chilquinta/MapServer" visible="true">
+            <layer type="dynamic" label="Electricidad" imageformat="png32" url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Chilquinta/MapServer" visible="true">
             <sublayer id="0" label="Subestaciones" popupconfig="popups/PopUp_SED.xml"/>
 		                   <sublayer id="1" label="Tramos MT" popupconfig="popups/PopUp_Tramo_MT.xml"/>
 		                   <sublayer id="2" label="Tramos BT" popupconfig="popups/PopUp_Tramo_BT.xml"/>
@@ -119,18 +119,18 @@
 		                   <sublayer id="8" label="Camaras" popupconfig="popups/PopUp_Camaras.xml"/>
 		                   <sublayer id="9" label="Equipos_Sub" popupconfig="popups/PopUp_Equipos.xml"/>
 		    </layer> -->
-		     <layer type="dynamic" label="STx" imageformat="png32" url="http://gisred.chilquinta/arcgis/rest/services/STx/STx/MapServer" visible="true"/>
+		     <layer type="dynamic" label="STx" imageformat="png32" url="https://gisredint.chilquinta.cl/arcgis/rest/services/STx/STx/MapServer" visible="true"/>
 		    <layer type="dynamic"
 			           label="Vistas" 
 			           imageformat="png32"
-			           url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Especiales006/MapServer" 
+			           url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Especiales006/MapServer" 
 			           visible="true">	            
        			</layer>
        			
         <layer type="dynamic"
 			           label="Interrupciones Equipos" 
 			           imageformat="png32"
-			           url="http://gisred.chilquinta/arcgis/rest/services/Test/Equipos_int/MapServer" 
+			           url="https://gisredint.chilquinta.cl/arcgis/rest/services/Test/Equipos_int/MapServer" 
 			           visible="false">	            
        			</layer>
        						

@@ -31,7 +31,7 @@
 			{
 				
 				var queryTask:QueryTask = new QueryTask();
-				queryTask.url = "http://gisred.chilquinta/arcgis/rest/services/MapaBase/MapServer/4";
+				queryTask.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/MapaBase/MapServer/4";
 				queryTask.useAMF = false;
 				var query:Query = new Query();
 				query.outFields = ["nombre"];
@@ -98,7 +98,7 @@
 			{
 				//graphicsLayer= null
 				var queryTaskNombreCalle:QueryTask = new QueryTask();
-				queryTaskNombreCalle.url = "http://gisred.chilquinta/arcgis/rest/services/Cartografia/DMPS/MapServer/0/query";
+				queryTaskNombreCalle.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Cartografia/DMPS/MapServer/0/query";
 				queryTaskNombreCalle.useAMF = false;
 				var queryNombreCalleSelected:Query = new Query();
 				queryNombreCalleSelected.outFields = ["*"];
@@ -156,7 +156,7 @@
 				
 					//graphicsLayer= null
 					var queryTaskNombreCalle:QueryTask = new QueryTask();
-					queryTaskNombreCalle.url = "http://gisred.chilquinta/arcgis/rest/services/Cartografia/DMPS/MapServer/0/query";
+					queryTaskNombreCalle.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Cartografia/DMPS/MapServer/0/query";
 					queryTaskNombreCalle.useAMF = false;
 					var queryNombreCalleSelected:Query = new Query();
 					queryNombreCalleSelected.outFields = ["*"];
@@ -243,7 +243,7 @@
 				var DirSelected:int = int(event.currentTarget.selectedItem.id_direccion);
 							
 				var queryTaskLumSel:QueryTask = new QueryTask();
-				queryTaskLumSel.url = "http://gisred.chilquinta/arcgis/rest/services/Cartografia/DMPS/MapServer/0/query";
+				queryTaskLumSel.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Cartografia/DMPS/MapServer/0/query";
 				queryTaskLumSel.useAMF = false;
 				var queryLumSel:Query = new Query();
 				queryLumSel.outFields = ["*"];

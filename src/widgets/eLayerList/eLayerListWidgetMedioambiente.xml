@@ -47,7 +47,10 @@
      	           <excludelayer mapservice="Concesiones"></excludelayer>
      	            <excludelayer mapservice="Clientes"></excludelayer>
      	             <excludelayer mapservice="Luminarias"></excludelayer>
-     	            
+     	             <excludelayer mapservice="Riesgo"></excludelayer>
+     	             <excludelayer mapservice="Electrodependientes"></excludelayer>
+     	              <excludelayer mapservice="Reparto Historia"></excludelayer>
+     	                <excludelayer mapservice="Sectores"></excludelayer>
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

@@ -7,7 +7,7 @@
 			<definitionexpression>tipo_nodo = 'ele!poste'</definitionexpression>
 			<enableexport>true</enableexport>
 			<name>Postes</name>
-			<url>http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0</url>
+			<url>https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0</url>
 			<expressions>
 				<expression alias="Rotulo"  textsearchlabel="Busqueda por Rotulo:">
 					<values>

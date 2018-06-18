@@ -3,10 +3,10 @@
     <title>NIS: {nis}</title>
     <fields>
      	<field name="valor_captura" alias="Valor captura :" visible="true"/>
-        <field name="empresa" alias="Empresa :" visible="true"/>
-        <field name="modulo" alias="Módulo :" visible="true"/>
         <field name="created_date" alias="Fecha Creación :" visible="true"/>
         <field name="created_user" alias="Creador :" visible="true"/>
+        <field name="last_edited_date " alias="Última Modificación :" visible="true"/>
+        <field name="last_edited_user" alias="Último Usuario Editor :" visible="true"/>
         
                    
     </fields>

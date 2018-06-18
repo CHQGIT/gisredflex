@@ -6,6 +6,7 @@ package widgets.IngresoClientes.utilidad
 	
 	import mx.controls.Alert;
 	import mx.rpc.AsyncResponder;
+	import widgets.IngresoClientes.utilidad.cargarCombos;
 
 	public class poste
 	{

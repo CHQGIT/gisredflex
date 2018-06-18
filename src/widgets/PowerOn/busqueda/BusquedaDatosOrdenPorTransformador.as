@@ -43,7 +43,7 @@ package widgets.PowerOn.busqueda
 			var idOrden:String = objeto.attributes["id_orden"];
 			var ordenTransTask:QueryTask = new QueryTask();
 			//ordenTransTask.url = "http://gisred.chilquinta.cl:5555/arcgis/rest/services/Interrupciones/Interrupciones_clientes/MapServer/6";
-			ordenTransTask.url = "http://gisred.chilquinta/arcgis/rest/services/Interrupciones/Interrupciones_clientes/MapServer/6";
+			ordenTransTask.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Interrupciones/Interrupciones_clientes/MapServer/6";
 			ordenTransTask.useAMF = false;
 			var ordenTrans:Query = new Query();
 			
@@ -112,7 +112,7 @@ package widgets.PowerOn.busqueda
 			
 			var countTotalAfectadosTask:QueryTask = new QueryTask();
 			//countTotalAfectadosTask.url = "http://gisred.chilquinta.cl:5555/arcgis/rest/services/Interrupciones/Interrupciones_clientes/MapServer/7";
-			countTotalAfectadosTask.url = "http://gisred.chilquinta/arcgis/rest/services/Interrupciones/Interrupciones_clientes/MapServer/7";
+			countTotalAfectadosTask.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Interrupciones/Interrupciones_clientes/MapServer/7";
 			countTotalAfectadosTask.useAMF = false;
 			countTotalAfectadosTask.showBusyCursor = true;
 			
@@ -140,7 +140,7 @@ package widgets.PowerOn.busqueda
 					var countTotalClientesTask:QueryTask = new QueryTask();
 					var idTrafo:String = setCountClientes.features[i].attributes["id_trafo"];
 					//countTotalClientesTask.url = "http://gisred.chilquinta.cl:5555/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0";
-					countTotalClientesTask.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0";
+					countTotalClientesTask.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0";
 					countTotalClientesTask.useAMF = false;
 					countTotalClientesTask.showBusyCursor = true;
 					

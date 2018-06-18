@@ -67,7 +67,7 @@
 			
 			//graphicsLayer= null
 			var queryTaskEquipoSelected:QueryTask = new QueryTask();
-			queryTaskEquipoSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Tramos_006/MapServer/1/query";
+			queryTaskEquipoSelected.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Tramos_006/MapServer/1/query";
 			queryTaskEquipoSelected.useAMF = false;
 			var queryEquipoSelected:Query = new Query();
 			queryEquipoSelected.outFields = ["*"];
@@ -191,7 +191,7 @@
 				coleccion.removeAll();
 			//	acPolyline.removeAll();
 				var queryTaskEq:QueryTask = new QueryTask();
-				queryTaskEq.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0";				
+				queryTaskEq.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0";				
 				queryTaskEq.useAMF = false;
 				var queryEq:Query = new Query();
 				queryEq.outFields = ["*"];
@@ -238,7 +238,7 @@
 	
 				//acPolyline.removeAll();
 				var queryTaskPoste:QueryTask = new QueryTask();
-				queryTaskPoste.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0/query";
+				queryTaskPoste.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0/query";
 				queryTaskPoste.useAMF = false;
 				var queryPoste:Query = new Query();
 				queryPoste.outFields = ["*"];

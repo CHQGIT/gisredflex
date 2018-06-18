@@ -22,13 +22,13 @@
           <excludelayer mapservice="ECSE"></excludelayer>
           <excludelayer mapservice="Cobertura Antena"></excludelayer>
            <excludelayer mapservice="Poligonos SSEE"></excludelayer>
-           
+            <excludelayer mapservice="Riesgo"></excludelayer>
            <excludelayer mapservice="Equipos linea"></excludelayer>
            <excludelayer mapservice="Equipos Pto"></excludelayer>
            <excludelayer mapservice="Tramos"></excludelayer>
            <excludelayer mapservice="Nodos"></excludelayer>
            <excludelayer mapservice="Concesiones"></excludelayer>
-          
+          <excludelayer mapservice="Electrodependientes"></excludelayer>
            <excludelayer mapservice="Luminarias"></excludelayer>
      	   <excludelayer mapservice="STx"></excludelayer>
      	   <excludelayer mapservice="PMGD"></excludelayer>
@@ -37,6 +37,8 @@
      	   <excludelayer mapservice="Interrupciones Equipos"></excludelayer>
      	   <excludelayer mapservice="Nivel Criticidad"></excludelayer>
      	    <excludelayer mapservice="Medioambiente"></excludelayer>
+     	    <excludelayer mapservice="Reparto Historia"></excludelayer>
+     	      <excludelayer name="Reparto Historia"></excludelayer>
      	  
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>

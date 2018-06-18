@@ -50,7 +50,7 @@
 				outFields="*"
 				mode="onDemand"	
 				graphicAdd="verElemento(event)"
-				url="http://gisred.chilquinta/arcgis/rest/services/Varios/Ingreso_Lectores/FeatureServer/0"
+				url="https://gisredint.chilquinta.cl/arcgis/rest/services/Mobile/Ingreso_externo_movil_lectores/MapServer/0"
 				>
 			</esri:FeatureLayer>
 			
@@ -95,6 +95,7 @@
 			import comun.url.URL;
 			
 			import widgets.AdminLectores.utilidad.urls;
+			
 			private var popUpRenderer:PopUpRenderer = new PopUpRenderer();
 			
 			
@@ -294,7 +295,7 @@
 				// TODO Auto-generated method stub
 				coleccionClientes.removeAll();
 				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURAS);
+				var queryTask:QueryTask = new QueryTask(urls.URL_LECTURAS);
 				var query:Query = new Query();
 				query.where = "created_date >=" + "'" +  dateDesde.text + "'" + "and created_date <=" + "'" + dateHasta.text + "'  AND (estado_final IS NULL OR estado_final <>'CARGADO')"; 
 				
@@ -344,7 +345,7 @@
 				coleccionClientes.removeAll();
 				DataClientesNuevos.dataProvider = coleccionClientes;
 				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURAS);
+				var queryTask:QueryTask = new QueryTask(urls.URL_LECTURAS);
 				var query:Query = new Query();
 				query.where = "estado_final  IS NULL OR estado_final  <> 'CARGADO'";
 				query.outFields = ['*'];
@@ -406,7 +407,7 @@
 				//buscarDetalle(DataClientesNuevos.selectedItem['NIS'], DataClientesNuevos.selectedItem['OBJECTID']);
 				
 				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURAS);
+				var queryTask:QueryTask = new QueryTask(urls.URL_LECTURAS);
 				
 				var query:Query = new Query();
 				
@@ -547,7 +548,7 @@
 				
 				nisBuscado = String(nis);
 				
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURAS);
+				var queryTask:QueryTask = new QueryTask(urls.URL_LECTURAS);
 				var query:Query = new Query();
 				query.where = "nro_medidor="+ nis + "and OBJECTID="+objid;
 				query.outFields = ['*'];

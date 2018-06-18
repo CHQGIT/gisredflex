@@ -239,7 +239,7 @@
 				
 				var queryTaskRuta:QueryTask = new QueryTask();                     
 				queryTaskRuta.showBusyCursor = true;
-				queryTaskRuta.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0";
+				queryTaskRuta.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0";
 				queryTaskRuta.useAMF = false;
 				var queryRutaSelected:Query = new Query();
 				queryRutaSelected.returnGeometry = true;

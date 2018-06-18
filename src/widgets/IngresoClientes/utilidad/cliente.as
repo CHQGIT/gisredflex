@@ -13,6 +13,7 @@ package widgets.IngresoClientes.utilidad
 	import mx.rpc.AsyncResponder;
 	
 	import widgets.IngresoClientes.IngresoClientes;
+	import widgets.IngresoClientes.utilidad.cargarCombos;
 	
 
 	public class cliente

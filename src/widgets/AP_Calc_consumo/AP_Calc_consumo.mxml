@@ -244,7 +244,7 @@
 			
 			
 			coleccionNis1.removeAll();
-			var queryTask:QueryTask = new QueryTask('http://gisred.chilquinta/arcgis/rest/services/GESTION_AP/AP_ANALISIS/MapServer/5');
+			var queryTask:QueryTask = new QueryTask('https://gisredint.chilquinta.cl/arcgis/rest/services/GESTION_AP/AP_ANALISIS/MapServer/5');
 			var query:Query = new Query();
 			query.where = queryS;
 			query.outFields= ['NIS','DESC_TARIFA','CONSTANTE','DESC_ESTADO','DESC_CATEGORIA','DESC_SUBCATEGORIA','periodo_ini'];
@@ -286,7 +286,7 @@
 				// TODO Auto-generated method stub
 				coleccionConsumos.removeAll();
 				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask('http://gisred.chilquinta/arcgis/rest/services/GESTION_AP/AP_ANALISIS/MapServer/5');
+				var queryTask:QueryTask = new QueryTask('https://gisredint.chilquinta.cl/arcgis/rest/services/GESTION_AP/AP_ANALISIS/MapServer/5');
 				var query:Query = new Query();
 				query.where = "NIS = " + dataNIS.selectedItem.NIS;
 				query.outFields = ['*'];

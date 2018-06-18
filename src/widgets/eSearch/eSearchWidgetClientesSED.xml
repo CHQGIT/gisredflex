@@ -7,7 +7,7 @@
 			<definitionexpression></definitionexpression>
 			<enableexport>true</enableexport>
 			<name>Clientes</name>
-			<url>http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0</url>
+			<url>https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0</url>
 			<expressions>
 				<expression alias="Nis" textsearchlabel="Busqueda por SED:" isvaluerequired="true">
 						<values>							

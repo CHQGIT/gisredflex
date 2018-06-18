@@ -31,8 +31,8 @@
         <field name="TEMPORADA" alias="Temporada:" visible="true"/>
     </fields>
     <medias>
-        <media type="image" title="Imagen 1" imagelink="http://gisred.chilquinta/images/{FOTO_1}" imagesource="http://gisred.chilquinta/images/{FOTO_1}"/>
-        <media type="image" title="Imagen 2" imagelink="http://gisred.chilquinta/images/{FOTO_2}" imagesource="http://gisred.chilquinta/images/{FOTO_2}"/>
+        <media type="image" title="Imagen 1" imagelink="https://gisredint.chilquinta.cl/images/{FOTO_1}" imagesource="https://gisredint.chilquinta.cl/images/{FOTO_1}"/>
+        <media type="image" title="Imagen 2" imagelink="https://gisredint.chilquinta.cl/images/{FOTO_2}" imagesource="https://gisredint.chilquinta.cl/images/{FOTO_2}"/>
     </medias>
     <showattachments>false</showattachments>
     <showrelatedrecords>false</showrelatedrecords>

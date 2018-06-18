@@ -7,7 +7,7 @@
 			<definitionexpression></definitionexpression>
 			<enableexport>true</enableexport>
 			<name>Tramos MT</name>
-			<url>http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Tramos_006/MapServer/0</url>
+			<url>https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Tramos_006/MapServer/0</url>
 			<expressions>
 				<expression alias="Id Tramo"  textsearchlabel="Busqueda por id tramo:">
 					<values>

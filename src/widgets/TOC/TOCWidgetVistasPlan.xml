@@ -47,6 +47,9 @@
 	 <excludelayer mapservice="Unidad vecinal"></excludelayer>
 	 <excludelayer mapservice="PMGD"></excludelayer>
 	   <excludelayer mapservice="Imágenes SSEE"></excludelayer>
+	   <excludelayer mapservice="Electrodependientes"></excludelayer>
+	   <excludelayer mapservice="Reparto Historia"></excludelayer>
+	     <excludelayer mapservice="Sectores"></excludelayer>
 		<!-- <excludelayer mapservice="Symbols"></excludelayer>
 		<excludelayer mapservice="Utilities"></excludelayer> -->
 		<!-- <excludelayer mapservice="Earthquakes"></excludelayer>

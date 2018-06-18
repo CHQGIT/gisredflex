@@ -96,6 +96,8 @@
     <module application="src/index.mxml" destPath="widgets/AdminLectores/Coordinador.swf" optimize="true" sourcePath="src/widgets/AdminLectores/Coordinador.mxml"/>
     <module application="src/index.mxml" destPath="widgets/BusquedaCampamentos/Busqueda_Campamentos.swf" optimize="true" sourcePath="src/widgets/BusquedaCampamentos/Busqueda_Campamentos.mxml"/>
     <module application="src/index.mxml" destPath="widgets/AdmIngresoClientesCNR/AdmIngresoClientesCNRTotal.swf" optimize="true" sourcePath="src/widgets/AdmIngresoClientesCNR/AdmIngresoClientesCNRTotal.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/eSpatialSearch/eSpatialSearch.swf" optimize="true" sourcePath="src/widgets/eSpatialSearch/eSpatialSearch.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/AdminLectores/IngresoDenuncios.swf" optimize="true" sourcePath="src/widgets/AdminLectores/IngresoDenuncios.mxml"/>
   </modules>
   <workers/>
   <buildCSSFiles/>

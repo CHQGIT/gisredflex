@@ -1,0 +1,290 @@
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"				   
+				   xmlns:components="com.esri.viewer.components.*"
+				   xmlns:esri="http://www.esri.com/2008/ags"
+				   
+				  >	
+	
+	
+	
+	<fx:Declarations>
+		
+		
+		<s:DateTimeFormatter id="dateFormatter" dateTimePattern="dd/MM/yyyy"/>
+		
+		
+		<esri:Map id="map">
+			<esri:infoWindowContent>
+				<s:TextArea id="myTextArea"
+							width="250" height="75"/>
+			</esri:infoWindowContent>
+			
+			
+			
+		</esri:Map>
+		
+		<s:GlowFilter id="glowFilter"
+					  alpha="1"
+					  color="{getStyle('focusColor')}"
+					  inner="true"
+					  strength="2"/>		
+		
+		
+		
+		
+		<s:NumberFormatter id="numberFormatter" trailingZeros="false"/>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.as3xls.xls.ExcelFile;
+			import com.as3xls.xls.Sheet;
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.events.DrawEvent;
+			import com.esri.ags.events.GraphicEvent;
+			import com.esri.ags.geometry.Geometry;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
+			import com.esri.ags.layers.FeatureLayer;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.portal.PopUpRenderer;
+			import com.esri.ags.symbols.SimpleFillSymbol;
+			import com.esri.ags.symbols.SimpleLineSymbol;
+			import com.esri.ags.symbols.SimpleMarkerSymbol;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			import com.esri.ags.tools.DrawTool;
+			import com.esri.ags.utils.GraphicUtil;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.events.ToolTipEvent;
+			import mx.messaging.messages.ErrorMessage;
+			import mx.rpc.AsyncResponder;
+			import mx.utils.StringUtil;
+			
+			import widgets.eSpatialSearch.urls.urls;
+			
+		
+			public var myGraphicsLayer:GraphicsLayer =  new GraphicsLayer;
+			private var clearFeatureLabel:String;
+			private var drawPolygonLabel:String;
+			private var lastDrawnGraphic:Graphic;
+			private var selectedDrawingIcon:FocusableImage;
+			[Bindable] private var drawingLine:Boolean;
+			[Bindable] private var drawLineLabel:String = "drawLineLabel";
+			private var drawStatus:String;
+			public var sfs:SimpleFillSymbol = new SimpleFillSymbol;
+			public var sls:SimpleLineSymbol = new SimpleLineSymbol;
+			public var geom:Geometry=new Geometry;
+			private var graphicToMeasurementGraphic:Dictionary = new Dictionary(true);
+			
+			[Bindable] public var coleccionClientes:ArrayCollection = new ArrayCollection;
+			
+			
+			protected function tbb_itemClickHandler(event:MouseEvent):void
+			{				
+				selectedDrawingIcon = FocusableImage(event.currentTarget);
+				clearSelectionFilter();
+				selectedDrawingIcon.filters = [ glowFilter ];
+				
+				drawingLine = true;				
+				drawStatus = drawLineLabel;
+				setMapAction(DrawTool.CIRCLE, drawStatus, sls, map_drawEndHandler);
+				map.removeLayer(myGraphicsLayer);
+				myGraphicsLayer.clear();
+			}
+			
+			//Limpia la seleccion de la imagen poligono
+			private function clearSelectionFilter():void
+			{
+				selectedDrawingIcon.filters = [];					
+			}
+			
+			//Funcion de dibujar poligono en el mapa
+			private function map_drawEndHandler(event:DrawEvent):void
+			{
+				event.target.deactivate();
+				
+				lastDrawnGraphic = event.graphic;
+				
+				lastDrawnGraphic.addEventListener(MouseEvent.MOUSE_DOWN, graphic_mouseDownHandler, false, 0, true);
+				lastDrawnGraphic.checkForMouseListeners = false;
+				myGraphicsLayer.add(lastDrawnGraphic);
+				
+				
+				geom = lastDrawnGraphic.geometry;
+				
+				lastDrawnGraphic.symbol = new SimpleFillSymbol("solid", 0x00CCFF, 0.5, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,0x000000, 1, 1));
+				
+				moveMeasurementGraphicToTop(lastDrawnGraphic);
+				
+				map.addLayer(myGraphicsLayer);
+				
+				BusquedaRutasEspacialmente();
+				clearSelectionFilter();
+				
+			}
+			//funcion de evento de Mouse Down asociada al dibujo del poligono en el mapa
+			protected function graphic_mouseDownHandler(event:MouseEvent):void
+			{
+				var graphic:Graphic = event.currentTarget as Graphic;
+				graphic.removeEventListener(MouseEvent.MOUSE_DOWN, graphic_mouseDownHandler);
+				graphic.addEventListener(MouseEvent.MOUSE_MOVE, graphic_mouseMoveHandler);
+				graphic.addEventListener(MouseEvent.MOUSE_UP, graphic_mouseUpHandler);
+			}
+			//funcion de escucha de movimiento del mouse
+			protected function graphic_mouseMoveHandler(event:MouseEvent):void
+			{
+				var graphic:Graphic = event.currentTarget as Graphic;
+				graphic.removeEventListener(MouseEvent.MOUSE_MOVE, graphic_mouseMoveHandler);
+				graphic.removeEventListener(MouseEvent.MOUSE_UP, graphic_mouseUpHandler);
+				graphic.addEventListener(MouseEvent.MOUSE_DOWN, graphic_mouseDownHandler);
+			}
+			//funcion de evento de Mouse Up asociada al dibujo del poligono en el mapa
+			protected function graphic_mouseUpHandler(event:MouseEvent):void
+			{
+				var graphic:Graphic = event.currentTarget as Graphic;
+				graphic.removeEventListener(MouseEvent.MOUSE_MOVE, graphic_mouseMoveHandler);
+				graphic.removeEventListener(MouseEvent.MOUSE_UP, graphic_mouseUpHandler);
+				graphic.addEventListener(MouseEvent.MOUSE_DOWN, graphic_mouseDownHandler);		
+			}
+			private function moveMeasurementGraphicToTop(drawnGraphic:Graphic):void
+			{
+				const measurementGraphic:Graphic = getMeasurementGraphic(drawnGraphic);
+				if (measurementGraphic)
+				{
+					measurementGraphic.graphicsLayer.moveToTop(measurementGraphic);
+				}
+			}
+			
+			private function getMeasurementGraphic(graphic:Graphic):Graphic
+			{
+				return graphicToMeasurementGraphic[graphic];
+			}
+			
+			
+			private var statisticalQuery:Query = new Query();
+			import com.esri.ags.tasks.supportClasses.Query;
+			private var query:Query = new Query();
+			
+			import com.esri.ags.tasks.supportClasses.StatisticDefinition;
+			
+			
+			protected function BusquedaRutasEspacialmente():void
+			{
+				coleccionClientes.removeAll();
+				var statsDef1:StatisticDefinition = new StatisticDefinition();
+				statsDef1.onStatisticField = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis";
+				statsDef1.outStatisticFieldName = "CANTIDAD";
+				statsDef1.statisticType = StatisticDefinition.TYPE_COUNT;
+				
+				var queryTaskRuta:QueryTask = new QueryTask();                     
+				queryTaskRuta.showBusyCursor = true;
+				queryTaskRuta.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/ClientesV2/MapServer/0";
+				queryTaskRuta.useAMF = false;
+				var queryRutaSelected:Query = new Query();
+				queryRutaSelected.returnGeometry = false;
+				queryRutaSelected.outFields = ["*"];
+				queryRutaSelected.geometry = geom;
+				queryRutaSelected.groupByFieldsForStatistics = ["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_sector", "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_area"];
+				queryRutaSelected.outStatistics = [statsDef1];
+				queryRutaSelected.where = "1=1";
+				queryRutaSelected.orderByFields = ["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.cd_sector"];
+				
+				queryTaskRuta.execute(queryRutaSelected, new AsyncResponder(onResult, onFault));
+				
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void {      
+					if (featureSet.features.length == 0){
+						Alert.show("Ruta no encontrada","Busqueda de Rutas");
+					}
+					else{
+						try{
+							
+							
+							for (var x:Number=0; x < featureSet.features.length; x++){
+								var recordGraphic:Graphic =featureSet.features[x];
+								
+								//for ( var key:String in recordGraphic.attributes ) Alert.show("key is: " + key + " and value " + recordGraphic.attributes[key]);
+								
+								coleccionClientes.addItem({SECTOR:recordGraphic.attributes["c_cd_sector"], 
+									AREA:recordGraphic.attributes["c_cd_area"],
+									CANTIDAD:recordGraphic.attributes["CANTIDAD"],
+									gra:recordGraphic});
+								
+								
+							}
+							
+							dg.dataProvider = coleccionClientes;
+						}catch(err:Error){
+							Alert.show("Error al graficar","Busqueda de Direcciones");
+						}
+											
+					}
+					
+				}
+				function onFault(info:Object, token:Object = null):void{   
+					Alert.show("Ruta No existe","Busqueda de Rutas");
+				
+				}
+			}
+			
+		
+			
+
+			
+			
+			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				coleccionClientes.removeAll();
+				myGraphicsLayer.clear();
+			}
+			
+		]]>
+	</fx:Script>
+	<viewer:WidgetTemplate id="wTemplate"                      
+						   width="350" height="350"
+						   visible="true" closed="wTemplate_closedHandler(event)" >
+		
+				<s:VGroup width="100%" top="5" bottom="5" height="100%">
+					<mx:HBox>
+						<mx:Label id="Lblclie" text="Búsqueda Espacial" fontSize="18"/>
+						<components:FocusableImage name="Circle"
+												   width="42" height="40"
+												   buttonMode="true"
+												   click="tbb_itemClickHandler(event)"		
+												   source="assets/images/i_draw_circle.png"                                                             
+												   toolTip="Polygono"
+												   useHandCursor="true"/>
+					</mx:HBox>
+					<mx:DataGrid id="dg" resizableColumns="true" sortableColumns="true" editable="false"  
+								 width="100%" height="100%" visible="true" selectable="true" >
+						<mx:columns>        
+							
+							<mx:DataGridColumn dataField="SECTOR" headerText="SECTOR" width="50" /> 
+							<mx:DataGridColumn dataField="AREA" headerText="AREA" visible="true" width="50" />
+							<mx:DataGridColumn dataField="CANTIDAD" headerText="CANTIDAD NIS" width="50"/>
+							
+						</mx:columns>
+					</mx:DataGrid> 
+					
+					
+				</s:VGroup>
+				
+				
+			
+	
+		
+		
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

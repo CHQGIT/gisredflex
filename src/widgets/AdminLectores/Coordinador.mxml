@@ -47,7 +47,7 @@
 			outFields="*"
 			mode="onDemand"	
 			graphicAdd="verElemento(event)"
-			url="http://gisred.chilquinta/arcgis/rest/services/Varios/Ingreso_Lectores/FeatureServer/0"
+			url="https://gisredint.chilquinta.cl/arcgis/rest/services/Varios/Ingreso_Lectores/FeatureServer/0"
 			>
 		</esri:FeatureLayer>
 		
@@ -162,7 +162,7 @@
 				
 				coleccionInspectores.removeAll();
 				
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LISTADO_INSPECTORES);
+				var queryTask:QueryTask = new QueryTask(urls.URL_LISTADO_INSPECTORES);
 				var query:Query = new Query();
 				query.where = "1=1"; 
 				query.outFields = ['*'];
@@ -279,7 +279,7 @@
 				// TODO Auto-generated method stub
 				coleccionLecturas.removeAll();
 				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURA_INSPECCION);
+				var queryTask:QueryTask = new QueryTask(urls.URL_LECTURA_INSPECCION);
 				var query:Query = new Query();
 				query.where = "inspeccion = 'SI' AND (estado_final is null or estado_final = 'NO APLICA')"; 
 				query.outFields = ['*'];
@@ -399,7 +399,7 @@
 				lecturaSelected = DataLecturas.selectedItem['OBJECTID'];
 				inspectorSelected = DataLecturas.selectedItem['inspector'];
 				
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURA_INSPECCION);
+				var queryTask:QueryTask = new QueryTask(urls.URL_LECTURA_INSPECCION);
 				var query:Query = new Query();
 				query.where = "OBJECTID=" + DataLecturas.selectedItem['OBJECTID']; 
 				query.outFields = ['*'];
@@ -501,7 +501,7 @@
 			public function cargarListaRango():void{
 				coleccionLecturas.removeAll();
 				// TODO Auto-generated method stub
-				var queryTask:QueryTask = new QueryTask(widgets.AdminLectores.utilidad.urls.URL_LECTURA_INSPECCION);
+				var queryTask:QueryTask = new QueryTask(urls.URL_LECTURA_INSPECCION);
 				var query:Query = new Query();
 				query.where = "created_date >=" + "'" +  dateDesde.text + "'" + "and created_date <=" + "'" + dateHasta.text + "'  AND (estado_final IS NULL OR estado_final <>'CARGADO')"; 
 				
@@ -570,7 +570,7 @@
 				var graficoEditadoActual:Graphic = new Graphic;
 				
 				graficoEditadoActual = new Graphic(null,null,Modificaciones);
-				var myDetalleActLayer:FeatureLayer = new FeatureLayer(widgets.AdminLectores.utilidad.urls.URL_LECTURA_INSPECCION);
+				var myDetalleActLayer:FeatureLayer = new FeatureLayer(urls.URL_LECTURA_INSPECCION);
 				myDetalleActLayer.applyEdits(null,[graficoEditadoActual],null, false,new AsyncResponder(onResult, onFault));
 				
 				

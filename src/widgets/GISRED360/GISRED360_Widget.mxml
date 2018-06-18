@@ -50,8 +50,8 @@
 				
 				//extraerZOOM(sseeSelected);
 				//URL DE ACCESO A LA WEB
-				//var url:String = "http://gisred.chilquinta/chilquinta/widgets/GISRED360/Website/index.html";
-				var url:String = "http://gisred.chilquinta/chilquinta/widgets/GISRED360/Website/index.html";
+				//var url:String = "https://gisredint.chilquinta.cl/chilquinta/widgets/GISRED360/Website/index.html";
+				var url:String = "https://gisredint.chilquinta.cl:6443/chilquinta/widgets/GISRED360/Website/index.html";
 				var variables:URLVariables = new URLVariables();
 				//variables.numeroFoto = nFoto;
 				variables.latSSEE = lat;
@@ -77,7 +77,7 @@
 				//Cargar dgrid con SSEE;
 				acSSEE.removeAll();
 				var qtSSEE:QueryTask = new QueryTask();
-				qtSSEE.url="http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/0";
+				qtSSEE.url="https://gisredint.chilquinta.cl:6443/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/0";
 				qtSSEE.useAMF = false;
 				var querySSEE:Query = new Query();
 				querySSEE.where = "1=1";
@@ -129,7 +129,7 @@
 			public function hacerZoom(s:String):void{
 				
 				var queryTaskEquipoSelected:QueryTask = new QueryTask();
-				queryTaskEquipoSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/0";
+				queryTaskEquipoSelected.url = "https://gisredint.chilquinta.cl:6443/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/0";
 				queryTaskEquipoSelected.useAMF = false;
 				var queryEquipoSelected:Query = new Query();
 				queryEquipoSelected.outFields = ["*"];
@@ -172,7 +172,7 @@
 			public function extraerZOOM(subestacion:String):void{
 				abrirVentanaExterna.visible = false;
 				var queryTaskEquipoSelected:QueryTask = new QueryTask();
-				queryTaskEquipoSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Varios/360/MapServer/0";
+				queryTaskEquipoSelected.url = "https://gisredint.chilquinta.cl:6443/arcgis/rest/services/Varios/360/MapServer/0";
 				queryTaskEquipoSelected.useAMF = false;
 				var queryEquipoSelected:Query = new Query();
 				queryEquipoSelected.outFields = ["*"];

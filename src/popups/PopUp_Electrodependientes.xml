@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>NIS: {ARCGIS.dbo.TEMP_CLIENTES_ELECTRO.nis}</title>
+    <fields>
+        <field name="ARCGIS.dbo.TEMP_CLIENTES_ELECTRO.Tipo" alias="Tipo: " visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_CLIENTES_ELECTRO.Problema_Medico" alias="Problema Médico: " visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_CLIENTES_ELECTRO.Cliente" alias="Cliente: " visible="true"/>
+        <field name="ARCGIS.dbo.TEMP_CLIENTES_ELECTRO.Paciente" alias="Paciente: " visible="true"/>
+       
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

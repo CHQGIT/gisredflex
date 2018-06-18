@@ -59,7 +59,11 @@
 
     <fx:Script>
         <![CDATA[
+			import com.esri.ags.Graphic;
 			import com.esri.ags.Map;
+			import com.esri.ags.components.IdentityManager;
+			import com.esri.ags.events.IdentityManagerEvent;
+			import com.esri.ags.layers.FeatureLayer;
 			import com.esri.ags.layers.supportClasses.LayerInfoWindowRenderer;
 			import com.esri.viewer.AppEvent;
 			import com.esri.viewer.ConfigData;
@@ -86,11 +90,6 @@
 			import spark.components.Group;
 			import spark.components.HGroup;
 			import spark.components.VGroup;
-			import com.esri.ags.Graphic;
-			import com.esri.ags.Map;
-			import com.esri.ags.components.IdentityManager;
-			import com.esri.ags.events.IdentityManagerEvent;
-			import com.esri.ags.layers.FeatureLayer;
 			
             private const WIDGET_MANAGER:String = "WidgetManager";
 
@@ -316,7 +315,7 @@
 				
 				var EdicionRegistro:FeatureLayer = new FeatureLayer;
 				
-				EdicionRegistro.url = "http://gisred.chilquinta/arcgis/rest/services/Admin/LogAccesos/FeatureServer/1";
+				EdicionRegistro.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Admin/LogAccesos/FeatureServer/1";
 				
 				var atributos:* = new Object;				
 				
@@ -325,6 +324,9 @@
 				var st:widgets.GISRED360.Clases.savedToken = new savedToken;
 				savedToken.tkn = e.credential.token;
 				
+				import widgets.AdminLectores.utilidad.cliente;
+				var tk:widgets.AdminLectores.utilidad.cliente = new cliente;
+				tk.token = e.credential.token;
 				
 				atributos["usuario"] = e.credential.userId;
 				atributos["fecha"] = CurrentDateTimeString();

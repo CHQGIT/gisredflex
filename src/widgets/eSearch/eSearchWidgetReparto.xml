@@ -7,7 +7,7 @@
 			
 			<enableexport>true</enableexport>
 			<name>Clientes</name>
-			<url>http://gisred.chilquinta/arcgis/rest/services/Mobile/Reparto/MapServer/0</url>
+			<url>https://gisredint.chilquinta.cl/arcgis/rest/services/Mobile/Reparto/MapServer/0</url>
 			<definitionexpression></definitionexpression>
 			<expressions>
 				<expression alias="nis" textsearchlabel="Busqueda de Reparto por Nis:" isvaluerequired="true">

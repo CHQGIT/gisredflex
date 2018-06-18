@@ -44,7 +44,7 @@
 			private function FechaActualizacion():void{
 				
 				var queryTaskCapexSelected:QueryTask = new QueryTask();
-				queryTaskCapexSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/3/query";
+				queryTaskCapexSelected.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/3/query";
 				queryTaskCapexSelected.useAMF = false;
 				var queryEquipoSelected:Query = new Query();
 				queryEquipoSelected.outFields = ["fc_evento"];
@@ -101,7 +101,7 @@
 				
 				//graphicsLayer= null
 				var queryTaskCapexSelected:QueryTask = new QueryTask();
-				queryTaskCapexSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/0/query";
+				queryTaskCapexSelected.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/0/query";
 				queryTaskCapexSelected.useAMF = false;
 				var queryEquipoSelected:Query = new Query();
 				queryEquipoSelected.outFields = ["*"];
@@ -212,7 +212,7 @@
 				if (GMO.selected == true){
 					
 					var queryTaskCapexSelected:QueryTask = new QueryTask();
-					queryTaskCapexSelected.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
 					queryTaskCapexSelected.useAMF = false;
 					var queryEquipoSelected:Query = new Query();
 					queryEquipoSelected.outFields = ["*"];
@@ -246,7 +246,7 @@
 					
 					
 					var queryTaskCapexSelected2:QueryTask = new QueryTask();
-					queryTaskCapexSelected2.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected2.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
 					queryTaskCapexSelected2.useAMF = false;
 					var queryEquipoSelected2:Query = new Query();
 					queryEquipoSelected2.outFields = ["*"];
@@ -281,7 +281,7 @@
 					
 					
 					var queryTaskCapexSelected3:QueryTask = new QueryTask();
-					queryTaskCapexSelected3.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected3.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
 					queryTaskCapexSelected3.useAMF = false;
 					var queryEquipoSelected3:Query = new Query();
 					queryEquipoSelected3.outFields = ["*"];
@@ -316,7 +316,7 @@
 					
 					
 					var queryTaskCapexSelected4:QueryTask = new QueryTask();
-					queryTaskCapexSelected4.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected4.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
 					queryTaskCapexSelected4.useAMF = false;
 					var queryEquipoSelected4:Query = new Query();
 					queryEquipoSelected4.outFields = ["*"];
@@ -350,7 +350,7 @@
 					
 					
 					var queryTaskCapexSelected5:QueryTask = new QueryTask();
-					queryTaskCapexSelected5.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected5.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
 					queryTaskCapexSelected5.useAMF = false;
 					var queryEquipoSelected5:Query = new Query();
 					queryEquipoSelected5.outFields = ["*"];
@@ -385,7 +385,7 @@
 					
 					
 					var queryTaskCapexSelected6:QueryTask = new QueryTask();
-					queryTaskCapexSelected6.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected6.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
 					queryTaskCapexSelected6.useAMF = false;
 					var queryEquipoSelected6:Query = new Query();
 					queryEquipoSelected6.outFields = ["*"];
@@ -419,7 +419,7 @@
 					
 					
 					var queryTaskCapexSelected7:QueryTask = new QueryTask();
-					queryTaskCapexSelected7.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected7.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
 					queryTaskCapexSelected7.useAMF = false;
 					var queryEquipoSelected7:Query = new Query();
 					queryEquipoSelected7.outFields = ["*"];
@@ -454,7 +454,7 @@
 					
 					
 					var queryTaskCapexSelected8:QueryTask = new QueryTask();
-					queryTaskCapexSelected8.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected8.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
 					queryTaskCapexSelected8.useAMF = false;
 					var queryEquipoSelected8:Query = new Query();
 					queryEquipoSelected8.outFields = ["*"];
@@ -488,7 +488,7 @@
 					
 					
 					var queryTaskCapexSelected9:QueryTask = new QueryTask();
-					queryTaskCapexSelected9.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected9.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
 					queryTaskCapexSelected9.useAMF = false;
 					var queryEquipoSelected9:Query = new Query();
 					queryEquipoSelected9.outFields = ["*"];
@@ -522,7 +522,7 @@
 					
 					
 					var queryTaskCapexSelected8:QueryTask = new QueryTask();
-					queryTaskCapexSelected8.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected8.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
 					queryTaskCapexSelected8.useAMF = false;
 					var queryEquipoSelected8:Query = new Query();
 					queryEquipoSelected8.outFields = ["*"];
@@ -556,7 +556,7 @@
 					
 					
 					var queryTaskCapexSelected8:QueryTask = new QueryTask();
-					queryTaskCapexSelected8.url = "http://gisred.chilquinta/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected8.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
 					queryTaskCapexSelected8.useAMF = false;
 					var queryEquipoSelected8:Query = new Query();
 					queryEquipoSelected8.outFields = ["*"];

@@ -7,7 +7,7 @@
             <definitionexpression/>
             <enableexport>true</enableexport>
             <name>Subestaciones</name>
-            <url>http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/1</url>
+            <url>https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/1</url>
             <expressions>
 				<expression alias="Codigo" textsearchlabel="Busqueda por Codigo de Subestacion:">
 					<values>

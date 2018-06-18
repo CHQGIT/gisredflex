@@ -1120,7 +1120,7 @@
 				//Alert.show(url1);
 				//extraerZOOM(sseeSelected);
 				//URL DE ACCESO A LA WEB
-				//var url:String = "http://gisred.chilquinta/test/SSEE360.html";
+				//var url:String = "https://gisredint.chilquinta.cl/test/SSEE360.html";
 				//I:\Respaldo Disco WD\Adobe Flash Builder 4.7\FlexViewer\bin-debug\widgets\MantenimientoPodas\web\test\index.html
 				var url:String = "widgets/MantenimientoPodas/web/test/index.html";
 				var variables:URLVariables = new URLVariables();

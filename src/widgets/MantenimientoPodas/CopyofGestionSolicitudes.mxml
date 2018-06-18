@@ -382,7 +382,7 @@
 				query.where ="1=1 and tipo='ele!desconectador_fusible_mt' or tipo='ele!desconectador_mt'"; 
 				
 				var queryTask:QueryTask =  new QueryTask;
-				queryTask.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Equipos_Linea_006/MapServer/0";
+				queryTask.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Equipos_Linea_006/MapServer/0";
 				
 				queryTask.execute(query, new AsyncResponder(onResult, onFault));			
 				
@@ -470,7 +470,7 @@
 				query.returnGeometry = true;		
 				
 				var queryTask:QueryTask =  new QueryTask;
-				queryTask.url = "http://gisred.chilquinta/arcgis/rest/services/MapaBase/MapServer/2";
+				queryTask.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/MapaBase/MapServer/2";
 				
 				queryTask.execute(query, new AsyncResponder(onResult, onFault));			
 				
@@ -615,7 +615,7 @@
 				query.returnGeometry = true;		
 				
 				var queryTask:QueryTask =  new QueryTask;
-				queryTask.url = "http://gisred.chilquinta/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0";
+				queryTask.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0";
 				
 				queryTask.execute(query, new AsyncResponder(onResult, onFault));			
 				
