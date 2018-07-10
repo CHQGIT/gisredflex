@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>OBJECTID: {OBJECTID}</title>
+    <fields>
+        <field name="created_user" alias="Creador:" visible="true"/>
+        <field name="created_date" alias="Fecha Creación:" visible="true"/>
+        
+        
+        
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

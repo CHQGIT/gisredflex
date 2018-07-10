@@ -63,6 +63,7 @@
      			visible="false">
      				<sublayer id="0" label="Unidad vecinal" popupconfig="popups/PopUp_Unidad_vecinal.xml"/>
      				<sublayer id="4" label="Campamentos" popupconfig="popups/PopUp_Campamentos.xml"/>
+     				<sublayer id="9" label="Campamentos" popupconfig="popups/PopUp_RutasEnModificacion.xml"/>
      		</layer>  
      		<layer type="dynamic"
      			label="ECSE"
@@ -245,7 +246,14 @@
      				<!--  <sublayer id="0" label="Reparto" popupconfig="popups/PopUp_Reparto.xml" definitionexpression="empresa='chilquinta'"/> -->
      			
      		</layer>
-       			
+       		<!--  <layer type="dynamic"
+     			label="Denuncios Web"
+     			imageformat="png32"
+     			url="https://gisredint.chilquinta.cl/arcgis/rest/services/CNR/Denuncios_web/MapServer"
+     			visible="false">
+     				<sublayer id="0" label="Denuncios Web" popupconfig="popups/PopUp_DenunciosWeb.xml"/>
+     			
+     		</layer>  -->
         </operationallayers>
     </map>
     <widgetcontainer layout="float">
@@ -382,8 +390,8 @@
                			preload="close"/> 	
                	<widget label="Ingresar Denuncio" 
        		   			icon="assets/images/icono_agregar_denuncio.png"
-               			config="widgets/AdminLectores/AdminLectores.xml"
-               			url="widgets/AdminLectores/IngresoDenuncios.swf" 
+               			config="widgets/IngresoDenuncios/IngresoDenuncios.xml"
+               			url="widgets/IngresoDenuncios/IngresoDenuncios.swf" 
                			preload="close"/>  			
                			
                							

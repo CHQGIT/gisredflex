@@ -23,9 +23,13 @@
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			import mx.rpc.AsyncResponder;
+			
+			import spark.events.IndexChangeEvent;
 			[Bindable]
 			private var coleccion:ArrayCollection = new ArrayCollection;
 			[Bindable] public var ListComuna:ArrayList = new ArrayList;
+			[Bindable] public var ListComunaRegion:ArrayList = new ArrayList;
+			
 			[Bindable] private var g:Graphic;
 			public var acPolyline:ArrayCollection = new ArrayCollection;
 			public var myGraphicsLayer:GraphicsLayer =  new GraphicsLayer;
@@ -37,9 +41,39 @@
 				queryTask.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/MANTENIMIENTO/Otras_Capas/MapServer/4";
 				queryTask.useAMF = false;
 				var query:Query = new Query();
-				query.outFields = ["Campamento"];
+				query.outFields = ["Comuna"];
 				query.returnGeometry = false;
 				query.where = "1 = 1";
+				query.returnDistinctValues = true;
+				query.orderByFields=["Comuna"];
+				queryTask.execute(query, new AsyncResponder(onResult, onFault));
+				// add the graphic on the map
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					for each (var myGraphic:Graphic in featureSet.features)
+					{
+						
+						ListComunaRegion.addItem(myGraphic.attributes['Comuna']);						
+						
+						CboCampamentoRegion.dataProvider=ListComunaRegion;
+					}
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show("no se puede cargar tipo propiedad "+ info.toString());
+				}	
+				
+			}
+			
+			
+			public function getCampamentos(comuna:String):void{
+				var queryTask:QueryTask = new QueryTask();
+				queryTask.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/MANTENIMIENTO/Otras_Capas/MapServer/4";
+				queryTask.useAMF = false;
+				var query:Query = new Query();
+				query.outFields = ["Campamento"];
+				query.returnGeometry = false;
+				query.where = "Comuna='"+ comuna +"'";
 				query.orderByFields=["Campamento"];
 				queryTask.execute(query, new AsyncResponder(onResult, onFault));
 				// add the graphic on the map
@@ -57,7 +91,6 @@
 				{
 					Alert.show("no se puede cargar tipo propiedad "+ info.toString());
 				}	
-				
 			}
 			
 			
@@ -108,6 +141,14 @@
 				myGraphicsLayer.clear();
 			}
 			
+			
+			protected function CboCampamentoRegion_changeHandler(event:IndexChangeEvent):void
+			{
+				// TODO Auto-generated method stub
+				ListComuna.removeAll();
+				getCampamentos(CboCampamentoRegion.selectedItem.toString())
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -140,6 +181,8 @@
 						   width="100%"
 						   height="100%">
 					<s:VGroup x="10" y="10" width="100%" height="100%" gap="5" paddingTop="20">
+						<s:Label width="100%" height="16" text="Elija una región:"/>
+						<s:DropDownList id="CboCampamentoRegion" dataProvider="{ListComunaRegion}" change="CboCampamentoRegion_changeHandler(event)" width="100%"></s:DropDownList>
 						<s:Label width="100%" height="16" text="Elija un campamento para saber su ubicación:"/>
 						<s:DropDownList id="CboCampamento" dataProvider="{ListComuna}" width="100%"></s:DropDownList>
 						<s:HGroup width="100%" height="33" horizontalAlign="center" verticalAlign="middle">

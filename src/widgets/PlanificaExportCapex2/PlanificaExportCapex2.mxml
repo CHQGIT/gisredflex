@@ -37,7 +37,7 @@
 			
 			private function init():void{
 				
-				GetUser()
+				
 				FechaActualizacion()
 			}
 			
@@ -63,6 +63,7 @@
 					dateFormatStr = "MM/dd/yy hh:mm a"; 
 					retVal = msToDate(idNodo, dateFormatStr, true);  
 					fecha_actualizacion.text = "Fecha última actualización: " + retVal; 
+					GetUser()
 				}		
 				
 				function onFault(info:Object, token:Object = null):void
@@ -98,7 +99,7 @@
 			
 			private function GetUser():void
 			{
-				
+				//Alert.show('User pep:'+ User.Usuario);
 				//graphicsLayer= null
 				var queryTaskCapexSelected:QueryTask = new QueryTask();
 				queryTaskCapexSelected.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/0/query";
@@ -521,16 +522,16 @@
 				if (GSC.selected == true){							
 					
 					
-					var queryTaskCapexSelected8:QueryTask = new QueryTask();
-					queryTaskCapexSelected8.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
-					queryTaskCapexSelected8.useAMF = false;
-					var queryEquipoSelected8:Query = new Query();
-					queryEquipoSelected8.outFields = ["*"];
-					queryEquipoSelected8.returnGeometry = true;
-					queryEquipoSelected8.spatialRelationship ="esriSpatialRelIntersects";
-					queryEquipoSelected8.outSpatialReference = map.spatialReference;
-					queryEquipoSelected8.where = "gerencia='GSC' AND ano_ejecucion = " + txtAnio.text;
-					queryTaskCapexSelected8.execute(queryEquipoSelected8, new AsyncResponder(onResult7, onFault7));
+					var queryTaskCapexSelected10:QueryTask = new QueryTask();
+					queryTaskCapexSelected10.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected10.useAMF = false;
+					var queryEquipoSelected10:Query = new Query();
+					queryEquipoSelected10.outFields = ["*"];
+					queryEquipoSelected10.returnGeometry = true;
+					queryEquipoSelected10.spatialRelationship ="esriSpatialRelIntersects";
+					queryEquipoSelected10.outSpatialReference = map.spatialReference;
+					queryEquipoSelected10.where = "gerencia='GSC' AND ano_ejecucion = " + txtAnio.text;
+					queryTaskCapexSelected10.execute(queryEquipoSelected10, new AsyncResponder(onResult7, onFault7));
 					
 					
 					function onResult8(featureSet:FeatureSet, token:Object = null):void
@@ -555,16 +556,16 @@
 				if (SGG.selected == true){							
 					
 					
-					var queryTaskCapexSelected8:QueryTask = new QueryTask();
-					queryTaskCapexSelected8.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
-					queryTaskCapexSelected8.useAMF = false;
-					var queryEquipoSelected8:Query = new Query();
-					queryEquipoSelected8.outFields = ["*"];
-					queryEquipoSelected8.returnGeometry = true;
-					queryEquipoSelected8.spatialRelationship ="esriSpatialRelIntersects";
-					queryEquipoSelected8.outSpatialReference = map.spatialReference;
-					queryEquipoSelected8.where = "gerencia='SGG' AND ano_ejecucion = " + txtAnio.text;
-					queryTaskCapexSelected8.execute(queryEquipoSelected8, new AsyncResponder(onResult7, onFault7));
+					var queryTaskCapexSelected11:QueryTask = new QueryTask();
+					queryTaskCapexSelected11.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/Planificacion_Reportes/MapServer/2/query";
+					queryTaskCapexSelected11.useAMF = false;
+					var queryEquipoSelected11:Query = new Query();
+					queryEquipoSelected11.outFields = ["*"];
+					queryEquipoSelected11.returnGeometry = true;
+					queryEquipoSelected11.spatialRelationship ="esriSpatialRelIntersects";
+					queryEquipoSelected11.outSpatialReference = map.spatialReference;
+					queryEquipoSelected11.where = "gerencia='SGG' AND ano_ejecucion = " + txtAnio.text;
+					queryTaskCapexSelected11.execute(queryEquipoSelected11, new AsyncResponder(onResult7, onFault7));
 					
 					
 					function onResult9(featureSet:FeatureSet, token:Object = null):void

@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Ruta : {ruta}</title>
+    <fields>
+         <field name="ciclo"  alias="Ciclo:  " visible="true"/>  
+         <field name="estado" alias="Estado:  " visible="true"/>   
+      
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>
+

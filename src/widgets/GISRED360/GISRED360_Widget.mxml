@@ -26,12 +26,10 @@
 			import mx.events.FlexEvent;
 			import mx.rpc.AsyncResponder;
 			
-			import comun.url.URL;
-			
 			import skins.TransparentButtonSkin;
 			
 			import widgets.GISRED360.Clases.ConvertCoords;
-			import widgets.GISRED360.Clases.savedToken;
+			
 			public var zoomColeccion:ArrayCollection;
 			public var lat:Number;
 			public var long:Number;
@@ -45,20 +43,27 @@
 			
 			[Bindable]public var sseeSelected:String = "SELECCIONE UNA SUBESTACION";
 			
+			import widgets.GISRED360.Clases.savedToken;
+			
+			
+		
+			
 			protected function abrirHTML():void
 			{
+				
 				
 				//extraerZOOM(sseeSelected);
 				//URL DE ACCESO A LA WEB
 				//var url:String = "https://gisredint.chilquinta.cl/chilquinta/widgets/GISRED360/Website/index.html";
-				var url:String = "https://gisredint.chilquinta.cl:6443/chilquinta/widgets/GISRED360/Website/index.html";
+				var url:String = "https://gisredint.chilquinta.cl/chilquinta/widgets/GISRED360/Website/index.html";
 				var variables:URLVariables = new URLVariables();
 				//variables.numeroFoto = nFoto;
 				variables.latSSEE = lat;
 				variables.lonSSEE = long;
 				variables.nombreSSEE = sseeSelected;
 				variables.zoom = zoom;
-				variables.token = savedToken.tkn as String;
+				variables.token = savedToken.token;
+
 				var request:URLRequest = new URLRequest(url);
 				request.data = variables;
 				try {            
@@ -73,17 +78,18 @@
 			
 			protected function cargarSSEE():void
 			{
+				
 				// TODO Auto-generated method stub
 				//Cargar dgrid con SSEE;
 				acSSEE.removeAll();
 				var qtSSEE:QueryTask = new QueryTask();
-				qtSSEE.url="https://gisredint.chilquinta.cl:6443/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/0";
-				qtSSEE.useAMF = false;
+				qtSSEE.url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/0";
+				
 				var querySSEE:Query = new Query();
 				querySSEE.where = "1=1";
 				querySSEE.orderByFields = ["nombre"];
 				querySSEE.outFields=["*"];
-				qtSSEE.token = savedToken.tkn as String;
+				qtSSEE.token = savedToken.token;
 				querySSEE.returnGeometry=true;
 				
 				querySSEE.spatialRelationship ="esriSpatialRelIntersects";
@@ -92,9 +98,11 @@
 				
 				function onResult(featureSet:FeatureSet, token:Object = null):void
 				{
+					
 					try{
 						acSSEE.addAll(new ArrayCollection(featureSet.attributes));	
 						featureSetSSEE = featureSet;
+						
 					}catch(err:Error){
 						Alert.show("No se pudo cargar los datos de la SSEEs");
 					}
@@ -103,7 +111,7 @@
 				
 				function onFault(info:Object, token:Object = null):void
 				{   
-					Alert.show("SSEE no encontradas");
+					Alert.show("SSEE no encontradas"+ info as String);
 				}
 			}
 			
@@ -127,14 +135,14 @@
 		
 		
 			public function hacerZoom(s:String):void{
-				
+			
 				var queryTaskEquipoSelected:QueryTask = new QueryTask();
-				queryTaskEquipoSelected.url = "https://gisredint.chilquinta.cl:6443/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/0";
+				queryTaskEquipoSelected.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer/0";
 				queryTaskEquipoSelected.useAMF = false;
 				var queryEquipoSelected:Query = new Query();
 				queryEquipoSelected.outFields = ["*"];
 				queryEquipoSelected.returnGeometry = true;
-				queryTaskEquipoSelected.token = savedToken.tkn;
+				queryTaskEquipoSelected.token = savedToken.token;
 				queryEquipoSelected.where = "nombre='" + s + "'";
 				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
 				queryEquipoSelected.outSpatialReference = map.spatialReference;
@@ -170,14 +178,15 @@
 			}
 			
 			public function extraerZOOM(subestacion:String):void{
+				
 				abrirVentanaExterna.visible = false;
 				var queryTaskEquipoSelected:QueryTask = new QueryTask();
-				queryTaskEquipoSelected.url = "https://gisredint.chilquinta.cl:6443/arcgis/rest/services/Varios/360/MapServer/0";
+				queryTaskEquipoSelected.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Varios/360/MapServer/0";
 				queryTaskEquipoSelected.useAMF = false;
 				var queryEquipoSelected:Query = new Query();
 				queryEquipoSelected.outFields = ["*"];
 				queryEquipoSelected.returnGeometry = true;
-				queryTaskEquipoSelected.token = savedToken.tkn;
+				queryTaskEquipoSelected.token =  savedToken.token;
 				queryEquipoSelected.where = "SSEE='" + subestacion + "'";
 				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
 				queryEquipoSelected.outSpatialReference = map.spatialReference;

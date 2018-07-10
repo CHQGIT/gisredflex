@@ -91,6 +91,9 @@
 			import spark.components.HGroup;
 			import spark.components.VGroup;
 			
+			import widgets.GISRED360.GISRED360_Widget;
+			import widgets.GISRED360.Clases.savedToken;
+			
             private const WIDGET_MANAGER:String = "WidgetManager";
 
             private var hist:HistoryManager;
@@ -312,22 +315,23 @@
 				import comun.Planificacion.User;
 				
 				comun.Planificacion.User.Usuario = e.credential.userId;
-				
+				comun.Planificacion.User.Token = e.credential.token;
 				var EdicionRegistro:FeatureLayer = new FeatureLayer;
 				
 				EdicionRegistro.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Admin/LogAccesos/FeatureServer/1";
 				
 				var atributos:* = new Object;				
 				
-				import widgets.GISRED360.Clases.savedToken;
 				
-				var st:widgets.GISRED360.Clases.savedToken = new savedToken;
-				savedToken.tkn = e.credential.token;
 				
-				import widgets.AdminLectores.utilidad.cliente;
-				var tk:widgets.AdminLectores.utilidad.cliente = new cliente;
+				import widgets.IngresoDenuncios.utilidad.cliente;
+				var tk:widgets.IngresoDenuncios.utilidad.cliente = new cliente;
 				tk.token = e.credential.token;
 				
+				import widgets.GISRED360.Clases.savedToken;
+				widgets.GISRED360.Clases.savedToken.token = e.credential.token
+				
+					
 				atributos["usuario"] = e.credential.userId;
 				atributos["fecha"] = CurrentDateTimeString();
 				atributos["pagina"] ="Chilquinta";				
