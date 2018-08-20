@@ -260,9 +260,9 @@
 									var res:Number = Math.sqrt(Math.pow((x2-x1),2) + Math.pow((y2-y1),2));
 									
 									//Si distancia rot cliente >= 30mt
-									if(Math.round(res)>=30){
-										//Alert.show("Sólo no hay direccion, Distancia poste >=30" + Math.round(res).toString());
-										Alert.show("¿El registro a insertar se encuentra a más de 30 metros de su punto de conexión, ¿Seguro desea guardar?", 
+									if( (Math.round(res)>=30) && (Math.round(res)<=60) ){
+										//Alert.show("Sólo no hay direccion, Distancia poste >=30 " + Math.round(res).toString());
+										Alert.show("¿El registro a insertar se encuentra entre 30 y 60 metros de su punto de conexión, ¿Seguro desea guardar?", 
 											"Ingreso Denuncios",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler);
 										
 										function alertClickHandler(evt:CloseEvent):void 
@@ -280,10 +280,16 @@
 												limpiarIngresoCliente();
 											}					
 										}
+										
+									//Si no, verificar si es mayor a 60 y mostrar mensaje de alert y simplemente agregar.	
+									}else if (Math.round(res)>60){
+										//Alert.show("La distancia es mayor a 60 metros. No se puede agregar denuncio." + Math.round(res).toString());
+										Alert.show("La distancia es mayor a 60 metros. No se puede agregar denuncio.");
+										//addCustomer();
 									//Si no, no mostrar mensaje de alert y simplemente agregar.	
 									}else{
-										//Alert.show("Sólo no hay direccion , Distancia poste OK" + Math.round(res).toString());
-										addCustomer();	
+										//Alert.show("Sólo no hay direccion , Distancia poste " + Math.round(res).toString());
+										addCustomer();
 									}
 								}
 								
@@ -298,9 +304,9 @@
 									var res2:Number = Math.sqrt(Math.pow((x3-x1),2) + Math.pow((y3-y1),2));
 									
 									//Si distancia rot cliente >= 30mt
-									if(Math.round(res2)>=30){
+									if((Math.round(res2)>=30) && (Math.round(res2)<=60) ){
 										//Alert.show("Sólo no hay direccion, Distancia poste >=30" + Math.round(res).toString());
-										Alert.show("¿El registro a insertar se encuentra a más de 30 metros de su dirección, ¿Seguro desea guardar?", 
+										Alert.show("¿El registro a insertar se encuentra entre 30 y 60 metros de su dirección, ¿Seguro desea guardar?", 
 											"Ingreso Denuncios",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler2);
 										
 										function alertClickHandler2(evt:CloseEvent):void 
@@ -319,8 +325,13 @@
 											}
 										}
 										//Si no, no mostrar mensaje de alert y simplemente agregar.	
+									}else if (Math.round(res2)>60){
+										//Alert.show("La distancia es mayor a 60 metros. No se puede agregar denuncio." + Math.round(res).toString());
+										Alert.show("La distancia es mayor a 60 metros. No se puede agregar denuncio.");
+										//addCustomer();
+									//Si no, no mostrar mensaje de alert y simplemente agregar.	
 									}else{
-										Alert.show("Sólo no hay poste , Distancia dir OK " + Math.round(res2).toString());
+										//Alert.show("Sólo no hay poste , Distancia dir OK " + Math.round(res2).toString());
 										addCustomer();	
 									}
 								}
@@ -344,14 +355,14 @@
 									var res2:Number = Math.sqrt(Math.pow((x3-x1),2) + Math.pow((y3-y1),2));
 									//asignando valores para ambas distancias
 									
-									//si distancia rotulo cliente mayor 30mt
-									if((Math.round(res)>=30) || (Math.round(res2)>=30)){
-										//Alert.show("Distancia mayor a 30mt en poste o dir"+ "poste: " + Math.round(res).toString() + "dir: " + Math.round(res2).toString());
+									//si distancia rotulo cliente mayor 30mt y menor a 60mt
+									if( (Math.round(res)>=30) && (Math.round(res)<=60) ){
+										//Alert.show("Distancia entre 30 y 60 mt en poste"+ "poste: " + Math.round(res).toString() + "dir: " + Math.round(res2).toString());
 										
-										Alert.show("¿El registro a insertar se encuentra a más de 30 metros de su dirección y/o poste , ¿Seguro desea guardar?", 
-											"Ingreso Denuncios",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler3);
+										Alert.show("¿El registro a insertar se encuentra entre 30 y 60 de su poste , ¿Seguro desea guardar?", 
+											"Ingreso Denuncios",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler4);
 										
-										function alertClickHandler3(evt:CloseEvent):void 
+										function alertClickHandler4(evt:CloseEvent):void 
 										{
 											if (evt.detail == Alert.YES)
 											{	
@@ -366,8 +377,32 @@
 												limpiarIngresoCliente();
 											}
 										}
+									// distancia direccion cliente entre 30 y 60 mt	
+									}else if((Math.round(res2)>=30) && (Math.round(res2)<=60) ){
+										//Alert.show("Distancia entre 30 y 60 mt en direccion"+ "poste: " + Math.round(res).toString() + "dir: " + Math.round(res2).toString());
 										
+										Alert.show("¿El registro a insertar se encuentra entre 30 y 60 de su dirección , ¿Seguro desea guardar?", 
+											"Ingreso Denuncios",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler5);
 										
+										function alertClickHandler5(evt:CloseEvent):void 
+										{
+											if (evt.detail == Alert.YES)
+											{	
+												addCustomer();	
+												
+											}else{
+												hayPoste = 0
+												hayDireccion = 0;
+												hayCliente = 0;
+												map.removeLayer(myGraphicsLayer);
+												customer.myCustomer.refresh();
+												limpiarIngresoCliente();
+											}
+										}
+						
+									//si distancia rotulo o direccion supera los 60		
+									}else if ((Math.round(res)>60) || (Math.round(res2)>60)){
+										Alert.show("Una de las distancias supera los 60 metros. No se puede agregar denuncio.");
 									}else{
 										//Alert.show(Math.round(res).toString() + " rotulo cliente " + Math.round(res2).toString() + "dir cliente");
 										addCustomer();	

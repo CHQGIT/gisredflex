@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"
+				   xmlns:esri="http://www.esri.com/2008/ags"				   
+				   layout="vertical"
+				   initialize="basewidget1_initializeHandler(event)">
+	
+	
+	
+	<viewer:states>
+		<s:State name="bkmSinPermiso"/>
+		<s:State name="bkmConpermiso"/>	
+	</viewer:states>
+	
+	
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.rpc.AsyncResponder;
+			import mx.utils.StringUtil;
+			
+			import spark.events.GridEvent;
+			
+		
+			private var coleccionUsuarios:ArrayCollection = new ArrayCollection;
+			public  var coleccionPmgd:ArrayCollection = new ArrayCollection;
+		
+			protected function basewidget1_initializeHandler(event:FlexEvent):void
+			{
+			
+			}
+			
+			
+			
+			
+			private function consultaPMGD():void{
+				
+				
+				var queryTaskPmgd:QueryTask = new QueryTask();
+				queryTaskPmgd.url ="";
+				queryTaskPmgd.useAMF = false;
+				var queryPmgd:Query = new Query();
+				queryPmgd.outFields = ["*"];
+				queryPmgd.returnGeometry = true;
+				queryPmgd.spatialRelationship ="esriSpatialRelIntersects";
+				queryPmgd.outSpatialReference = map.spatialReference;
+				queryPmgd.where = "1=1";
+				queryPmgd.orderByFields = ["ARCGIS.dbo.PMGD_PLANIFICACION.OBJECTID"];
+				queryTaskPmgd.execute(queryPmgd, new AsyncResponder(onResult, onFault));
+				
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					if(featureSet.features.length == 0 ){
+						Alert.show("No existen datos para la mostrar.")
+					}
+					else{		
+						for each (var myGraphic:Graphic in featureSet.features)
+						{
+							coleccionPmgd.addItem({objectid:myGraphic.attributes['ARCGIS.dbo.PMGD_PLANIFICACION.OBJECTID'],
+								rotulo:myGraphic.attributes['ARCGIS.DBO.Nodos_006.rotulo'],
+								alimentador:myGraphic.attributes['ARCGIS.DBO.Nodos_006.alimentador'],
+								comuna:myGraphic.attributes['ARCGIS.DBO.Nodos_006.comuna'],
+								nombre:myGraphic.attributes['ARCGIS.dbo.PMGD_PLANIFICACION.nombre'],
+								trf:myGraphic.attributes['ARCGIS.dbo.PMGD_PLANIFICACION.trf'],
+								potencia:myGraphic.attributes['ARCGIS.dbo.PMGD_PLANIFICACION.potenciaMW'],
+								tecnologia:myGraphic.attributes['ARCGIS.dbo.PMGD_PLANIFICACION.tecnologia'],
+								dda_min_alim_MW:myGraphic.attributes['ARCGIS.dbo.PMGD_PLANIFICACION.dda_min_alim_MW'],
+								estado:myGraphic.attributes['ARCGIS.dbo.PMGD_PLANIFICACION.estado'],
+								fecha:myGraphic.attributes['ARCGIS.dbo.PMGD_PLANIFICACION.fecha'],
+								observ_operacion:myGraphic.attributes['ARCGIS.dbo.PMGD_PLANIFICACION.observ_operacion'],
+								comentario:myGraphic.attributes['ARCGIS.dbo.PMGD_PLANIFICACION.comentario'],
+								NODO:myGraphic.attributes['ARCGIS.dbo.PMGD_PLANIFICACION.NODO']
+							});
+						}
+					}
+					
+				}		
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					//	Alert.show("Error en consulta");
+				}
+				DataPMGD.dataProvider = coleccionPmgd;
+			}
+		
+		
+			
+			
+			protected function filterGridPmgd(event:Event):void
+			{
+				/* To get this function to work, only edit variables filterText, columnArray, gridDataProvider, and dataGridName. 
+				Everything else is dynamic. Do not edit variable names. */
+				var filterText:String = StringUtil.trim(txtFilterPmgd.text.toLowerCase()); //Trimmed text String to filter by
+				var columnArray:Array = ['nombre','trf','potencia','tecnologia','dda_min_alim_MW','estado','fecha','observ_operacion','comentario','NODO','rotulo','alimentador','comuna']; //Datagrid column names to filter on
+				var gridDataProvider:ArrayCollection = this.coleccionPmgd as ArrayCollection; //Name of datagrid's dataprovider. In this case e.g. databases
+				var dataGridName:String = 'DataPMGD'; //Name of the datagrid you are filtering by
+				
+				//Do not edit code past this point
+				var filteredData:Array = [];
+				var added:Boolean=false;
+				var i:int;
+				var j:int;
+				
+				// Loop Through Grid
+				for(i=0; i < gridDataProvider.length; i++){    
+					added = false;				
+					//Loop through grid column
+					for(j=0; j<columnArray.length; j++){            
+						if(gridDataProvider[i][columnArray[j]]!=null){							
+							//Grab datagrid cell contents, trim it, and convert to lowercase for comparison.
+							var filterString:String = gridDataProvider[i][columnArray[j]].toString().toLowerCase();
+							
+							//Compare the datagrid string(filterString) to the user typed string(filterText).  
+							if(!added){      
+								//If the datagrid string matches the users string, put it into the array.
+								if(filterString.indexOf(filterText) != -1){
+									filteredData.push(gridDataProvider[i]);
+									added = true;
+								} 
+							}else{
+								//Do nothing, break out.
+								break;
+							}
+						}    
+					}
+				}
+				
+				//Set datagrid dataprovider
+				if(filterText.length == 0){
+					this[dataGridName].dataProvider = gridDataProvider; //Display the original unfiltered data
+				}else{
+					this[dataGridName].dataProvider = filteredData; //Pusht he filtered data into the datagrid
+				}
+			}	
+			
+			protected function DataPMGD_itemClickHandler(event:ListEvent):void
+			{
+				// TODO Auto-generated method stub
+				var queryTaskPm:QueryTask = new QueryTask();
+				queryTaskPm.showBusyCursor = true;
+				
+				queryTaskPm.url= "";
+				queryTaskPm.useAMF=false;
+				
+				var querypmgd1:Query = new Query();
+				querypmgd1.outSpatialReference=  map.spatialReference;
+				querypmgd1.returnGeometry=true;
+				
+				
+				querypmgd1.where="PMGD_PLANIFICACION.OBJECTID=" + DataPMGD.selectedItem['objectid'];
+				
+				
+				
+				queryTaskPm.execute(querypmgd1, new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					map.zoomTo(featureSet.features[0].geometry);                      
+					map.level = 16;                               
+					
+					
+				}
+				function onFault(info:Object, token:Object = null):void
+				{
+					Alert.show(info.toString(), "Zoom con Problemas");
+				}
+			}
+			
+			
+			
+			
+		]]>
+	</fx:Script>
+	<viewer:WidgetTemplate id="wTemplate" width="800" height="400" 
+						  resizable="true">
+		
+		
+	
+			<s:VGroup height="100%" width="100%">
+				<s:HGroup width="100%" verticalAlign="middle">
+					<mx:TextInput x="10" id="txtFilterPmgd" width="100%" height="30" fontSize="14" fontWeight="bold" />
+					<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/lupa_40x40.png"/>
+					
+				</s:HGroup>
+				
+				
+				<mx:DataGrid id="DataPMGD" resizableColumns="true" visible="true" sortableColumns="true" editable="false"   horizontalGridLines="true"
+							 width="100%" height="100%" selectable="true" itemClick="DataPMGD_itemClickHandler(event)">
+					<mx:columns>        
+						<mx:DataGridColumn  dataField="objectid" headerText="objectid" width="30" visible="false"/>
+						<mx:DataGridColumn dataField="nombre" headerText="Nombre" width="50" /> 
+						<mx:DataGridColumn dataField="trf" headerText="Trf" visible="true" width="50" />
+						<mx:DataGridColumn dataField="potencia" headerText="Potencia[MW]" width="50"/>
+						<mx:DataGridColumn dataField="tecnologia" headerText="Tecnologia" visible="true" width="50" />
+						<mx:DataGridColumn dataField="dda_min_alim_MW" headerText="Dda[MW]" visible="true" width="50" />
+						<mx:DataGridColumn dataField="estado" headerText="Estado" visible="true" width="50" />
+						<mx:DataGridColumn dataField="fecha" headerText="Fecha" visible="true" width="50" />
+						<mx:DataGridColumn dataField="observ_operacion" headerText="Obs. Operacion" visible="true" width="50" />
+						<mx:DataGridColumn dataField="comentario" headerText="Comentario" visible="true" width="50" />
+						<mx:DataGridColumn dataField="NODO" headerText="Nodo" visible="true" width="50" />
+						<mx:DataGridColumn dataField="rotulo" headerText="Rotulo" visible="true" width="50" />
+						<mx:DataGridColumn dataField="alimentador" headerText="Alimentador" visible="true" width="50" />
+						<mx:DataGridColumn dataField="comuna" headerText="Comuna" visible="true" width="50" />
+						
+					</mx:columns>
+				</mx:DataGrid> 
+			</s:VGroup>
+			
+		
+	</viewer:WidgetTemplate>
+	
+</viewer:BaseWidget>

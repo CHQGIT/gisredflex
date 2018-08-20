@@ -45,6 +45,7 @@
                   <excludelayer mapservice="Riesgo"></excludelayer>
                   <excludelayer mapservice="Electrodependientes"></excludelayer>
                     <excludelayer mapservice="Sectores"></excludelayer>
+                     <excludelayer mapservice="STX/CBR"></excludelayer>
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

@@ -42,6 +42,7 @@
      	  <excludelayer mapservice="Medioambiente"></excludelayer>
      	   <excludelayer mapservice="Reparto Historia"></excludelayer>
      	     <excludelayer mapservice="Sectores"></excludelayer>
+     	      <excludelayer mapservice="STX/CBR"></excludelayer>
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

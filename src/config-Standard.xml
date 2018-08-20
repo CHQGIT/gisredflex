@@ -246,6 +246,14 @@
      				<!--  <sublayer id="0" label="Reparto" popupconfig="popups/PopUp_Reparto.xml" definitionexpression="empresa='chilquinta'"/> -->
      			
      		</layer>
+     		<layer type="dynamic"
+     			label="STX/CBR"
+     			imageformat="png32"
+     			url="https://gisredint.chilquinta.cl/arcgis/rest/services/STx/CBR/MapServer"
+     			visible="false">
+     				<sublayer id="1" label="Agua Santa Lote CBR" popupconfig="popups/PopUp_AguaSantaLoteCBR.xml"/> 
+     			
+     		</layer>
        		<!--  <layer type="dynamic"
      			label="Denuncios Web"
      			imageformat="png32"
@@ -393,7 +401,11 @@
                			config="widgets/IngresoDenuncios/IngresoDenuncios.xml"
                			url="widgets/IngresoDenuncios/IngresoDenuncios.swf" 
                			preload="close"/>  			
-               			
+               	<widget label="Reclamos" 
+       		   			icon="assets/images/icono_reclamos.png"
+               			config="widgets/Reclamos/Reclamos.xml"
+               			url="widgets/Reclamos/Reclamos.swf" 
+               			preload="close"/>	
                							
   	     </widgetgroup>
   	 <!--      <widget label="Inspecciones" 

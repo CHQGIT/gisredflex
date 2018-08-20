@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>LOTE: {LOTE}</title>
+    <fields>
+        <field name="SUPERFICIE" alias="Superficie:" visible="true"/>
+        <field name="Plano_N" alias="Plano_N:" visible="true"/>
+        <field name="Documento" alias="Documento:" visible="true"/>
+        <field name="Info_Geode" alias="Info_Geode:" visible="true"/>
+        <field name="Foja" alias="Foja:" visible="true"/>
+        <field name="Conservado" alias="Conservado:" visible="true"/>
+        <field name="Prop_Actua" alias="Prop_Actua:" visible="true"/>
+        <field name="Observacio" alias="Observacion:" visible="true"/>
+        <field name="Prop_Actua" alias="Prop_Actua" visible="true"/>
+        <field name="Prop_Actua" alias="Prop_Actua" visible="true"/>
+           
+        
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>
