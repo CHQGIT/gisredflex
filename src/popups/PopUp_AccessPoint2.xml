@@ -2,8 +2,8 @@
 <configuration>
     <title></title>
     <fields>
-        <field name="TIPO" alias="Tipo:" visible="true"/>
-        <field name="Name" alias="Ubicación:" visible="true"/>
+        <field name="FolderPath" alias="Ubicación: " visible="true"/>
+        <field name="Name" alias="Intensidad:  " visible="true"/>
        
     </fields>
     <showattachments>false</showattachments>

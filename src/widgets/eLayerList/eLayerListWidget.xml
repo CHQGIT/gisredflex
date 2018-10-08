@@ -43,6 +43,7 @@
      	   <excludelayer mapservice="Reparto Historia"></excludelayer>
      	     <excludelayer mapservice="Sectores"></excludelayer>
      	      <excludelayer mapservice="STX/CBR"></excludelayer>
+     	        <excludelayer mapservice="Voltajes"></excludelayer>
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

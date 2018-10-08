@@ -1,0 +1,49 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>NIS: {ARCGIS.dbo.view_tele_resumen_volt.nis}</title>
+    <fields>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.tarifa" alias="Tarifa:" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.comuna" alias="Comuna:" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.ruralidad" alias="Ruralidad:" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.constante" alias="Constante:" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.f" alias="Fases:" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.a_sobre" alias="a_sobre:" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.a_bajo" alias="a_bajo:" visible="true"/>
+        
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.a_voltaje_p" alias="a_voltaje_p" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.a_pulsos" alias="a_pulsos" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.a_voltaje" alias="a_voltaje" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.a_normal" alias="a_normal" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.a_voltaje_normal" alias="a_voltaje_normal" visible="true"/>
+        
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.a_voltaje_sobre" alias="a_voltaje_sobre" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.a_voltaje_bajo" alias="a_voltaje_bajo" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.b_sobre" alias="b_sobre" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.b_bajo" alias="b_bajo" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.b_voltaje_p" alias="b_voltaje_p" visible="true"/>
+                       
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.b_pulsos" alias="b_pulsos" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.b_voltaje " alias="b_voltaje" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.b_normal" alias="b_normal" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.b_voltaje_normal" alias="b_voltaje_normal" visible="true"/>
+        <field name="ARCGIS.dbo.view_tele_resumen_volt.b_voltaje_sobre" alias="b_voltaje_sobre" visible="true"/>               
+           
+		<field name="ARCGIS.dbo.view_tele_resumen_volt.b_voltaje_bajo" alias="b_voltaje_bajo" visible="true"/>      
+		<field name="ARCGIS.dbo.view_tele_resumen_volt.c_sobre" alias="c_sobre" visible="true"/>      
+		<field name="ARCGIS.dbo.view_tele_resumen_volt.c_bajo" alias="c_bajo" visible="true"/>      
+		<field name="ARCGIS.dbo.view_tele_resumen_volt.c_voltaje_p" alias="c_voltaje_p" visible="true"/>      
+		<field name="ARCGIS.dbo.view_tele_resumen_volt.c_pulsos" alias="c_pulsos" visible="true"/>      
+		<field name="ARCGIS.dbo.view_tele_resumen_volt.c_voltaje" alias="c_voltaje" visible="true"/>      
+		<field name="ARCGIS.dbo.view_tele_resumen_volt.c_normal" alias="c_normal" visible="true"/>      
+		<field name="ARCGIS.dbo.view_tele_resumen_volt.c_voltaje_normal" alias="c_voltaje_normal" visible="true"/>      
+		<field name="ARCGIS.dbo.view_tele_resumen_volt.c_voltaje_sobre" alias="c_voltaje_sobre" visible="true"/>      
+		<field name="ARCGIS.dbo.view_tele_resumen_volt.c_voltaje_bajo" alias="c_voltaje_bajo" visible="true"/>      
+		<field name="ARCGIS.dbo.view_tele_resumen_volt.pulsos_perdidos" alias="pulsos_perdidos" visible="true"/>      
+		<field name="ARCGIS.dbo.view_tele_resumen_volt.result" alias="result" visible="true"/>      
+		
+
+
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>

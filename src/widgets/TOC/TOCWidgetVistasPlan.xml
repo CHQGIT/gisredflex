@@ -50,6 +50,7 @@
 	   <excludelayer mapservice="Electrodependientes"></excludelayer>
 	   <excludelayer mapservice="Reparto Historia"></excludelayer>
 	     <excludelayer mapservice="Sectores"></excludelayer>
+	       <excludelayer mapservice="Voltajes"></excludelayer>
 		<!-- <excludelayer mapservice="Symbols"></excludelayer>
 		<excludelayer mapservice="Utilities"></excludelayer> -->
 		<!-- <excludelayer mapservice="Earthquakes"></excludelayer>

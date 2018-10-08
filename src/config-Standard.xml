@@ -77,7 +77,12 @@
      			imageformat="png32"
      			url="https://gisredint.chilquinta.cl/arcgis/rest/services/CNR/CoberturaAntena/MapServer"
      			visible="false">
-     			     <sublayer id="0" popupconfig="popups/PopUp_AccessPoint.xml"/>      
+     			     <sublayer id="0" popupconfig="popups/PopUp_AccessPoint.xml"/>  
+     			       <sublayer id="2" popupconfig="popups/PopUp_AccessPoint2.xml"/> 
+     			        <sublayer id="3" popupconfig="popups/PopUp_AccessPoint2.xml"/> 
+     			         <sublayer id="4" popupconfig="popups/PopUp_AccessPoint2.xml"/> 
+     			          <sublayer id="5" popupconfig="popups/PopUp_AccessPoint2.xml"/>   
+     			           <sublayer id="6" popupconfig="popups/PopUp_AccessPoint2.xml"/>     
      		</layer>    
      		<layer type="dynamic"
      			label="Vialidad"
@@ -254,14 +259,22 @@
      				<sublayer id="1" label="Agua Santa Lote CBR" popupconfig="popups/PopUp_AguaSantaLoteCBR.xml"/> 
      			
      		</layer>
-       		<!--  <layer type="dynamic"
+			 <layer type="dynamic"
      			label="Denuncios Web"
      			imageformat="png32"
      			url="https://gisredint.chilquinta.cl/arcgis/rest/services/CNR/Denuncios_web/MapServer"
      			visible="false">
      				<sublayer id="0" label="Denuncios Web" popupconfig="popups/PopUp_DenunciosWeb.xml"/>
      			
-     		</layer>  -->
+     		</layer>
+       		 <layer type="dynamic"
+     			label="Voltajes"
+     			imageformat="png32"
+     			url="http://gisredint.chilquinta.cl/arcgis/rest/services/TELEMEDIDA/voltajes_ge/MapServer"
+     			visible="false">
+     				<sublayer id="0" label="Denuncios Web" popupconfig="popups/PopUp_voltajes_ge.xml"/>
+     			
+     		</layer>
         </operationallayers>
     </map>
     <widgetcontainer layout="float">
@@ -401,12 +414,12 @@
                			config="widgets/IngresoDenuncios/IngresoDenuncios.xml"
                			url="widgets/IngresoDenuncios/IngresoDenuncios.swf" 
                			preload="close"/>  			
-               	<widget label="Reclamos" 
+               <!--  	<widget label="Reclamos" 
        		   			icon="assets/images/icono_reclamos.png"
                			config="widgets/Reclamos/Reclamos.xml"
                			url="widgets/Reclamos/Reclamos.swf" 
                			preload="close"/>	
-               							
+               		-->					
   	     </widgetgroup>
   	 <!--      <widget label="Inspecciones" 
        		   			icon="assets/images/encuesta.png"
