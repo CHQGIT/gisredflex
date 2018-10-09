@@ -75,9 +75,10 @@
      		<layer type="dynamic"
      			label="Cobertura Antena"
      			imageformat="png32"
-     			url="https://gisredint.chilquinta.cl/arcgis/rest/services/CNR/CoberturaAntena/MapServer"
+     			url="https://gisredint.chilquinta.cl/arcgis/rest/services/CNR/Access_Point/MapServer"
      			visible="false">
      			     <sublayer id="0" popupconfig="popups/PopUp_AccessPoint.xml"/>  
+     			      <sublayer id="1" popupconfig="popups/PopUp_AccessPoint3.xml"/> 
      			       <sublayer id="2" popupconfig="popups/PopUp_AccessPoint2.xml"/> 
      			        <sublayer id="3" popupconfig="popups/PopUp_AccessPoint2.xml"/> 
      			         <sublayer id="4" popupconfig="popups/PopUp_AccessPoint2.xml"/> 

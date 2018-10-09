@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <title>NIS: {nis}</title>
+    <fields>
+        <field name="PRODUCTO" alias="Producto: " visible="true"/>
+        <field name="CATEGORÍA" alias="Categoría: " visible="true"/>
+       
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>
