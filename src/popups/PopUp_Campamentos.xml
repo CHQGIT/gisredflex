@@ -2,8 +2,45 @@
 <configuration>
     <title>Nombre: {Campamento}</title>
     <fields>
-         <field name="Familias_2" alias="Familias: " visible="true"/>  
-         <field name="Comuna" alias="Comuna:  " visible="true"/>   
+        
+         
+           <field name="ID_Catastr" alias="ID_Catastr: " visible="true"/>  
+         <field name="Region" alias="Region: " visible="true"/>   
+           <field name="Comuna" alias="Comuna: " visible="true"/>  
+         <field name="Campamento" alias="Campamento : " visible="true"/>   
+           <field name="Familias_2" alias="Familias: " visible="true"/>  
+         <field name="estado" alias="Estado: " visible="true"/>   
+           <field name="accion" alias="Accion: " visible="true"/>  
+         <field name="estado_factibilidad" alias="Estado_factibilidad:   " visible="true"/>   
+           <field name="condicion" alias="Condicion: " visible="true"/>  
+         <field name="propiedad" alias="Propiedad: " visible="true"/>   
+           <field name="empresa" alias="Empresa: " visible="true"/>  
+         <field name="viviendas" alias="Viviendas: " visible="true"/>   
+           <field name="suministros " alias="Suministros: " visible="true"/>  
+         <field name="traslados" alias="Traslados: " visible="true"/>   
+           <field name="viviendas_sin_sum" alias="Viviendas_sin_sum: " visible="true"/>  
+         <field name="alimentador" alias="Alimentador: " visible="true"/>   
+           <field name="segmento" alias="Segmento: " visible="true"/>  
+         <field name="eemes" alias="Eemes: " visible="true"/>   
+           <field name="eeagno " alias="Eeagno: " visible="true"/>  
+         <field name="emmes " alias="Emmes: " visible="true"/>   
+           <field name="emagno" alias="Emagno: " visible="true"/>  
+         <field name="estado_medicion " alias="Estado_medicion: " visible="true"/>   
+           <field name="poligono " alias="Poligono: " visible="true"/>  
+         <field name="sobrevuelo " alias="Sobrevuelo: " visible="true"/>   
+      
+        <field name="ruta" alias="Ruta: " visible="true"/>  
+         <field name="ap" alias="AP: " visible="true"/>   
+      
+        <field name="cnr" alias="Cnr: " visible="true"/>  
+         <field name="conexion" alias="Conexion: " visible="true"/>   
+      
+        <field name="micromedicion" alias="Micromedicion: " visible="true"/>  
+         <field name="rah" alias="RAH:" visible="true"/>   
+      
+        <field name="comentario  " alias="Comentario: " visible="true"/>  
+         <field name="medida" alias="Medida: " visible="true"/>   
+      
       
     </fields>
     <showattachments>false</showattachments>

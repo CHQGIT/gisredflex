@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <title>ROL: {ROL}</title>
+    <fields>
+        <field name="ROL_LABEL" alias="ROL_LABEL:" visible="true"/>
+        <field name="NOMBRE" alias="NOMBRE:" visible="true"/>
+        <field name="CARPETA" alias="CARPETA:" visible="true"/>
+          <field name="REGION" alias="REGION:" visible="true"/>
+            <field name="ENROLADO" alias="ENROLADO:" visible="true"/>
+              <field name="CONCESIONADO" alias="CONCESIONADO" visible="true"/>
+
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>
