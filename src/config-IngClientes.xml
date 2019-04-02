@@ -60,8 +60,8 @@
      			label="ECSE"
      			imageformat="png32"
      			url="https://gisredint.chilquinta.cl/arcgis/rest/services/Varios/ECSE/MapServer">
-     			<sublayer id="0" label="Encuestado" definitionexpression="ano=2015" visible="false"/>
-     			<sublayer id="0" label="Reemplazo" definitionexpression="ano=2015" visible="false"/>
+     			<sublayer id="0" label="Encuestado" definitionexpression="ano=2018" visible="false"/>
+     			<sublayer id="0" label="Reemplazo" definitionexpression="ano=2018" visible="false"/>
      		</layer>  
      		<layer type="dynamic"
      			label="Cobertura Antena"
@@ -73,8 +73,12 @@
      		<layer type="dynamic"
      			label="Vialidad"
      			imageformat="png32"
-     			url="http://wservice-sit.mop.gov.cl/ArcGIS/rest/services/DV/red_caminera_de_chile/MapServer"
+     			url="http://wservice-sit.mop.gov.cl/ArcGIS/rest/services/DV/Red_Vial_Chile/MapServer"
      			visible="false">
+     			<sublayer id="0" label="Unidad vecinal" popupconfig="popups/PopUp_Red_MOP.xml"/>
+     			<sublayer id="1" label="Unidad vecinal" popupconfig="popups/PopUp_Red_MOP.xml"/>
+     			<sublayer id="2" label="Unidad vecinal" popupconfig="popups/PopUp_Red_MOP.xml"/>
+     			<sublayer id="3" label="Unidad vecinal" popupconfig="popups/PopUp_Red_MOP.xml"/>
      		</layer>  
     
         	<layer type="dynamic"
@@ -258,7 +262,13 @@
 				<widget label="Busqueda Cliente GE VOLT" left="60" top="350"
 				       icon="assets/images/ClientesGE.png"
 					   config="widgets/eSearch/eSearchWidgetClientesGE.xml"
-					   url="widgets/eSearch/eSearchWidget.swf"/>		
+					   url="widgets/eSearch/eSearchWidget.swf"/>	
+					   
+				  <widget label="RepartoNISLectura" 
+       		   		   icon="assets/images/logo_facturacion.png"
+               		   config="widgets/AdminRepartos/AdminRepartos.xml"
+               		   url="widgets/AdminRepartos/RepartoNISLectura.swf" 
+               		   preload="close"/>			   	
        </widgetgroup>
         <!-- Grupo de Busqueda Electricidad-->
   	   <widgetgroup label="Búsquedas Electricidad " icon="assets/images/bombilla.png">
@@ -371,6 +381,11 @@
                			config="widgets/AdminLectores/AdminLectores.xml"
                			url="widgets/AdminLectores/Coordinador.swf" 
                			preload="close"/>	
+               	<widget label="Reparto" 
+       		   		   icon="assets/images/logo_facturacion.png"
+               		   config="widgets/AdminRepartos/AdminRepartos.xml"
+               		   url="widgets/AdminRepartos/AdminRepartos.swf" 
+               		   preload="close"/>		
                			
                					
             </widgetgroup>

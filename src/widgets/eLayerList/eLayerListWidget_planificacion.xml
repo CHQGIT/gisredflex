@@ -47,6 +47,8 @@
                     <excludelayer mapservice="Sectores"></excludelayer>
                      <excludelayer mapservice="STX/CBR"></excludelayer>
                        <excludelayer mapservice="Voltajes"></excludelayer>
+                        <excludelayer mapservice="Micromedicion"></excludelayer>
+                         <excludelayer mapservice="Denuncios Web"></excludelayer>
     </excludelayers>
     <excludegraphiclayers>true</excludegraphiclayers>
     <excludebasemaplayers>true</excludebasemaplayers>

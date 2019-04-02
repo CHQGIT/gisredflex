@@ -21,6 +21,8 @@ package widgets.AdmIngresoClientes.utilidad
 		public static var URL_ACCESO = "https://gisredint.chilquinta.cl/arcgis/rest/services/Admin/LogAccesos/MapServer/2";
 		public static var ndo:String; 
 		
+		public static var URL_REPARTOS:String = "https://gisredint.chilquinta.cl/arcgis/rest/services/Mobile/Reparto/FeatureServer/0";
+		
 		public function urls()
 		{
 			

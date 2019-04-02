@@ -43,6 +43,13 @@
      			
      		</layer> -->
      		<layer type="dynamic"
+     			label="Micromedicion"
+     			imageformat="png32"
+     			url="https://gisredint.chilquinta.cl/arcgis/rest/services/CNR/Micromedicion/MapServer"
+     			visible="false">
+     				<sublayer id="0" label="Micromedicion" popupconfig="popups/PopUp_Micromedicion.xml"/>
+     		</layer>   
+     		<layer type="dynamic"
      			label="GE_VOLT"
      			imageformat="png32"
      			url="https://gisredint.chilquinta.cl/arcgis/rest/services/TELEMEDIDA/GE_NATO/MapServer"
@@ -69,8 +76,8 @@
      			label="ECSE"
      			imageformat="png32"
      			url="https://gisredint.chilquinta.cl/arcgis/rest/services/Varios/ECSE/MapServer">
-     			<sublayer id="0" label="Encuestado" definitionexpression="ano=2017" visible="false"/>
-     			<sublayer id="1" label="Reemplazo" definitionexpression="ano=2017" visible="false"/>
+     			<sublayer id="0" label="Encuestado" definitionexpression="ano=2018" visible="false"/>
+     			<sublayer id="1" label="Reemplazo" definitionexpression="ano=2018" visible="false"/>
      		</layer>  
      		<layer type="dynamic"
      			label="Cobertura Antena"
@@ -128,8 +135,8 @@
             <layer type="dynamic"  imageformat="png32" label="Direcciones" url="https://gisredint.chilquinta.cl/arcgis/rest/services/Cartografia/DMPS/MapServer" mode="onDemand" visible="true">
              	<sublayer id="0" label="Direcciones" popupconfig="popups/PopUp_Direcciones.xml"/></layer>
             <layer type="dynamic" label="Concesiones" imageformat="png32" url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Concesiones006/MapServer" alpha="0.4" visible="true">
-            	<sublayer id="0" popupconfig="popups/PopUp_Concesion_Distribucion.xml"/>
-                <sublayer id="1" popupconfig="popups/PopUp_Concesion_Transmision.xml"/>
+            	<sublayer id="0" label="Distribución" popupconfig="popups/PopUp_Concesion_Distribucion.xml"/>
+                <sublayer id="1" label="Transmisión" popupconfig="popups/PopUp_Concesion_Transmision.xml"/>
             </layer>
              <layer type="dynamic"
      			label="Nodos"
@@ -238,7 +245,7 @@
      			imageformat="png32"
      			url="https://gisredint.chilquinta.cl/arcgis/rest/services/CECOM/Reparto_view/MapServer"
      			visible="false">
-     				<sublayer id="0" label="Reparto" popupconfig="popups/PopUp_Reparto.xml" definitionexpression="empresa='chilquinta'"/>
+     				<sublayer id="0" label="Reparto" popupconfig="popups/PopUp_Reparto.xml"/>
      			
      		</layer>
      		<layer type="dynamic"
@@ -348,7 +355,29 @@
 				<widget label="Busqueda de Reparto" left="60" top="350"
 				       icon="assets/images/icono_reparto.png"
 					   config="widgets/eSearch/eSearchWidgetReparto.xml"
-					   url="widgets/eSearch/eSearchWidget.swf"/>		
+					   url="widgets/eSearch/eSearchWidget.swf"/>
+				<widget label="Reparto" 
+       		   		   icon="assets/images/logo_facturacion.png"
+               		   config="widgets/AdminRepartos/AdminRepartos.xml"
+               		   url="widgets/AdminRepartos/AdminRepartos.swf" 
+               		   preload="close"/>	
+               	<widget label="Reparto Resumen" 
+       		   		   icon="assets/images/logo_facturacion.png"
+               		   config="widgets/AdminRepartos/AdminRepartos.xml"
+               		   url="widgets/AdminRepartos/RepartosView.swf" 
+               		   preload="close"/>
+               		   
+               	<widget label="Repartos NIS" 
+       		   		   icon="assets/images/logo_facturacion.png"
+               		   config="widgets/AdminRepartos/AdminRepartos.xml"
+               		   url="widgets/AdminRepartos/RepartosNIS.swf" 
+               		   preload="close"/>	
+               		   
+               <widget label="RepartoNISLectura" 
+       		   		   icon="assets/images/logo_facturacion.png"
+               		   config="widgets/AdminRepartos/AdminRepartos.xml"
+               		   url="widgets/AdminRepartos/RepartoNISLectura.swf" 
+               		   preload="close"/>				   	   		   		
        </widgetgroup>
         <!-- Grupo de Busqueda Electricidad-->
   	   <widgetgroup label="Búsquedas Electricidad " icon="assets/images/bombilla.png">
@@ -418,13 +447,20 @@
        		   			icon="assets/images/icono_agregar_denuncio.png"
                			config="widgets/IngresoDenuncios/IngresoDenuncios.xml"
                			url="widgets/IngresoDenuncios/IngresoDenuncios.swf" 
-               			preload="close"/>  			
-               <!--  	<widget label="Reclamos" 
-       		   			icon="assets/images/icono_reclamos.png"
-               			config="widgets/Reclamos/Reclamos.xml"
-               			url="widgets/Reclamos/Reclamos.swf" 
-               			preload="close"/>	
-               		-->					
+               			preload="close"/>  	
+               			
+               	<widget label="Micromedicion" 
+       		   			icon="assets/images/icono_agregar_denuncio.png"
+               			config="widgets/Micromedicion/Micromedicion.xml"
+               			url="widgets/Micromedicion/Micromedicion.swf" 
+               			preload="close"/>
+               			  				
+               <widget label="Ingreso Poste Chocado" 
+       		   			icon="widgets/IngresoClientes/images/icon_addCliente.png"
+               			config="widgets/IngresoClientes/IngresoClientes.xml"
+               			url="widgets/IngresoClientes/IngresoPosteData.swf" 
+               			preload="close"/>  	
+               						
   	     </widgetgroup>
   	 <!--      <widget label="Inspecciones" 
        		   			icon="assets/images/encuesta.png"

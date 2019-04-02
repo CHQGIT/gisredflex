@@ -4,7 +4,19 @@
     <fields>
         <field name="created_user" alias="Creador:" visible="true"/>
         <field name="created_date" alias="Fecha Creación:" visible="true"/>
-        
+        <field name="nis" alias="NIS: " visible="true"/>
+ <field name="medidor" alias="Medidor: " visible="true"/>
+ <field name="marca_modelo" alias="Marca: " visible="true"/>
+
+ <field name="direccion" alias="Dirección: " visible="true"/>
+ <field name="tipo_denuncio" alias="Tipo Denuncio: " visible="true"/>
+
+ <field name="id_poste" alias="ID Poste: " visible="true"/>
+ <field name="comentario" alias="Comentario: " visible="true"/>
+
+ <field name="estado" alias="Estado: " visible="true"/>
+ <field name="ot" alias="OT: " visible="true"/>
+
         
         
     </fields>

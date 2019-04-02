@@ -103,7 +103,7 @@
 				var query:Query = new Query();
 				
 				query.returnGeometry = true;
-				query.where = "Campamento='"+CboCampamento.selectedItem+"'";
+				query.where = "Campamento='"+CboCampamento.selectedItem+"' and comuna = '"+ CboCampamentoRegion.selectedItem +"'";
 				
 				queryTask.execute(query, new AsyncResponder(onResult, onFault));
 				

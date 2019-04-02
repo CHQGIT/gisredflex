@@ -1,0 +1,448 @@
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"				   
+				   xmlns:components="com.esri.viewer.components.*"
+				   xmlns:esri="http://www.esri.com/2008/ags" 
+				   
+				   >	
+	<viewer:states>
+		<!--<s:State name="bkmIngresoClientes"/> -->
+		<s:State name="bkmAddPoste"/>
+		<!--<s:State name="bkmAddDireccion"/> -->
+	</viewer:states>
+	
+	<viewer:transitions>
+		<s:Transition autoReverse="true" toState="*">
+			<s:Fade targets="{[bkmAddPoste]}"/>
+		</s:Transition>
+	</viewer:transitions>
+	
+	
+	
+	<fx:Declarations>
+		<esri:SimpleMarkerSymbol id="sms"
+								 alpha="0.5"
+								 color="0x00FFFF"
+								 size="20"
+								 style="circle"/>
+		
+		
+		<esri:SimpleLineSymbol id="slsDireccion"
+							   width="5"
+							   alpha="0.9"
+							   color="0xFF0033"
+							   style="solid"/>
+		
+		<esri:SimpleLineSymbol id="slsPoste"
+							   width="5"
+							   alpha="0.9"
+							   color="0x006600CC"
+							   style="solid"/>
+		<fx:Array id="validatorsArray">
+			<mx:StringValidator id="txtSolicitudValidator" source="{txtSolicitud}" property="text" required="true" trigger="{btnAgregarNuevoRotulo}" triggerEvent="click"/>
+			<mx:StringValidator id="txtPosteValidator" source="{txtNuevoRotulo}" property="text" required="true" trigger="{btnAgregarNuevoRotulo}" triggerEvent="click"/>   
+
+			
+			
+		</fx:Array>	
+		<!-- 
+		
+		<fx:Array id="validatorsArray">
+			
+			<mx:StringValidator id="txtNISValidator" source="{txtNIS}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>   
+			<mx:StringValidator id="txtNumeroMedidorValidator" source="{txtNumeroMedidor}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>   
+			<mx:NumberValidator id="ddlTipoMedidorValidator" source="{ddlTipoMedidor}" property="selectedIndex" minValue="0" lowerThanMinError="{ddlTipoMedidor.prompt}" trigger="{btnAgregarCliente}" triggerEvent="click"/>
+			<mx:NumberValidator id="ddlTipoTecnologiaMedidorValidator" source="{ddlTecnologiaMedidor}" property="selectedIndex" minValue="0" lowerThanMinError="{ddlTecnologiaMedidor.prompt}" trigger="{btnAgregarCliente}" triggerEvent="click"/>
+			<mx:StringValidator id="lblDireccionValidator" source="{lblDireccion}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>
+			<mx:StringValidator id="lblRotuloValidator" source="{lblRotulo}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>    
+			<mx:NumberValidator id="ddlTipoEmpalme1Validator" source="{ddlTipoEmpalme1}" property="selectedIndex" minValue="0" lowerThanMinError="{ddlTipoEmpalme1.prompt}" trigger="{btnAgregarCliente}" triggerEvent="click"/>
+			<mx:StringValidator id="txtOSValidator" source="{txtOS}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>    
+			<mx:StringValidator id="txtFaseValidator" source="{txtFase}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>    
+			
+			
+			<mx:StringValidator id="lblIDDireccionValidator" source="{lblIDDireccion}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>    
+			<mx:StringValidator id="estadoDireccionValidator" source="{estadoDireccion}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>
+			<mx:StringValidator id="lblIDRotuloValidator" source="{lblIDRotulo}" property="text" required="true" trigger="{btnAgregarCliente}" triggerEvent="click"/>
+			</fx:Array>	
+		 
+		
+		<fx:Array id="validatorsAgregarDireccion">
+			
+			<mx:StringValidator id="txtCalleValidator" source="{txtCalle}" property="text" required="true" trigger="{btnAgregarNuevaDireccion}" triggerEvent="click"/>   
+			<mx:StringValidator id="txtNumeroDireccionValidator" source="{txtNumeroDireccion}" property="text" required="true" trigger="{btnAgregarNuevaDireccion}" triggerEvent="click"/>   
+			<mx:NumberValidator id="ddlTipoEdificacionValidator" source="{ddlTipoEdificacion}" property="selectedIndex" minValue="0" lowerThanMinError="{ddlTipoEdificacion.prompt}" trigger="{btnAgregarNuevaDireccion}" triggerEvent="click"/>
+				
+		
+		</fx:Array>	
+		-->
+		<fx:Array id="validatorsAgregarPoste">
+			
+			<mx:StringValidator id="txtNuevoRotuloValidator" source="{txtNuevoRotulo}" property="text" required="true" trigger="{btnAgregarNuevoRotulo}" triggerEvent="click"/>   
+			
+			
+		</fx:Array>	
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.SpatialReference;
+			import com.esri.ags.events.MapMouseEvent;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.geometry.Polygon;
+			import com.esri.ags.geometry.Polyline;
+			import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
+			import com.esri.ags.layers.FeatureLayer;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.symbols.SimpleMarkerSymbol;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.rpc.AsyncResponder;
+			import mx.validators.Validator;
+			
+			import widgets.IngresoClientes.utilidad.cargarCombos;
+			import widgets.IngresoClientes.utilidad.cliente;
+			import widgets.IngresoClientes.utilidad.direccion;
+			import widgets.IngresoClientes.utilidad.poste;
+			import widgets.IngresoClientes.utilidad.urls;
+			
+			
+			
+			//inicializa la clase cargarCombos
+			public var cargaCombo:cargarCombos = new cargarCombos;
+			public var customer:cliente = new cliente;
+			public var address:direccion = new direccion;
+			public var pipe:poste = new poste;
+		
+			//crea un graphiclayer
+			public var myGraphicsLayer:GraphicsLayer =  new GraphicsLayer;
+			
+			public var CalleEncontrada:ArrayList = new ArrayList;
+			public var CalleNuevaEncontrada:ArrayList = new ArrayList;
+			
+			public var RotuloEncontrado:ArrayList = new ArrayList;
+			public var RotuloNuevoEncontrado:ArrayList = new ArrayList;
+			
+			
+			public var graphicCliente:Graphic;
+			public var graphicDireccion:Graphic;
+			public var graphicPoste:Graphic;
+			
+			public var graphicNuevaDireccion:Graphic;
+			public var graphicNuevoPoste:Graphic;
+			[Bindable]private var errors:Array;
+			//functions
+			import mx.collections.ArrayCollection;
+			[Bindable] public var coleccionCausa:ArrayCollection = new ArrayCollection;
+			
+			public function funcionesBtn(event:MouseEvent):void{
+				switch(event.currentTarget.id)
+				{
+					
+					case "tbtnNuevoRotulo":
+					{
+						
+						if (event.target.selected){	
+							
+							tbtnNuevoRotulo.label = "Off";
+							map.addEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+						} else{
+							
+							tbtnNuevoRotulo.label = "On";
+							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+						}
+						break;
+					}	
+						
+					default:
+					{
+						break;
+					}
+				}
+			
+			}
+			
+		/*	//graba cliente en servicio
+			public function validaAddCliente():int {
+				var validacion:int = 0;
+				
+				
+				return validacion;
+			}
+		*/	
+			//carga todos los combos 
+			
+			public var ingresosLayer:ArcGISDynamicMapServiceLayer= new ArcGISDynamicMapServiceLayer(widgets.IngresoClientes.utilidad.urls.URL_INGRESOEXTERNO_DYN);
+			
+			
+			protected function bkmIngresoClientes_initializeHandler(event:FlexEvent):void
+			{
+				
+				// TODO Auto-generated method stub
+				/*ddlTipoMedidor.dataProvider = cargaCombo.cargaTipoMedidor();
+				ddlTecnologiaMedidor.dataProvider = cargaCombo.cargaTecnologiaMedidor();
+				ddlTipoEmpalme1.dataProvider = cargaCombo.cargaTipoEmpalme();
+				openLayer();
+				*/
+				
+			}
+			
+			public function openLayer():void{
+				ingresosLayer.name = "Ingreso Externo";
+				map.addLayer(ingresosLayer);				
+				ingresosLayer.visible = true;
+			}
+			
+			
+			protected function bkmAddPoste_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				coleccionCausa.removeAll();
+				coleccionCausa = new ArrayCollection(				
+					[ 
+						{descripcion:"Choque de vehículo a poste", id: 1601},
+						{descripcion:"Choque de vehículo a tirante", id: 1602},
+						{descripcion:"Daño debido a faena en propiedad particular", id: 1603},
+						{descripcion:"Maquinaria pesada", id: 1605},
+						{descripcion:"Otros", id:1607}
+					]);
+				
+				ddlCausa.dataProvider = coleccionCausa;
+			}
+			
+			protected function bkmAddDireccion_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				//ddlTipoEdificacion.dataProvider = cargaCombo.cargaTipoEdificacion();
+				
+			}
+			
+			
+			public var hayCliente:int = 0;
+			public var hayDireccion:int = 0;
+			public var hayPoste:int = 0;
+			
+			public function selectRotulo(event:MapMouseEvent):void{
+				
+					
+					var query:Query = new Query();
+					query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+					var rectangulo:Polygon=new Polygon;
+					rectangulo.addRing(crearRectangulo(event.mapPoint,10));
+					query.geometry = rectangulo;
+					
+					var parametros:ArrayList=new ArrayList;
+					
+					parametros.addItem("id_nodo");
+					parametros.addItem("rotulo");	
+					
+					query.outFields=parametros.toArray();			
+					query.returnGeometry = true;
+					query.where ="tipo_nodo='ele!poste'"
+					var queryTask:QueryTask =  new QueryTask;
+					queryTask.url = urls.URL_ROTULOS;
+					queryTask.token = cargarCombos.token as String;
+					queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+					
+					function onResult(featureSet:FeatureSet, token:Object = null):void
+					{	
+						if(featureSet.features.length>0){
+							
+							txtNuevoRotulo.text = featureSet.features[0].attributes.id_nodo; 
+						}else{
+							Alert.show("No hay postes encontrados/seleccionados");
+							txtNuevoRotulo.text = "";
+						}
+						
+					}
+					function onFault(info:Object, token:Object = null):void
+					{					
+						Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+					}
+				
+			}
+			
+			
+			
+			//Crea poligono para la busqueda en el mapa
+			private function crearRectangulo(mapPoint:MapPoint,delta:Number):Array 
+			{ 
+				var arrayOfPoints:Array = new Array();
+				
+				arrayOfPoints[0] = new MapPoint(mapPoint.x-delta,mapPoint.y-delta,mapPoint.spatialReference);            	        
+				arrayOfPoints[1] = new MapPoint(mapPoint.x-delta,mapPoint.y+delta,mapPoint.spatialReference);
+				arrayOfPoints[2] = new MapPoint(mapPoint.x+delta,mapPoint.y+delta,mapPoint.spatialReference);
+				arrayOfPoints[3] = new MapPoint(mapPoint.x+delta,mapPoint.y-delta,mapPoint.spatialReference);
+				arrayOfPoints[4] = new MapPoint(mapPoint.x-delta,mapPoint.y-delta,mapPoint.spatialReference);
+				
+				return arrayOfPoints;
+			}
+			
+			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				/*graphicCliente= new Graphic;
+				graphicDireccion= new Graphic;
+				graphicPoste= new Graphic;				
+				myGraphicsLayer.clear();
+				txtNIS.text  = "";
+				txtNumeroMedidor.text  = "";
+				ddlTipoMedidor.selectedIndex = -1;
+				ddlTecnologiaMedidor.selectedIndex = -1;
+				lblIDDireccion.text  = "";
+				
+				lblRotulo.text  = "";
+				lblIDRotulo.text  = "";
+				ddlTipoEmpalme1.selectedIndex = -1;
+				txtOS.text  = "";
+				lblDireccion.text  = "";
+				*/
+				map.removeLayer(ingresosLayer);
+			}
+			
+			public function limpiarCampos(op:int):void{
+				
+				switch(op)
+				{
+					//limpia form nueva direccion
+					case 1:
+					{
+					/*	txtCalle.text = "";
+						txtNumeroDireccion.text = "";
+						ddlTipoEdificacion.selectedIndex = -1;
+						txtAnexo1.text = "";
+						txtAnexo2.text = "";
+*/
+						break;
+					}
+						//limpia form nuevo poste
+					case 2:
+					{
+						
+						txtNuevoRotulo.text = "";
+						
+						break;
+					}
+						
+					default:
+					{
+						break;
+					}
+				}
+			}
+			
+			protected function wTemplate_openHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				//openLayer();
+			}
+			
+			public function agregarPosteChocado(){
+				errors = new Array();
+				errors = Validator.validateAll(validatorsArray);
+				if (errors.length == 0)
+				{
+					try
+					{
+						var ModificacionesPoligono:* = new Object;
+						
+						ModificacionesPoligono["id_poste"]= txtNuevoRotulo.text;
+						ModificacionesPoligono["nm_causa"]=  ddlCausa.selectedItem.descripcion;
+						ModificacionesPoligono["id_causa"] = ddlCausa.selectedItem.id;
+						ModificacionesPoligono["n_solicitud"] = txtSolicitud.text;
+						ModificacionesPoligono["empresa"] = "chilquinta";
+						ModificacionesPoligono["estado"] = "NUEVO";
+					
+						var graficoEditadoActual:Graphic = new Graphic;
+						
+						graficoEditadoActual = new Graphic(null,null,ModificacionesPoligono);
+						var myDetalleActLayer:FeatureLayer = new FeatureLayer("https://gisredint.chilquinta.cl/arcgis/rest/services/CNR/Denuncios_web/FeatureServer/1");
+						myDetalleActLayer.applyEdits([graficoEditadoActual],null,null, false,new AsyncResponder(onResult, onFault));
+						
+						
+						function onResult():void
+						{      
+							Alert.show("Poste chocado agregado");
+							txtNuevoRotulo.text = "";
+							txtSolicitud.text = "";
+							ddlCausa.selectedIndex = -1;
+							
+						}
+						
+						function onFault(info:Object, token:Object = null):void
+						{
+							Alert.show("Error al ingresar poste chocado.  Contáctese con el administrador de GISRED. "+info.toString());
+						}
+					}
+					catch(error:Error){
+						Alert.show("asd2");
+					}
+				}else{
+					Alert.show("Por favor indique los campos requeridos");	
+				}
+			}
+			
+			protected function btnAgregarNuevoRotulo_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				agregarPosteChocado();
+			}
+			
+		]]>
+	</fx:Script>
+	<viewer:WidgetTemplate id="wTemplate"                      
+						   width="470" height="350"
+						   visible="true" closed="wTemplate_closedHandler(event)" open="wTemplate_openHandler(event)" >
+			
+		
+		<!--Ventana nuevo poste-->
+		<s:Group id="bkmAddPoste" width="100%" height="100%" visible="false" initialize="bkmAddPoste_initializeHandler(event)"
+				 visible.bkmAddPoste="true">
+			<s:VGroup width="100%" top="5" bottom="5" height="100%">
+				<mx:Label id="lblIngresoPostes" text="Ingreso de Poste Chocado" fontSize="18"/>
+				<mx:Form id="formNuevoPoste" width="100%" height="100%">
+					<mx:FormHeading label="Complete Todos los campos del formulario."/>      
+					<mx:FormItem label="ROTULO">
+						<s:HGroup width="100%">
+							<mx:TextInput id="txtNuevoRotulo" width="200" maxChars="50" enabled="false"/>                         
+							<s:ToggleButton id="tbtnNuevoRotulo" label="On" width="20%" height="24" click="funcionesBtn(event)" />
+						</s:HGroup>
+					</mx:FormItem>
+					
+				
+					<mx:FormItem label="CAUSA">
+						<s:HGroup width="100%">
+							<s:DropDownList id="ddlCausa"  width="200" 
+											 prompt="Seleccione Tipo"
+											labelField="descripcion"/>
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:FormItem label="N° SOLICITUD">
+						<s:HGroup width="100%">
+							<mx:TextInput id="txtSolicitud" width="200" maxChars="50" /> 
+						</s:HGroup>
+					</mx:FormItem>
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					
+					<mx:FormItem>
+						<s:HGroup width="100%" horizontalAlign="center">
+							<s:Button id="btnAgregarNuevoRotulo" height="30" label="Agregar Poste" click="btnAgregarNuevoRotulo_clickHandler(event)" />
+						</s:HGroup>
+					</mx:FormItem>
+				</mx:Form>
+			</s:VGroup>
+		</s:Group> 
+	
+	
+		
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

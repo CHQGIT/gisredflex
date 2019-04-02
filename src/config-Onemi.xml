@@ -1,0 +1,119 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>Chilquinta Energia S.A.</title>
+    <subtitle>Red Electrica en Arcgis</subtitle>
+    <logo>assets/images/logogisred_8x8.png</logo>
+    <style>
+        <colors>0xFFFFFF,0x333333,0x101010,0x000000,0xFFFFFF</colors>
+        <alpha>0.8</alpha>
+        <font name="Verdana"/>
+        <titlefont name="Verdana"/>
+        <subtitlefont name="Verdana"/>
+    </style>
+    <!-- replace the following url with your own geometryservice -->
+    <geometryservice url="https://utility.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer"/>
+    
+    <bing key="Asrn2IMtRwnOdIRPf-7q30XVUrZuOK7K2tzhCACMg7QZbJ4EPsOcLk6mE9-sNvUe"/>
+    <widget url="widgets/Navigation/NavigationWidget.swf" config="widgets/Navigation/NavigationWidget.xml" left="10" top="50"/>
+    <widget url="widgets/OverviewMap/OverviewMapWidget.swf" config="widgets/OverviewMap/OverviewMapWidget.xml" right="0" bottom="0"/>
+    <widget right="15" top="55"    config="widgets/eMapSwitcher/eMapSwitcherWidget.xml" url="widgets/eMapSwitcher/eMapSwitcherWidget.swf"/> 
+    <widget url="widgets/HeaderController/HeaderControllerWidget.swf" config="widgets/HeaderController/HeaderControllerWidget.xml" left="0" top="0"/>
+     <widget left="0" right="0" bottom="0" url="widgets/eSearch/SearchWidgetFixedDG.swf" config="widgets/eSearch/SearchWidgetFixedDG.xml"/>
+    <splashpage label="CHILQUINTA ENERGÍA S.A." config="widgets/mySplash/SplashWidget.xml" url="widgets/mySplash/SplashWidget.swf"/>
+    <widget right="135" top="55"  config="widgets/ExportMap/exportMap.xml" url="widgets/ExportMap/exportMap.swf"/>      
+     <widget left="0"  top="0"  config="widgets/CoordinateMenu/CoordinateMenuWidget.xml" url="widgets/CoordinateMenu/CoordinateMenuWidget.swf"/>
+     <widget config="widgets/GoogleAnalytics/GoogleAnalyticsWidget.xml"  url="widgets/GoogleAnalytics/GoogleAnalyticsWidget.swf"/>
+    
+    
+    <map attributionvisible="true" esrilogovisible="true" openhandcursorvisible="false" scalebarvisible="true" scalebar="default" zoomslidervisible="false" wraparound180="true" addarcgisbasemaps="false" initialextent="-8007585.32657955 -3933739.55021092 -7879323.993116975 -3862041.617679396" wkid="102100" top="40" portalurl="https://www.arcgis.com/">
+        <basemaps>
+        	<layer type="bing" label="Calles" icon="https://www.arcgis.com/sharing/rest/content/items/0914b1220e3a4484b3fbece2b746558d/info/thumbnail/tempbing_road_manchester2.png" style="road" culture="es-ES" visible="true"/>
+            <layer type="bing" label="Satelite" icon="https://www.arcgis.com/sharing/rest/content/items/1a1096e7254a483db4404a09c95034b2/info/thumbnail/tempbing_aerial_manchester2.png" style="aerial" culture="es-ES" visible="false"/>
+			<layer type="bing" label="Satelite With label" icon="https://www.arcgis.com/sharing/rest/content/items/1a1096e7254a483db4404a09c95034b2/info/thumbnail/tempbing_aerial_manchester2.png"  style="aerialWithLabels" culture="es-ES" visible="false"/>
+            <layer type="dynamic" label="Local Landbase" icon="assets/images/mapabase.png" url="https://gisred.chilquinta.cl:6443/arcgis/rest/services/MapaBase/MapServer" visible="false"/>
+        </basemaps>
+        <operationallayers>
+     		<layer type="dynamic"
+     			label="Vialidad"
+     			imageformat="png32"
+     			url="http://wservice-sit.mop.gov.cl/ArcGIS/rest/services/DV/red_caminera_de_chile/MapServer"
+     			visible="false">
+     		</layer>
+             <!-- <layer type="dynamic"
+     			label="Nodos"
+     			imageformat="png32"
+     			url="https://gisred.chilquinta.cl:6443/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer"
+     			visible="true">
+     			 <sublayer id="0" label="Postes" popupconfig="popups/PopUp_Poste.xml"/>
+     		</layer> -->
+            <layer type="dynamic"     		
+     			label="Tramos"
+     			imageformat="png32"
+     			url="https://gisred.chilquinta.cl:6443/arcgis/rest/services/Chilquinta_006/Tramos_006/MapServer"
+     			visible="true">
+     			 <sublayer id="0" label="Tramos MT" popupconfig="popups/PopUp_Tramo_MT.xml"/>
+     			 <sublayer id="1" label="Tramos BT" popupconfig="popups/PopUp_Tramo_BT.xml"/>
+     			 <sublayer id="2" label="Tramo AP" popupconfig="popups/PopUp_Tramo_AP.xml"/>
+     		</layer>     		
+     		<layer type="dynamic"
+     			label="Equipos Pto"
+     			imageformat="png32"
+     			url="https://gisred.chilquinta.cl:6443/arcgis/rest/services/Chilquinta_006/Equipos_pto_006/MapServer"
+     			visible="true">
+     			  <sublayer id="0" label="SSEE" popupconfig="popups/PopUp_SSEE.xml"/>
+     			  <sublayer id="1" label="Subestaciones" popupconfig="popups/PopUp_SED.xml"/>
+     			  <sublayer id="2" label="Salida Alimentador" popupconfig="popups/PopUp_Salida_alimentador.xml"/>
+     			  <sublayer id="3" label="Equipos_pto" popupconfig="popups/PopUp_Equipos.xml"/>
+     		</layer>
+     		
+     			<layer type="dynamic"
+     			label="Equipos linea"
+     			imageformat="png32"
+     			url="https://gisred.chilquinta.cl:6443/arcgis/rest/services/Chilquinta_006/Equipos_Linea_006/MapServer"
+     			visible="true">
+     			<sublayer id="0" label="Equipos" popupconfig="popups/PopUp_Equipos.xml"/>
+     			<sublayer id="1" label="Equipos_AP" popupconfig="popups/PopUp_EquiposAP.xml"/>
+     		</layer> 
+		     <layer type="dynamic" label="STx" imageformat="png32" url="https://gisred.chilquinta.cl:6443/arcgis/rest/services/STx/STx/MapServer" visible="true"/>
+		    <layer type="dynamic"
+			           label="Vistas" 
+			           imageformat="png32"
+			           url="https://gisred.chilquinta.cl:6443/arcgis/rest/services/Chilquinta_006/Especiales006/MapServer" 
+			           visible="true">	            
+       			</layer>
+       			
+        </operationallayers>
+    </map>
+    <widgetcontainer layout="float">
+        <widget url="widgets/Query/QueryWidget.swf" 
+       			config="widgets/Query/QueryWidget_SSEE.xml" 
+       			label="SSEE" 
+        		icon="assets/images/SSEE.png" preload="close"/>
+        	
+         <widgetgroup label="Herramientas" icon="assets/images/Herramientas.png">
+            	<widget label="Dibujar" left="60" top="400"
+                	icon="assets/images/i_draw2.png"
+                	config="widgets/eDraw/eDrawWidget.xml"
+                	url="widgets/eDraw/eDrawWidget.swf"/>
+                <widget label="Google Street View" width="380"
+                		preload="close"
+                		config="widgets/StreetView/StreetViewWidget.xml"
+                		icon="widgets/StreetView/assets/images/i_gsv.png"
+                		url="widgets/StreetView/StreetViewWidget.swf"/>
+                <widget label="Medir"
+		                icon="widgets/Measure/assets/images/i_measure2.png"
+		                config="widgets/Measure/MeasureWidget.xml"
+		                url="widgets/Measure/MeasureWidget.swf"/>
+		    <widget label="Map Coordinates"     		
+            config="widgets/CoordinateMenu/CoordinateMenuWidget.xml"
+            icon="widgets/CoordinateMenu/images/coordinateIcon.png"        
+            url="widgets/CoordinateMenu/CoordinateMenuWidget_GUI.swf"/>
+		                	  
+        </widgetgroup>
+        <widget label="Capas eléctricas" 
+       		   icon="assets/images/i_layers.png"
+               config="widgets/eLayerList/eLayerListWidget.xml"
+               url="widgets/eLayerList/eLayerListWidget.swf" 
+               preload="close"/>
+    </widgetcontainer>
+</configuration>

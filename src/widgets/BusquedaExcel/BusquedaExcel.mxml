@@ -406,6 +406,64 @@
 							map.addLayer(graphicsLayer1);
 							break;
 						
+						case 5:						
+							//	Alert.show("Postes");
+							statuslbl.text = "Filas leidas: "+ tRows + " - max." + rango;
+							for(var i2:int=0;i2<=rango-1;i2++) {
+								valor = '0';
+								var statsEnry2:Object = new Object();
+								statsEnry2.eventLabel = sheet.getCell(i2,0).value;
+								statsEnry2.totalEvent = sheet.getCell(i2,1).value;
+								if(statsEnry2.EntryLabel !=""){
+									statCollection.addItem(statsEnry2);
+									valor = sheet.getCell(i2,0).value;						
+									
+									//Obtener ids del servicio
+									var qtID2:QueryTask = new QueryTask();
+									qtID2.url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer/0/query";
+									qtID2.useAMF = false;
+									var queryID2:Query = new Query();
+									queryID2.where = "rotulo='" + valor + "'and tipo_nodo='ele!camara'";
+									
+									queryID2.outFields=["rotulo"]
+									queryID2.returnGeometry=true;
+									queryID2.spatialRelationship ="esriSpatialRelIntersects";
+									queryID2.outSpatialReference = map.spatialReference;
+									qtID2.execute(queryID2, new AsyncResponder(onResult8, onFault8));
+									
+									function onResult8(featureSet:FeatureSet, token:Object = null):void {
+										try{
+											var mp:MapPoint=featureSet.features[0].geometry as MapPoint;  
+											var myGraphic:Graphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value), featureSet.features[0].attributes);
+											
+											myGraphic.toolTip = "Camara: " + String(featureSet.features[0].attributes["rotulo"]); 
+											graphicsLayer1.add(myGraphic);
+											graphicsLayer1.moveToTop(myGraphic);
+											ac.addItem(graphicsLayer1);
+											map.addLayer(graphicsLayer1);
+											
+											/*var myGraphicMarker:Graphic = featureSet.features[0] as Graphic;
+											myGraphicMarker.symbol = new SimpleMarkerSymbol(markerStyle.selectedItem.style,numMarkerSize.value,cpMarker.selectedColor,numMarkerAlpha.value);
+											graphicsLayer1.add(myGraphicMarker);
+											ac.addItem(graphicsLayer1);
+											*/
+										}catch(err:Error){
+											//Alert.show(err.message+ "id no encontrada");
+										}
+									}
+									
+									function onFault8(info:Object, token:Object = null):void {   
+										//Alert.show("id no encontrada"+ valor);
+									}
+									seleccion = 0;
+									
+								}else {     
+									Alert.show("Problema de espacios en archivo excel");
+								}
+							}					
+							map.addLayer(graphicsLayer1);
+							break;
+						
 						default: {}      
 					}
 				}
@@ -532,6 +590,7 @@
 					myDP.addItem({elemento:"Tramos MT", id:2});
 					myDP.addItem({elemento:"Torres sTX", id:3});
 					myDP.addItem({elemento:"Postes", id:4});
+					myDP.addItem({elemento:"Camara", id:5});
 					
 					
 					if(featureSet.features.length>0){

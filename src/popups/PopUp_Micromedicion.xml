@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>OBJECTID : {OBJECTID}</title>
+    <fields>
+        
+         
+         <field name="nro_medidor" alias="Número Medidor: " visible="true"/>  
+         <field name="marca_medidor" alias="Marca: " visible="true"/>   
+         <field name="id_poste_camara" alias="ID Poste/Cámara " visible="true"/>  
+         <field name="tipo_nodo_conex" alias="Tipo Nodo Conexion : " visible="true"/>   
+         <field name="fase_conex" alias="Fase Conexión: " visible="true"/>   
+         <field name="id_direccion " alias="ID Dirección: " visible="true"/>  
+         <field name="tipo_direccion" alias="Tipo Dirección: " visible="true"/>   
+        
+         <field name="observacion" alias="Observación: " visible="true"/>  
+         <field name="created_user" alias="Creador:   " visible="true"/>   
+         <field name="empresa" alias="Empresa: " visible="true"/>   
+         <field name="created_date" alias="Fecha Creación: " visible="true"/>  
+        
+        
+        
+         
+         <field name="estado" alias="Estado: " visible="true"/>   
+         <field name="estado_detalle" alias="Estado Detalle: " visible="true"/>  
+         <field name="ot" alias="OT: " visible="true"/>   
+         <field name="estado_ot" alias="Estado OT: " visible="true"/>  
+         <field name="inspector" alias="Inspector: " visible="true"/>   
+         <field name="estado_revision" alias="Estado Revisión: " visible="true"/>  
+         <field name="secuencia" alias="Secuencia: " visible="true"/>   
+         <field name="inspeccion" alias="Inspección: " visible="true"/>  
+         <field name="estado_denuncio" alias="Estado Denuncio: " visible="true"/>   
+        
+    </fields>
+    <showattachments>false</showattachments>
+    <showrelatedrecords>false</showrelatedrecords>
+</configuration>
+

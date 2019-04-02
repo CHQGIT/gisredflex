@@ -67,7 +67,7 @@
 			
 			//graphicsLayer= null
 			var queryTaskEquipoSelected:QueryTask = new QueryTask();
-			queryTaskEquipoSelected.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Tramos_006/MapServer/1/query";
+			queryTaskEquipoSelected.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Tramos_006/MapServer/1";
 			queryTaskEquipoSelected.useAMF = false;
 			var queryEquipoSelected:Query = new Query();
 			queryEquipoSelected.outFields = ["*"];
@@ -117,21 +117,15 @@
 	
 			protected function btnGrafSED_clickHandler(event:MouseEvent):void
 			{
-				ejecutar();
-			}
-			protected function txtSED_enterHandler(event:FlexEvent):void
-			{
-				ejecutar();
-			}
-			protected function ejecutar():void
-			{
 				graphicsLayer.clear();
 				// TODO Auto-generated method stub
 				TrazadoRedBT();
 				map.addLayer(graphicsLayer);
 				
-			
-				var new_timer:Timer = new Timer(500, 2);
+				
+				
+				
+				/*var new_timer:Timer = new Timer(500, 2);
 				
 				// function on_tick() will be called every 500 millisec
 				new_timer.addEventListener(TimerEvent.TIMER, on_tick);
@@ -154,10 +148,11 @@
 					DataPoste.dataProvider = coleccion2;
 					stack.selectedChild = view1;
 					RadClientes.selected = true;
-				
+					
 				}	
-			
+				*/
 			}
+			
 			protected function getLongestString(... rest):String
 			{
 				var longest:String = "";
@@ -175,7 +170,12 @@
 				if(mostrar ==false)
 				{
 					wTemplate.height=500;
-					mostrar =true;			
+					mostrar =true;	
+					agregarItems();
+					
+					DataCliente.dataProvider = coleccion;
+					agregarItems2();
+					
 					
 				}
 				else
@@ -205,10 +205,7 @@
 				function onResult(featureSet:FeatureSet, token:Object = null):void
 				{
 					try{
-						// dgridEquipos.dataProvider = new ArrayCollection(featureSet.attributes);
 						
-						//antiguo
-						//coleccion.addAll(new ArrayCollection(featureSet.attributes));
 						
 						//nuevo 28/10/2015
 						for each (var myGraphic:Graphic in featureSet.features)
@@ -256,8 +253,8 @@
 						// dgridEquipos.dataProvider = new ArrayCollection(featureSet.attributes);
 						
 						coleccion2.addAll(new ArrayCollection(featureSet.attributes));		
-						
-						
+						DataPoste.dataProvider = coleccion2;
+					
 						
 					}catch(err:Error){
 					//	Alert.show("no se pudo cargar los datos");
@@ -364,7 +361,12 @@
 			protected function RadPostes_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
-				stack.selectedChild = view2;		
+				
+				stack.selectedChild = view2;
+				agregarItems2();
+				DataPoste.dataProvider = coleccion2;
+				
+				
 			}
 			private function getLabel(item:Object,column:GridColumn):String{  
 				return item[column.dataField];  
@@ -378,7 +380,7 @@
 			<s:VGroup>			
 				<s:HGroup width="100%" gap="25" verticalAlign="middle">				
 					<s:Label id="lblsed" text="Ingrese SED a graficar"/>				
-					<s:TextInput id="txtSED" restrict="0-9" maxChars="5" width="100%" enter="txtSED_enterHandler(event)"
+					<s:TextInput id="txtSED" restrict="0-9" maxChars="5" width="100%" 
 								 toolTip="Ej: 10118"/>				
 				</s:HGroup>		
 					<mx:FormItem verticalCenter="middle" width="100%" label="Line Color">		

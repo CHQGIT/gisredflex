@@ -1,0 +1,497 @@
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:viewer="com.esri.viewer.*"				   
+				   xmlns:components="com.esri.viewer.components.*"
+				   xmlns:esri="http://www.esri.com/2008/ags"  
+				   initialize="basewidget1_initializeHandler(event)" 
+				   
+				   >	
+	
+	<viewer:states>
+		<s:State name="bkmInit"/>
+		<s:State name="bkmConsulta"/>
+		
+	</viewer:states>
+	<viewer:transitions>
+		<s:Transition autoReverse="true" toState="*">
+			<s:Fade targets="{[bkmInit,bkmConsulta]}"/>
+		</s:Transition>
+	</viewer:transitions>
+	
+	<fx:Declarations>
+		<s:GlowFilter id="glowFilter"
+					  alpha="1"
+					  color="{getStyle('focusColor')}"
+					  inner="true"
+					  strength="2"/>
+		
+		<s:DateTimeFormatter id="dateFormatter" dateTimePattern="dd/MM/yyyy"/>
+		
+		<esri:SimpleMarkerSymbol id="smsIdentify"
+								 alpha="0.5"
+								 color="0xFF9900"
+								 size="20"
+								 style="circle"/>
+		
+		<mx:WipeUp id="myWU" duration="300"/>
+		<mx:WipeDown id="myWD" duration="500"/>
+		<mx:WipeRight id="myWR" duration="850"/>
+		<esri:GraphicsLayer id="graphicsLayer" />
+		
+		<esri:Map id="map">
+			<esri:infoWindowContent>
+				<s:TextArea id="myTextArea"
+							width="250" height="75"/>
+			</esri:infoWindowContent>
+			
+			<esri:FeatureLayer 
+				id="lecturasLayer"
+				outFields="*"
+				mode="onDemand"	
+				graphicAdd="verElemento(event)"
+				url="https://gisredint.chilquinta.cl/arcgis/rest/services/CECOM/Reparto_view/MapServer/0"
+				>
+			</esri:FeatureLayer>
+			
+		</esri:Map>
+		
+		
+		<esri:SimpleFillSymbol id="mouseOverSymbol" alpha="0.5">
+			<esri:SimpleLineSymbol width="0" color="0xFF0000"/>
+		</esri:SimpleFillSymbol>
+		<esri:SimpleFillSymbol id="defaultsym" alpha="0.2">
+			<esri:SimpleLineSymbol width="1" color="0xEEEEEE"/>
+		</esri:SimpleFillSymbol>
+		
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.as3xls.xls.ExcelFile;
+			import com.as3xls.xls.Sheet;
+			import com.esri.ags.FeatureSet;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.events.GraphicEvent;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
+			import com.esri.ags.layers.FeatureLayer;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.portal.PopUpRenderer;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.ags.tasks.supportClasses.Query;
+			
+			import comun.Planificacion.User;
+			import comun.url.URL;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.events.ToolTipEvent;
+			import mx.messaging.messages.ErrorMessage;
+			import mx.rpc.AsyncResponder;
+			import mx.utils.StringUtil;
+			
+			import widgets.AdminRepartos.utilidad.urls;
+			
+			private var popUpRenderer:PopUpRenderer = new PopUpRenderer();
+			
+			
+			[Bindable] public var idPosteNuevo:String;
+			[Bindable] public var idDirNueva:String;
+			[Bindable] public var rotNuevo:String;
+			[Bindable] public var dirNueva:String;
+			
+			[Bindable] public var coleccionClientes:ArrayCollection = new ArrayCollection;
+			[Bindable] public var coleccionEstados:ArrayCollection = new ArrayCollection;
+			
+			
+			[Bindable] public var fs:FeatureSet = new FeatureSet;
+			[Bindable] public var rotu:int;
+			[Bindable] public var rotuloEncontrado:String;
+			[Bindable] public var direccionCompleta:String;
+			[Bindable] public var nisBuscado:String;
+			[Bindable] public var anexo1:String;
+			[Bindable] public var anexo2:String;
+			[Bindable] public var tipoEdificacion:String;
+			public var myGraphicsLayer:GraphicsLayer =  new GraphicsLayer;
+			
+			private var ColeccionUser:ArrayCollection = new ArrayCollection;
+			private var text1:String;
+			
+			import org.example.components.PanelToolTipReparto;
+			protected var ptt:PanelToolTipReparto = new PanelToolTipReparto();
+			
+			[Bindable] public var coleccionEmpresa:ArrayCollection = new ArrayCollection;
+			
+			//public var lecturasLayer:ArcGISDynamicMapServiceLayer= new ArcGISDynamicMapServiceLayer(widgets.AdminLectores.utilidad.urls.URL_LECTURAS_DYN);
+			
+			protected function basewidget1_initializeHandler(event:FlexEvent):void{
+				ConsultarAcceso();
+				//DataViewRepartos.selectedIndex = 1;
+			}
+			
+			public function openLayer():void{
+				lecturasLayer.name = "Ingreso Reparto";
+				map.addLayer(lecturasLayer);				
+				lecturasLayer.visible = true;	
+			}
+			
+			protected function verElemento(event:GraphicEvent):void
+			{
+				var graphic:Graphic = event.graphic;				
+				graphic.toolTip = " ";
+				graphic.addEventListener(ToolTipEvent.TOOL_TIP_CREATE, stateToolTipCreateHandler, false, 0, true);		
+			}
+			
+			//Crea Tooltip al objeto grafico			
+			protected function stateToolTipCreateHandler(event:ToolTipEvent):void
+			{
+				var graphic:Graphic = event.currentTarget as Graphic;
+				ptt.title = "ID: " + graphic.attributes.OBJECTID;
+				ptt.nis = graphic.attributes.nis;
+				ptt.valor_captura = graphic.attributes.valor_captura;
+				ptt.empresa = graphic.attributes.empresa ;
+				ptt.created_user = graphic.attributes.created_user ;
+				
+				
+				/*ptt.TipoConexion = graphic.attributes.TIPO_CONEXION;
+				ptt.Potencia = graphic.attributes.POTENCIA;
+				ptt.Tipo = graphic.attributes.TIPO;
+				ptt.Propiedad = graphic.attributes.PROPIEDAD;
+				ptt.Medido = graphic.attributes.MEDIDO;
+				*/
+				event.toolTip = ptt;
+			}
+			
+			protected function ConsultarAcceso():void{
+				
+				var queryTaskUserSelected:QueryTask = new QueryTask();
+				queryTaskUserSelected.url = comun.url.URL.URL_ACCESO;
+				queryTaskUserSelected.useAMF = false;
+				var queryEquipoSelected:Query = new Query();
+				queryEquipoSelected.outFields = ["*"];
+				queryEquipoSelected.returnGeometry = true;     
+				queryEquipoSelected.orderByFields = ["usuario"];
+				queryEquipoSelected.where = "usuario = '" + User.Usuario + "' AND MODULO ='INGRESO_CLIENTES' AND widget='ADMINREPARTOS'" ;
+				queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryEquipoSelected.outSpatialReference = map.spatialReference;
+				queryTaskUserSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
+				
+				function onResult(featureSet:FeatureSet, token:Object = null):void{
+					
+					if(featureSet.features.length == 0 ){
+						//Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador de GISRED")
+						//currentState = "bkmInit"; 
+						currentState ="bkmInit";
+						lblwarning.visible = true;
+						lblwarning2.visible = true;
+						pbGisred.visible = true;
+						
+					}
+						//si hay, cuales son los permisos
+					else{   
+						
+						ColeccionUser.addAll(new ArrayCollection(featureSet.attributes));
+						
+						for(var i:int=0;i<=ColeccionUser.length-1;i++){	
+							
+							if(ColeccionUser[i].select_ == 'FALSE'){
+							
+							}else{
+								
+							}
+							
+							if( ColeccionUser[i].update_ == 'FALSE'){
+								//DDLEstadoCliente.enabled = false;
+								//btnCambiarEstadoCliente.enabled = false;
+								
+								
+							}else{
+								//DDLEstadoCliente.enabled = true;
+								//btnCambiarEstadoCliente.enabled = true;
+								
+							}
+							
+						}
+						
+						
+						
+						//txtFilterClientes.addEventListener(Event.CHANGE,filterGridClientes);
+						
+						currentState ="bkmConsulta";
+						
+						//openLayer()
+					}
+				}
+				
+				
+				
+				function onFault(info:Object, token:Object = null):void
+				{   
+					Alert.show("No tiene permisos para accesder a este modulo\n Comuniquese con el administrador");
+					currentState ="bkmInit";
+					lblwarning.visible = true;
+					lblwarning2.visible = true;
+					pbGisred.visible = true;
+					
+				}
+			}
+			
+		
+			
+			
+			
+			protected function wTemplate_initializeHandler(event:FlexEvent):void
+			{
+				coleccionEstados.removeAll();
+				coleccionEstados = new ArrayCollection(				
+					[ {item:"REVISADO"},
+						{item:""}]);
+				
+				
+				//DDLEstadoCliente.dataProvider = coleccionEstados;
+			}
+			
+			
+			import com.esri.ags.utils.GraphicUtil;
+			protected function bkmInit_initializeHandler(event:FlexEvent):void
+			{
+				
+				// TODO Auto-generated method stub
+				var verImageGISRED:Image = new Image;
+				
+				//imagen configuraciones
+				verImageGISRED.scaleContent = true;
+				verImageGISRED.maintainAspectRatio =false;
+				verImageGISRED.percentWidth = 850;
+				verImageGISRED.percentHeight = 500;
+				verImageGISRED.source =  "assets/images/128x128.png";
+				pbGisred.addChild(verImageGISRED);
+				
+				
+			}
+			
+			protected function wTemplate_closedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				// TODO Auto-generated method stub
+				map.removeLayer(lecturasLayer);
+				graphicsLayer.clear();
+			}
+			
+			protected function wTemplate_openHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				//openLayer();
+				coleccionEmpresa.removeAll();
+				coleccionEmpresa = new ArrayCollection(				
+					[ {empresa:"chilquinta"}]);
+				
+				
+				//ddlEmpresa.dataProvider = coleccionEmpresa;
+			}
+			
+			protected function btnBuscarRepartoNISLct_clickHandler(event:MouseEvent):void
+			{
+				graphicsLayer.clear();
+				coleccionClientes.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask(urls.URL_BUSQUEDA_CLIENTES);
+				var query:Query = new Query();
+				query.where = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis = " + txtNIS.text; 
+				query.outFields = ['*'];
+				query.returnGeometry = true;
+				query.outSpatialReference = map.spatialReference;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					var k:int;
+					var color:Number = 0x15a61f;
+					var colorFirst:Number = 0x5645ff;
+					
+					for(k=0;k<featureSet.features.length;k++)
+					{	
+						
+						var mp:MapPoint=featureSet.features[k].geometry as MapPoint;  
+						var myGraphic:Graphic; 
+							myGraphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol("circle",15,color), featureSet.features[k].attributes);  
+							myGraphic.toolTip = "NIS: " + String(featureSet.features[k].attributes["ARCGIS.dbo.CLIENTES_DATA_DATOS_006.nis"]); 
+							graphicsLayer.add(myGraphic);
+							graphicsLayer.moveToTop(myGraphic);
+							map.addLayer(graphicsLayer);
+							
+					}
+					
+					ubicacionReparto(txtNIS.text)
+					ubicacionLectura(txtNIS.text)
+					
+					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","REPARTO NIS LECTURA");
+				}
+				
+			}
+			
+			public function ubicacionReparto(nis:String):void{
+				
+				coleccionClientes.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask(urls.URL_REPARTOS_NIS);
+				var query:Query = new Query();
+				query.where = "nis = " + txtNIS.text + "and empresa= 'chilquinta'"; 
+				query.outFields = ['*'];
+				query.returnGeometry = true;
+				query.outSpatialReference = map.spatialReference;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					var k:int;
+					var color:Number = 0x5645ff;
+					
+					
+					for(k=0;k<featureSet.features.length;k++)
+					{	
+						
+						var mp:MapPoint=featureSet.features[k].geometry as MapPoint;  
+						var myGraphic:Graphic; 
+						myGraphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol("circle",15,color), featureSet.features[k].attributes);  
+						myGraphic.toolTip = "Reparto NIS: " + String(featureSet.features[k].attributes["nis"]); 
+						graphicsLayer.add(myGraphic);
+						graphicsLayer.moveToTop(myGraphic);
+						map.addLayer(graphicsLayer);
+						
+						
+						
+						
+					}
+					
+					map.extent = GraphicUtil.getGraphicsExtent(featureSet.features)
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","REPARTO NIS");
+				}
+			}
+			
+			public function ubicacionLectura(nis:String):void{
+			
+				coleccionClientes.removeAll();
+				// TODO Auto-generated method stub
+				var queryTask:QueryTask = new QueryTask(urls.URL_LECTURAS_VERIFY);
+				var query:Query = new Query();
+				query.where = "nis = " + txtNIS.text ; 
+				query.outFields = ['*'];
+				query.returnGeometry = true;
+				query.outSpatialReference = map.spatialReference;
+				queryTask.execute(query, new AsyncResponder(onResultQuery, onFaultQuery));
+				
+				
+				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
+				{
+					
+					var k:int;
+					var color:Number = 0xf55dfb;
+					
+					
+					for(k=0;k<featureSet.features.length;k++)
+					{	
+						
+						var mp:MapPoint=featureSet.features[k].geometry as MapPoint;  
+						var myGraphic:Graphic; 
+						myGraphic = new Graphic(new MapPoint(mp.x,mp.y), new SimpleMarkerSymbol("circle",15,color), featureSet.features[k].attributes);  
+						myGraphic.toolTip = "Lectura NIS: " + String(featureSet.features[k].attributes["nis"]); 
+						graphicsLayer.add(myGraphic);
+						graphicsLayer.moveToTop(myGraphic);
+						map.addLayer(graphicsLayer);
+						
+						//map.zoomTo(featureSet.features[k].geometry);
+						
+						
+					}
+					
+					
+					
+					
+				}
+				function onFaultQuery(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta","LECTURA NIS");
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<viewer:WidgetTemplate id="wTemplate"                      
+						   width="550" height="190"
+						   visible="true" initialize="wTemplate_initializeHandler(event)" closed="wTemplate_closedHandler(event)" open="wTemplate_openHandler(event)">
+		
+		<s:Group id="bkmInit" width="100%" height="100%" initialize="bkmInit_initializeHandler(event)"
+				 visible="false" visible.bkmInit="true">	
+			<s:VGroup horizontalAlign="center" height="100%" width="100%" verticalAlign="middle">
+				<mx:Canvas width="200" height="200" id="pbGisred" color="0x000000" horizontalScrollPolicy="off"
+						   verticalScrollPolicy="off" visible="false"/>                                           
+				<s:Label id="lblwarning" text="No tiene permisos para acceder a este módulo." 
+						 fontSize="16" visible="false" paddingTop="10"/>
+				<s:Label id="lblwarning2" text="Comuniquese con el administrador de GISRED" 
+						 fontSize="16" visible="false" paddingTop="10"/>
+			</s:VGroup>
+		</s:Group> 
+		
+		<s:Group id="bkmConsulta"
+				 width="100%" height="100%"
+				 visible="false"
+				 visible.bkmConsulta="true">
+			
+			
+			
+			<mx:Canvas id="ListadoClientes" label="Lista Lecturas" width="100%" height="100%">
+				<s:VGroup width="100%" top="5" bottom="5" height="80%">
+					<mx:Label id="Lblclie" text="Búsqueda de Reparto-NIS-Lectura" fontSize="18"/>
+					
+					<s:HGroup width="100%">
+						<s:HGroup horizontalAlign="left" width="100%">
+						
+							<mx:Label text="NIS: "></mx:Label>
+							<mx:TextInput id="txtNIS" width="100%" fontSize="14" fontWeight="bold"  />
+							<s:Button id="btnBuscarRepartoNISLct" label="Consultar" click="btnBuscarRepartoNISLct_clickHandler(event)"/> 
+						</s:HGroup>
+						
+					</s:HGroup>
+					<mx:HRule width="100%">
+						
+					</mx:HRule>
+					<s:HGroup width="100%" verticalAlign="middle">
+						
+							<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/greenCircle.png"  /><mx:Label text="Ubicación NIS "></mx:Label>
+						
+						<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/blueCircle.png"  /><mx:Label text="Ubicación Reparto "></mx:Label>
+						<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/pinkCircle.png"  /><mx:Label text="Ubicación Lectura "></mx:Label>
+					</s:HGroup>	
+				
+					
+					
+				</s:VGroup>
+				
+				
+			</mx:Canvas>
+			
+			
+			
+		</s:Group>
+		
+		
+		
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

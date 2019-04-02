@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Used by MapTips.mxml -->
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 height="150"
+		 alpha="0.8"
+		 backgroundColor="0x000000"
+		 borderAlpha="0.5"
+		 borderColor="0x000000"
+		 cornerRadius="10"
+		 borderVisible="true"
+		 
+		 
+		 implements="mx.core.IToolTip"
+		 mouseChildren="false"
+		 mouseEnabled="false">
+	
+	<fx:Script>
+		<![CDATA[
+			// required by IToolTip
+			public function get text():String
+			{
+				return null;
+			}
+			
+			public function set text(value:String):void
+			{
+				
+			}
+			
+			[Bindable]public var nis:String;
+			
+			[Bindable]public var valor_captura:String;
+			[Bindable]public var empresa :String;
+			[Bindable]public var created_user:String;
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	
+	</fx:Declarations>
+	
+	<s:Group left="10" right="10" top="10" bottom="10">
+		<s:Label fontSize="12"
+				 horizontalCenter="0"
+				 text="NIS:  {(nis)}&#13; Valor Captura:  {(valor_captura)}&#13; Empresa: {(empresa)}&#13; Creador: {(created_user)}&#13;"
+				 verticalCenter="0"
+				 fontStyle="normal" />
+		
+	</s:Group>
+	
+</s:Panel>

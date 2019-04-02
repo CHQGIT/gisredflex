@@ -38,8 +38,12 @@
      		<layer type="dynamic"
      			label="Vialidad"
      			imageformat="png32"
-     			url="http://wservice-sit.mop.gov.cl/ArcGIS/rest/services/DV/red_caminera_de_chile/MapServer"
+     			url="http://wservice-sit.mop.gov.cl/ArcGIS/rest/services/DV/Red_Vial_Chile/MapServer"
      			visible="false">
+     			<sublayer id="0" label="Unidad vecinal" popupconfig="popups/PopUp_Red_MOP.xml"/>
+     			<sublayer id="1" label="Unidad vecinal" popupconfig="popups/PopUp_Red_MOP.xml"/>
+     			<sublayer id="2" label="Unidad vecinal" popupconfig="popups/PopUp_Red_MOP.xml"/>
+     			<sublayer id="3" label="Unidad vecinal" popupconfig="popups/PopUp_Red_MOP.xml"/>
      		</layer>  
      
         	<layer type="dynamic"

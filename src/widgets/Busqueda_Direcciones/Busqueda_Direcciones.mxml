@@ -21,15 +21,35 @@
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			import mx.rpc.AsyncResponder;
+			
+			import spark.events.IndexChangeEvent;
 			[Bindable]
 			private var coleccion:ArrayCollection = new ArrayCollection;
 			public var ListComuna:ArrayList = new ArrayList;
 			[Bindable] private var g:Graphic;
 			public var acPolyline:ArrayCollection = new ArrayCollection;
 			
+			[Bindable] public var coleccionEstados:ArrayCollection = new ArrayCollection;
+			
+			
 			protected function basewidget1_initializeHandler(event:FlexEvent):void
 			{
+				cargarComboComuna();
+				//15-03-2019: Agregado buscar por ID Direccion
+				coleccionEstados.removeAll();
+				coleccionEstados = new ArrayCollection(				
+					[ {item:"ID"},
+						{item:"NOMBRE"}]);
 				
+				
+				cbEleccionModo.dataProvider = coleccionEstados;
+				
+				
+				
+				
+			}
+			
+			public function cargarComboComuna():void{
 				var queryTask:QueryTask = new QueryTask();
 				queryTask.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/MapaBase/MapServer/4";
 				queryTask.useAMF = false;
@@ -50,7 +70,7 @@
 						}
 						else
 						{													
-						ListComuna.addItem(myGraphic.attributes['nombre']);						
+							ListComuna.addItem(myGraphic.attributes['nombre']);						
 						}
 						CboComuna.dataProvider=ListComuna;
 					}
@@ -58,8 +78,7 @@
 				function onFault(info:Object, token:Object = null):void
 				{
 					Alert.show("no se puede cargar tipo propiedad "+ info.toString());
-				}	
-				
+				}		
 			}
 			
 			protected function BtnBuscar_clickHandler(event:MouseEvent):void
@@ -67,35 +86,46 @@
 				graphicsLayer.clear();
 				coleccion.removeAll()
 				// TODO Auto-generated method stub
-				if(TxtNomCalle.text =="")
-				{
-					Alert.show("Ingrese el nombre de la calle","Busqueda de Direcciones");
-				}
-				
 					
-				if (CboComuna.selectedIndex==-1)
-				{
-					Alert.show("Seleccione una comuna","Busqueda de Direcciones");						
-				}
-				else
-				{
-					if(TxtNum.text == "")
+				//Busqueda por nombre
+				if(cbEleccionModo.selectedItem.item == "NOMBRE"){
+					if(TxtNomCalle.text =="")
 					{
+						Alert.show("Ingrese el nombre de la calle","Busqueda de Direcciones");
+					}
 					
-						BusquedaNomCalle();
 					
+					if (CboComuna.selectedIndex==-1)
+					{
+						Alert.show("Seleccione una comuna","Busqueda de Direcciones");						
 					}
 					else
 					{
-						BusquedaExacta();
+						if(TxtNum.text == ""){
+							
+							BusquedaNomCalle();
+						}
+						else{
+						
+							BusquedaExacta();
+						}
 					}
+					
 				}
+				//busqueda por id
+				
+				else{
+					
+					BusquedaPorID();
+				}
+				
 				
 				
 			}
 			
 			public function BusquedaNomCalle():void
 			{
+				
 				//graphicsLayer= null
 				var queryTaskNombreCalle:QueryTask = new QueryTask();
 				queryTaskNombreCalle.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Cartografia/DMPS/MapServer/0/query";
@@ -103,9 +133,9 @@
 				var queryNombreCalleSelected:Query = new Query();
 				queryNombreCalleSelected.outFields = ["*"];
 				queryNombreCalleSelected.returnGeometry = true;
-			
+				
 				queryNombreCalleSelected.where="upper(nombre_calle) LIKE upper('%" + TxtNomCalle.text +"%') AND COMUNA = '" + CboComuna.selectedItem + "'";
-								
+				
 				queryNombreCalleSelected.spatialRelationship ="esriSpatialRelIntersects";
 				queryNombreCalleSelected.outSpatialReference = map.spatialReference;
 				queryTaskNombreCalle.execute(queryNombreCalleSelected, new AsyncResponder(onResult, onFault));
@@ -129,11 +159,11 @@
 								map.level = 16;	
 								map.addLayer(graphicsLayer);
 								
-						//		Alert.show("PASE");
+								//		Alert.show("PASE");
 								
-							//coleccion.addAll(new ArrayCollection(featureSet.attributes));
-							//DataDirecciones.dataProvider = coleccion;
-							myViewStack.selectedIndex = 1;
+								//coleccion.addAll(new ArrayCollection(featureSet.attributes));
+								//DataDirecciones.dataProvider = coleccion;
+								myViewStack.selectedIndex = 1;
 							}
 							coleccion.addAll(new ArrayCollection(featureSet.attributes));
 							
@@ -191,6 +221,7 @@
 									
 									coleccion.addAll(new ArrayCollection(featureSet.attributes));
 									//DataDirecciones.dataProvider = coleccion;
+									myViewStack.selectedIndex = 1;
 									
 								}
 								
@@ -206,7 +237,64 @@
 					}
 				
 			}
+			
+			public function BusquedaPorID():void
+			{
 				
+				//graphicsLayer= null
+				var queryTaskNombreCalle:QueryTask = new QueryTask();
+				queryTaskNombreCalle.url = "https://gisredint.chilquinta.cl/arcgis/rest/services/Cartografia/DMPS/MapServer/0/query";
+				queryTaskNombreCalle.useAMF = false;
+				var queryNombreCalleSelected:Query = new Query();
+				queryNombreCalleSelected.outFields = ["*"];
+				queryNombreCalleSelected.returnGeometry = true;
+				
+				queryNombreCalleSelected.where="id_direccion=" + TxtNomCalle.text ;
+				
+				queryNombreCalleSelected.spatialRelationship ="esriSpatialRelIntersects";
+				queryNombreCalleSelected.outSpatialReference = map.spatialReference;
+				queryTaskNombreCalle.execute(queryNombreCalleSelected, new AsyncResponder(onResult, onFault));
+				
+				var arrPoints:Array = new Array;
+				function onResult(featureSet:FeatureSet, token:Object = null):void
+				{
+					if(featureSet.features.length == 0 ){
+						Alert.show("Direccion no encontrada","Busqueda de Direcciones");
+					}
+					else{			
+						
+						try{
+							for each (var myGraphic:Graphic in featureSet.features)
+							{
+								
+								
+								myGraphic.symbol=new SimpleMarkerSymbol("diamond",15,0x0099FF)
+								graphicsLayer.add(myGraphic);
+								map.zoomTo(featureSet.features[0].geometry);				
+								map.level = 16;	
+								map.addLayer(graphicsLayer);
+								
+								//		Alert.show("PASE");
+								
+								coleccion.addAll(new ArrayCollection(featureSet.attributes));
+								//DataDirecciones.dataProvider = coleccion;
+								myViewStack.selectedIndex = 1;
+							}
+							
+						}catch(err:Error){
+							Alert.show("Error al graficar","Busqueda de Direcciones");
+						}
+						
+					}
+				}
+				function onFault(info:Object, token:Object = null):void
+				{   
+					Alert.show("Error en consulta por id","Busqueda de Direcciones");
+				}
+				
+			}
+			
+			
 			
 			protected function custInfo_tabEnabledChangeHandler(event:Event):void
 			{
@@ -279,7 +367,41 @@
 				{   
 					Alert.show("Direccion no encontrada");
 				}
-			}		
+			}	
+			
+			
+			
+			protected function cbEleccionModo_changeHandler(event:IndexChangeEvent):void
+			{
+				TxtNomCalle.text = "";
+				TxtNum.text = "";
+				// TODO Auto-generated method stub
+				if(cbEleccionModo.selectedItem.item=="NOMBRE"){
+					lblIngrese.text = "Ingrese nombre de calle"
+					lblNumMunicipal.visible = true;
+					TxtNum.visible = true;
+					lblSeleccioneComuna.visible=true;
+					CboComuna.visible = true;
+					TxtNum.visible = true;
+					cargarComboComuna();
+					TxtNomCalle.restrict = "a-z A-Z^ñÑ";
+					
+					
+				}else{
+					
+					lblIngrese.text = "Ingrese ID Direccion";
+					lblNumMunicipal.visible = false;
+					TxtNum.visible = true;
+					lblSeleccioneComuna.visible=false;
+					CboComuna.visible = false;
+					TxtNum.visible = false;
+					TxtNomCalle.restrict = "0-9";
+					
+					cargarComboComuna();
+				
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -290,7 +412,7 @@
 		<esri:GraphicsLayer id="graphicsLayer" />
 	</fx:Declarations>
 
-	<viewer:WidgetTemplate id="wTemplate" width="440" height="320" closed="wTemplate_closedHandler(event)">
+	<viewer:WidgetTemplate id="wTemplate" width="480" height="350" closed="wTemplate_closedHandler(event)">
 		<s:VGroup width="100%" height="100%">
 			<mx:LinkBar dataProvider="{myViewStack}" 
 						borderStyle="solid"
@@ -306,12 +428,16 @@
 						   width="100%"
 						   height="100%">
 					<s:VGroup x="10" y="10" width="100%" height="100%" gap="5" paddingTop="20">
-						<s:Label width="100%" height="16" text="Ingrese nombre de calle"/>
-						<s:TextInput id="TxtNomCalle" width="100%" restrict="a-z A-Z^ñÑ" typographicCase="uppercase"/>
-						<s:Label text="Ingrese numero municipal"/>
-						<s:TextInput id="TxtNum" width="100%" restrict="0-9"/>
-						<s:Label text="Seleccione Comuna"/>						
-						<s:DropDownList id="CboComuna" width="40%"></s:DropDownList>
+						
+						<s:Label width="100%" height="16" text="Elija modo de búsqueda: "/>
+						<s:DropDownList id="cbEleccionModo" width="40%" change="cbEleccionModo_changeHandler(event)" labelField="item" selectedIndex="1" dataProvider="{coleccionEstados}" />
+						
+						<s:Label id="lblIngrese" width="100%" height="16" text="Ingrese Nombre de Calle"/>
+						<s:TextInput id="TxtNomCalle" width="100%" restrict="a-z A-Z^ñÑ" typographicCase="uppercase" enabled="true" />
+						<s:Label id="lblNumMunicipal" text="Ingrese numero municipal"/>
+						<s:TextInput id="TxtNum" width="100%" restrict="0-9" enabled="true"/>
+						<s:Label id="lblSeleccioneComuna" text="Seleccione Comuna"/>						
+						<s:DropDownList id="CboComuna" width="40%" ></s:DropDownList>
 						<s:HGroup width="100%" height="33" horizontalAlign="center" verticalAlign="middle">
 							<s:Button id="BtnBuscar" label="Buscar" toolTip="Busca direccion" click="BtnBuscar_clickHandler(event)"/>
 							<s:Button id="BtnLimpiar" label="Limpiar" toolTip="Limpia textos" click="BtnLimpiar_clickHandler(event)"/>
