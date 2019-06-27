@@ -16,7 +16,7 @@ package widgets.IngresoDenuncios.utilidad
 	
 	import widgets.IngresoDenuncios.utilidad.cargarCombos;
 	
-
+	
 	public class cliente
 	{
 		public static var nombre_direccionCliente:String;
@@ -49,7 +49,7 @@ package widgets.IngresoDenuncios.utilidad
 			id_poste:String,
 			id_direccion:String,
 			comentario:String,
-			geoCliente:MapPoint):void {
+			geoCliente:MapPoint): void {
 			
 			
 			var adds:Array=new Array;
@@ -69,8 +69,8 @@ package widgets.IngresoDenuncios.utilidad
 			nuevaPoligono["y"]= geoCliente.y;
 			
 			/*Alert.show("nis:" + nis + " med " +medidor + " mar-mo " + marca_modelo + " dir " + direccion + " tipo_denuncio" +
-				tipo_denuncio + " comuna " +  comuna + " empresa " + empresa + " id_post " + id_poste + " idDir: " + 
-				id_direccion + " comentario: "+ comentario + " " + geoCliente.x);
+			tipo_denuncio + " comuna " +  comuna + " empresa " + empresa + " id_post " + id_poste + " idDir: " + 
+			id_direccion + " comentario: "+ comentario + " " + geoCliente.x);
 			*/
 			
 			//se agrega el punto del cliente con sus datos.
@@ -78,11 +78,10 @@ package widgets.IngresoDenuncios.utilidad
 			adds[0]=graficoEditadoActual; 
 			
 			myCustomer.applyEdits(adds,null,null, false,new AsyncResponder(onResult, onFault));
-			function onResult():void
+			function onResult(result:FeatureEditResults, token:Object = null):void
 			{
-				Alert.show("Denuncio agregado");
-				
-				//agregar lineas 
+				Alert.show("Denuncio agregado, OID: " + result.addResults[0].objectId.toString() );
+				 //agregar lineas 
 				//agregarLineas(nis,idDireccion,rotulo,idPoste);
 			}
 			
@@ -94,69 +93,7 @@ package widgets.IngresoDenuncios.utilidad
 			
 		}//add cliente close
 		
-		/*public function agregarLineaCP(id_poste:int, rotulo:String, nis:int):void{
-			var polyline:Polyline=new Polyline([[geom_ubicacionCliente, geom_ubicacionPoste]],new SpatialReference(102100));
-			
-			var adds:Array=new Array;
-			
-			var nuevaPoligono:* = new Object;
-			nuevaPoligono["ID_POSTE"]=id_poste;				
-			nuevaPoligono["NIS"]= nis;
-			nuevaPoligono["ROTULO"]= rotulo;
-			nuevaPoligono["ID_DIRECCION"]= 0;
-			
-			
-			
-			//se agrega el punto del cliente con sus datos.
-			var graficoEditadoActual:Graphic=new Graphic(polyline,null,nuevaPoligono);
-			adds[0]=graficoEditadoActual; 
-			
-			myLineCP.applyEdits(adds,null,null,false,new AsyncResponder(onResult, onFault));
-			function onResult():void
-			{
-				//Alert.show("Linea CP agregada");
-				
-			}
-			function onFault(info:Object, token:Object = null):void
-			{
-				Alert.show("Error al agregar linea CP "+info.toString());
-			}
-			
-			
-		}
 		
-		public function agregarLineaCD(id_direccion:int, nis:int):void{
-			var polyline:Polyline=new Polyline([[geom_ubicacionCliente, geom_ubicacionDireccion]],new SpatialReference(102100));
-			
-			var adds:Array=new Array;
-			
-			var nuevaPoligono:* = new Object;
-			nuevaPoligono["ID_POSTE"]=0;				
-			nuevaPoligono["NIS"]= nis;
-			nuevaPoligono["ROTULO"]= null;
-			nuevaPoligono["ID_DIRECCION"]= id_direccion;
-			
-			
-			
-			//se agrega el punto del cliente con sus datos.
-			var graficoEditadoActual:Graphic=new Graphic(polyline,null,nuevaPoligono);
-			adds[0]=graficoEditadoActual; 
-			
-			myLineCP.applyEdits(adds,null,null,false,new AsyncResponder(onResult, onFault));
-			function onResult():void
-			{
-				//Alert.show("Linea CD agregada");
-				
-			}
-			function onFault(info:Object, token:Object = null):void
-			{
-				Alert.show("Error al agregar linea CD "+info.toString());
-			}
-			
-			
-		}
-		
-		*/
 		
 	}//class cliente close
 	

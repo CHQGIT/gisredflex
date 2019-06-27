@@ -81,7 +81,7 @@
      		<layer type="dynamic"
      			label="Vialidad"
      			imageformat="png32"
-     			url="http://wservice-sit.mop.gov.cl/ArcGIS/rest/services/DV/red_caminera_de_chile/MapServer"
+     			url="http://wservice-sit.mop.gov.cl/ArcGIS/rest/services/DV/SGM_RED_VIAL/MapServer"
      			visible="false">
      		</layer>  
     

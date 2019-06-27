@@ -244,7 +244,7 @@
 							queryEquipoSelected.returnGeometry = true;
 							queryEquipoSelected.spatialRelationship ="esriSpatialRelIntersects";
 							queryEquipoSelected.outSpatialReference = map.spatialReference;
-							queryEquipoSelected.where = "gerencia='GMO' AND ano_ejecucion = " + txtAnio.text;
+							queryEquipoSelected.where = "gerencia='GMO' AND ano_ejecucion = " + txtAnio.text ;
 							queryTaskCapexSelected.execute(queryEquipoSelected, new AsyncResponder(onResult, onFault));
 							
 							

@@ -51,7 +51,7 @@
      		<layer type="dynamic"
      			label="Vialidad"
      			imageformat="png32"
-     			url="http://wservice-sit.mop.gov.cl/ArcGIS/rest/services/DV/Red_Vial_Chile/MapServer"
+     			url="http://wservice-sit.mop.gov.cl/ArcGIS/rest/services/DV/SGM_RED_VIAL/MapServer"
      			visible="false">
      			<sublayer id="0" label="Unidad vecinal" popupconfig="popups/PopUp_Red_MOP.xml"/>
      			<sublayer id="1" label="Unidad vecinal" popupconfig="popups/PopUp_Red_MOP.xml"/>

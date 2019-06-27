@@ -36,16 +36,16 @@
      		<layer type="dynamic"
      			label="Vialidad"
      			imageformat="png32"
-     			url="http://wservice-sit.mop.gov.cl/ArcGIS/rest/services/DV/red_caminera_de_chile/MapServer"
+     			url="http://wservice-sit.mop.gov.cl/ArcGIS/rest/services/DV/SGM_RED_VIAL/MapServer"
      			visible="false">
      		</layer>
-             <!-- <layer type="dynamic"
+             <layer type="dynamic"
      			label="Nodos"
      			imageformat="png32"
      			url="https://gisred.chilquinta.cl:6443/arcgis/rest/services/Chilquinta_006/Nodos_006/MapServer"
      			visible="true">
      			 <sublayer id="0" label="Postes" popupconfig="popups/PopUp_Poste.xml"/>
-     		</layer> -->
+     		</layer> 
             <layer type="dynamic"     		
      			label="Tramos"
      			imageformat="png32"
@@ -115,5 +115,7 @@
                config="widgets/eLayerList/eLayerListWidget.xml"
                url="widgets/eLayerList/eLayerListWidget.swf" 
                preload="close"/>
+               
+       
     </widgetcontainer>
 </configuration>

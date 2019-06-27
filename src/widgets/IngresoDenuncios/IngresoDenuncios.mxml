@@ -162,7 +162,7 @@
 			{
 				var graphic:Graphic = event.currentTarget as Graphic;
 				ppt.title = "Objectid: " + graphic.attributes.OBJECTID;
-			
+				
 				ppt.creador = graphic.attributes.created_user;
 				
 				var dateFormatStr:String = "dd/MM/yyyy"; 
@@ -197,7 +197,7 @@
 				}  
 			}  
 			
-				protected function CargaDDlObsMedidor():void
+			protected function CargaDDlObsMedidor():void
 			{
 				ArrayObsMedidor = new ArrayCollection(				
 					[
@@ -281,1230 +281,1230 @@
 											}					
 										}
 										
-									//Si no, verificar si es mayor a 60 y mostrar mensaje de alert y simplemente agregar.	
+										//Si no, verificar si es mayor a 60 y mostrar mensaje de alert y simplemente agregar.	
 									}else if (Math.round(res)>60){
 										//Alert.show("La distancia es mayor a 60 metros. No se puede agregar denuncio." + Math.round(res).toString());
 										Alert.show("La distancia es mayor a 60 metros. No se puede agregar denuncio.");
 										//addCustomer();
-									//Si no, no mostrar mensaje de alert y simplemente agregar.	
+										//Si no, no mostrar mensaje de alert y simplemente agregar.	
 									}else{
 										//Alert.show("Sólo no hay direccion , Distancia poste " + Math.round(res).toString());
 										addCustomer();
 									}
+									}
+									
+									if((hayPoste==0)&& (hayDireccion==1)){
+										//Alert.show("Sólo no hay poste");
+										var  x3:Number = mapPointDireccion.x;
+										var  y3:Number = mapPointDireccion.y;
+										var  x1:Number = mapPointCliente.x;
+										var  y1:Number = mapPointCliente.y;
+										
+										//rotulo conexión y medidor (ubicación)
+										var res2:Number = Math.sqrt(Math.pow((x3-x1),2) + Math.pow((y3-y1),2));
+										
+										//Si distancia rot cliente >= 30mt
+										if((Math.round(res2)>=30) && (Math.round(res2)<=60) ){
+											//Alert.show("Sólo no hay direccion, Distancia poste >=30" + Math.round(res).toString());
+											Alert.show("¿El registro a insertar se encuentra entre 30 y 60 metros de su dirección, ¿Seguro desea guardar?", 
+												"Ingreso Denuncios",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler2);
+											
+											function alertClickHandler2(evt:CloseEvent):void 
+											{
+												if (evt.detail == Alert.YES)
+												{	
+													addCustomer();	
+													
+												}else{
+													hayPoste = 0
+													hayDireccion = 0;
+													hayCliente = 0;
+													map.removeLayer(myGraphicsLayer);
+													customer.myCustomer.refresh();
+													limpiarIngresoCliente();
+												}
+											}
+											//Si no, no mostrar mensaje de alert y simplemente agregar.	
+										}else if (Math.round(res2)>60){
+											//Alert.show("La distancia es mayor a 60 metros. No se puede agregar denuncio." + Math.round(res).toString());
+											Alert.show("La distancia es mayor a 60 metros. No se puede agregar denuncio.");
+											//addCustomer();
+											//Si no, no mostrar mensaje de alert y simplemente agregar.	
+										}else{
+											//Alert.show("Sólo no hay poste , Distancia dir OK " + Math.round(res2).toString());
+											addCustomer();	
+										}
+									}
+									
+									if((hayPoste==1) && (hayDireccion==1)){
+										
+										//calcular distancias dir-clie-poste:
+										//variables a usar en formula
+										var x2:Number = mapPointPoste.x;
+										var  y2:Number = mapPointPoste.y;
+										
+										var  x1:Number = mapPointCliente.x;
+										var  y1:Number = mapPointCliente.y;
+										
+										var  x3:Number = mapPointDireccion.x;
+										var  y3:Number = mapPointDireccion.y;
+										
+										//rotulo conexión y medidor (ubicación)
+										var res:Number = Math.sqrt(Math.pow((x2-x1),2) + Math.pow((y2-y1),2));
+										//medidor (ubicación) y direccion
+										var res2:Number = Math.sqrt(Math.pow((x3-x1),2) + Math.pow((y3-y1),2));
+										//asignando valores para ambas distancias
+										
+										//si distancia rotulo cliente mayor 30mt y menor a 60mt
+										if( (Math.round(res)>=30) && (Math.round(res)<=60) ){
+											//Alert.show("Distancia entre 30 y 60 mt en poste"+ "poste: " + Math.round(res).toString() + "dir: " + Math.round(res2).toString());
+											
+											Alert.show("¿El registro a insertar se encuentra entre 30 y 60 de su poste , ¿Seguro desea guardar?", 
+												"Ingreso Denuncios",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler4);
+											
+											function alertClickHandler4(evt:CloseEvent):void 
+											{
+												if (evt.detail == Alert.YES)
+												{	
+													addCustomer();	
+													
+												}else{
+													hayPoste = 0
+													hayDireccion = 0;
+													hayCliente = 0;
+													map.removeLayer(myGraphicsLayer);
+													customer.myCustomer.refresh();
+													limpiarIngresoCliente();
+												}
+											}
+											// distancia direccion cliente entre 30 y 60 mt	
+										}else if((Math.round(res2)>=30) && (Math.round(res2)<=60) ){
+											//Alert.show("Distancia entre 30 y 60 mt en direccion"+ "poste: " + Math.round(res).toString() + "dir: " + Math.round(res2).toString());
+											
+											Alert.show("¿El registro a insertar se encuentra entre 30 y 60 de su dirección , ¿Seguro desea guardar?", 
+												"Ingreso Denuncios",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler5);
+											
+											function alertClickHandler5(evt:CloseEvent):void 
+											{
+												if (evt.detail == Alert.YES)
+												{	
+													addCustomer();	
+													
+												}else{
+													hayPoste = 0
+													hayDireccion = 0;
+													hayCliente = 0;
+													map.removeLayer(myGraphicsLayer);
+													customer.myCustomer.refresh();
+													limpiarIngresoCliente();
+												}
+											}
+											
+											//si distancia rotulo o direccion supera los 60		
+										}else if ((Math.round(res)>60) || (Math.round(res2)>60)){
+											Alert.show("Una de las distancias supera los 60 metros. No se puede agregar denuncio.");
+										}else{
+											//Alert.show(Math.round(res).toString() + " rotulo cliente " + Math.round(res2).toString() + "dir cliente");
+											addCustomer();	
+										}
+										
+									}
+										
+										
+										
+									}
+										
+									}else
+									{                          
+										Alert.show('Por favor complete los campos requeridos.','Revise los campos requeridos.');                                       
+									}
+									
+									
+									break;
+									}
+									/*
+									case "btnAgregarNuevaDireccion":
+									{
+									
+									var errors2:Array = new Array();
+									errors2 = Validator.validateAll(validatorsAgregarDireccion);
+									if (errors2.length == 0)
+									{
+									address.crearNuevaDireccion(
+									String(txtCalle.text),
+									String(txtNumeroDireccion.text),
+									String(txtAnexo1.text),
+									String(txtAnexo2.text),
+									String(ddlTipoEdificacion.selectedItem.descripcion), 
+									graphicNuevaDireccion);
+									
+									
+									//desabilitar boton y foco
+									tbtnNuevaDireccion.label = "On";
+									//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+									
+									map.removeLayer(myGraphicsLayer);
+									direccion.myDireccion.refresh();
+									hayCliente = 0;
+									tbtnNuevaDireccion.selected = false;
+									currentState ="bkmIngresoClientes";
+									wTemplate.width = 500;
+									wTemplate.height = 600;
+									}else
+									{                          
+									Alert.show('Por favor complete los campos requeridos.','Revise los campos requeridos.');                                       
+									}
+									break;
+									}
+									case "btnAgregarNuevoRotulo":
+									{
+									var errors3:Array = new Array();
+									errors3 = Validator.validateAll(validatorsAgregarPoste);
+									if (errors3.length == 0)
+									{
+									pipe.crearNuevoPoste(txtNuevoRotulo.text,ddlTipoPoste.selectedItem.descripcion,ddlTension.selectedItem.descripcion,graphicNuevoPoste);
+									
+									
+									//desabilitar boton y foco
+									tbtnNuevoRotulo.label = "On";
+									tbtnNuevoRotulo.selected = false;
+									//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+									
+									map.removeLayer(myGraphicsLayer);
+									poste.myPoste.refresh();
+									
+									hayCliente = 0;
+									hayDireccion = 0;
+									currentState ="bkmIngresoClientes";
+									wTemplate.width = 500;
+									wTemplate.height = 600;
+									}else
+									{                          
+									Alert.show('Por favor complete los campos requeridos.','Revise los campos requeridos.');                                       
+									}
+									break;
+									}
+									
+									*/
+									
+									case "btnVolverRotulo":
+									{
+										wTemplate.width = 500;
+										wTemplate.height = 600;
+										currentState ="bkmIngresoClientes";
+										//desabilitar boton y focos
+										tbtnNuevaDireccion.label = "On";
+										//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+										tbtnCliente.label = "On";
+										map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+										tbtnRotulo.label = "On";
+										map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+										tbtnDireccion.label = "On";
+										map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+										tbtnNuevoRotulo.label = "On";
+										//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+										break;
+									}
+									case "btnVolverDireccion":
+									{
+										hayCliente = 0;
+										wTemplate.width = 500;
+										wTemplate.height = 600;
+										currentState ="bkmIngresoClientes";
+										//desabilitar boton y focos
+										tbtnNuevaDireccion.label = "On";
+										//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+										tbtnCliente.label = "On";
+										map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+										tbtnRotulo.label = "On";
+										map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+										tbtnDireccion.label = "On";
+										map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+										tbtnNuevoRotulo.label = "On";
+										//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+										
+										break;
+									}
+									
+									
+									default:
+									{
+										break;
+									}
+									}
+										
 								}
 								
-								if((hayPoste==0)&& (hayDireccion==1)){
-									//Alert.show("Sólo no hay poste");
-									var  x3:Number = mapPointDireccion.x;
-									var  y3:Number = mapPointDireccion.y;
-									var  x1:Number = mapPointCliente.x;
-									var  y1:Number = mapPointCliente.y;
+								/*	//graba cliente en servicio
+								public function validaAddCliente():int {
+								var validacion:int = 0;
+								
+								
+								return validacion;
+								}
+								*/	
+								//carga todos los combos 
+								
+								public function addCustomer():void{
 									
-									//rotulo conexión y medidor (ubicación)
-									var res2:Number = Math.sqrt(Math.pow((x3-x1),2) + Math.pow((y3-y1),2));
-									
-									//Si distancia rot cliente >= 30mt
-									if((Math.round(res2)>=30) && (Math.round(res2)<=60) ){
-										//Alert.show("Sólo no hay direccion, Distancia poste >=30" + Math.round(res).toString());
-										Alert.show("¿El registro a insertar se encuentra entre 30 y 60 metros de su dirección, ¿Seguro desea guardar?", 
-											"Ingreso Denuncios",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler2);
-										
-										function alertClickHandler2(evt:CloseEvent):void 
-										{
-											if (evt.detail == Alert.YES)
-											{	
-												addCustomer();	
-												
-											}else{
-												hayPoste = 0
-												hayDireccion = 0;
-												hayCliente = 0;
-												map.removeLayer(myGraphicsLayer);
-												customer.myCustomer.refresh();
-												limpiarIngresoCliente();
-											}
+									try
+									{
+										//si se agrega el cliente, hacer las dos lineas
+										var dir:String = '0';
+										if(lblIDDireccion.text==""){
+											dir = '0';
+										} else{
+											dir = lblIDDireccion.text;
 										}
-										//Si no, no mostrar mensaje de alert y simplemente agregar.	
-									}else if (Math.round(res2)>60){
-										//Alert.show("La distancia es mayor a 60 metros. No se puede agregar denuncio." + Math.round(res).toString());
-										Alert.show("La distancia es mayor a 60 metros. No se puede agregar denuncio.");
-										//addCustomer();
-									//Si no, no mostrar mensaje de alert y simplemente agregar.	
-									}else{
-										//Alert.show("Sólo no hay poste , Distancia dir OK " + Math.round(res2).toString());
-										addCustomer();	
+										
+										customer.addCliente(
+											int(txtNIS.text)>0 ? int(txtNIS.text): 0, //nis
+											int(txtNumeroMedidor.text)>0 ? int(txtNumeroMedidor.text) : 0,  //numero medidor
+											txtMarcaModelo.text=="" ? null : txtMarcaModelo.text , //marca modelo
+											lblDireccion.text=="" ? null : lblDireccion.text , //direccion completa (selected - not selected)
+											ddlObsMedidor.selectedItem.item, //tipo denuncio
+											nombreComuna,
+											"006",
+											lblRotulo.text == "" ? null : lblRotulo.text ,
+											dir,
+											txtComentario.text=="" ? null : txtComentario.text,
+											mapPointCliente)
+										
+										hayPoste = 0
+										hayDireccion = 0;
+										hayCliente = 0;
+										
+										map.removeLayer(myGraphicsLayer);
+										customer.myCustomer.refresh();
+										
+										limpiarIngresoCliente();
+										openLayer();
+										
+										
+									} 
+									catch(error:Error) 
+									{
+										Alert.show("No se pudo ingresar el cliente o la union del cliente. Por favor contáctese con el Administrador de GISRED.");
+									}
+									
+								}
+								
+								public function openLayer():void{
+									lecturasLayer.name = "DENUNCIOS_WEB";
+									map.addLayer(lecturasLayer);				
+									lecturasLayer.visible = true;
+								}
+								
+								protected function bkmIngresoClientes_initializeHandler(event:FlexEvent):void
+								{
+									
+									// TODO Auto-generated method stub
+									//ddlTipoMedidor.dataProvider = cargaCombo.cargaTipoMedidor();
+									//ddlTecnologiaMedidor.dataProvider = cargaCombo.cargaTecnologiaMedidor();
+									//ddlTipoEmpalme1.dataProvider = cargaCombo.cargaTipoEmpalme();
+									
+									
+								}
+								
+								
+								
+								
+								protected function bkmAddPoste_initializeHandler(event:FlexEvent):void
+								{
+									// TODO Auto-generated method stub
+									ddlTipoPoste.dataProvider = cargaCombo.cargaTipoPoste();
+									ddlTension.dataProvider = cargaCombo.cargaTipoTension();
+								}
+								
+								protected function bkmAddDireccion_initializeHandler(event:FlexEvent):void
+								{
+									// TODO Auto-generated method stub
+									ddlTipoEdificacion.dataProvider = cargaCombo.cargaTipoEdificacion();
+									
+								}
+								
+								
+								//TOGGLE BUTTONS
+								
+								
+								protected function tbFunction(event:MouseEvent):void
+								{
+									
+									// TODO Auto-generated method stub
+									switch(event.currentTarget.id)
+									{
+										//1
+										case "tbtnCliente":
+										{
+											
+											if (event.target.selected){		
+												//Apagar los dos anteriores.
+												
+												tbtnDireccion.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+												tbtnNuevaDireccion.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+												tbtnSeleccionarCalle.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+												tbtnRotulo.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+												tbtnNuevoRotulo.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+												
+												
+												tbtnDireccion.selected = false;
+												tbtnNuevaDireccion.selected = false;
+												tbtnSeleccionarCalle.selected = false;
+												tbtnRotulo.selected = false;
+												tbtnNuevoRotulo.selected = false;
+												
+												
+												//elegir ubicacion cliente
+												tbtnCliente.label = "Off";
+												map.addEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+											} else{
+												
+												tbtnCliente.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+											}
+											break;
+										} //2
+										case "tbtnDireccion":
+										{
+											if (event.target.selected){	
+												
+												//Apagar los dos anteriores.
+												tbtnCliente.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+												tbtnRotulo.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+												tbtnNuevoRotulo.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+												tbtnNuevaDireccion.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+												tbtnSeleccionarCalle.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+												
+												tbtnCliente.selected = false;
+												tbtnRotulo.selected = false;
+												tbtnNuevaDireccion.selected = false;
+												tbtnNuevoRotulo.selected = false;
+												tbtnSeleccionarCalle.selected = false;
+												
+												//elegir direccion
+												tbtnDireccion.label = "Off";
+												map.addEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+											} else{
+												
+												tbtnDireccion.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+											}
+											break;
+										}//3
+										case "tbtnRotulo":
+										{
+											if (event.target.selected){	
+												//Apagar los dos anteriores.
+												tbtnCliente.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+												tbtnNuevoRotulo.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+												tbtnDireccion.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+												tbtnNuevaDireccion.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+												tbtnSeleccionarCalle.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+												
+												
+												tbtnCliente.selected = false;
+												tbtnDireccion.selected = false;
+												tbtnNuevaDireccion.selected = false;
+												tbtnNuevoRotulo.selected = false;
+												tbtnSeleccionarCalle.selected = false;
+												
+												//elegir rotulo
+												tbtnRotulo.label = "Off";
+												map.addEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+											} else{
+												
+												tbtnRotulo.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+											}
+											break;
+											
+										}//4
+										case "ddlTipoEmpalme1":
+										{
+											//Apagar todos los  anteriores.
+											tbtnCliente.label = "On";
+											map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+											tbtnRotulo.label = "On";
+											map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+											tbtnDireccion.label = "On";
+											map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+											tbtnSeleccionarCalle.label = "On";
+											map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+											tbtnNuevaDireccion.label = "On";
+											//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+											tbtnNuevoRotulo.label = "On";
+											//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+											
+											tbtnCliente.selected = false;
+											tbtnRotulo.selected = false;
+											tbtnDireccion.selected = false;
+											tbtnNuevaDireccion.selected = false;
+											tbtnNuevoRotulo.selected = false;
+											tbtnSeleccionarCalle.selected = false;
+											break;
+										}//5
+											
+											/*case "tbtnNuevaDireccion":
+											{
+											myGraphicsLayer.clear();
+											if (event.target.selected){	
+											
+											//apagar los demas botones.
+											tbtnCliente.label = "On";
+											map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+											tbtnRotulo.label = "On";
+											map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+											tbtnDireccion.label = "On";
+											map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+											tbtnNuevoRotulo.label = "On";
+											//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+											tbtnSeleccionarCalle.label = "On";
+											map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+											
+											
+											tbtnCliente.selected = false;
+											tbtnRotulo.selected = false;
+											tbtnDireccion.selected = false;
+											tbtnNuevoRotulo.selected = false;
+											tbtnSeleccionarCalle.selected = false;
+											
+											tbtnNuevaDireccion.label = "Off";
+											address.setSMS(sms);
+											//map.addEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+											} else{
+											
+											tbtnNuevaDireccion.label = "On";
+											//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+											}
+											break;
+											}
+											*/
+											//6
+										case "tbtnNuevoRotulo":
+										{
+											
+											if (event.target.selected){	
+												
+												//apagar los demas botones.
+												tbtnCliente.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+												tbtnRotulo.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+												tbtnDireccion.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+												tbtnNuevaDireccion.label = "On";
+												//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+												tbtnSeleccionarCalle.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+												
+												
+												tbtnCliente.selected = false;
+												tbtnRotulo.selected = false;
+												tbtnDireccion.selected = false;
+												tbtnNuevaDireccion.selected = false;
+												tbtnSeleccionarCalle.selected = false;
+												
+												tbtnNuevoRotulo.label = "Off";
+												//map.addEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+											} else{
+												
+												tbtnNuevoRotulo.label = "On";
+												//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+											}
+											break;
+										}//7
+											
+										case "tbtnSeleccionarCalle":
+										{
+											
+											if (event.target.selected){	
+												//apagar los demas botones.
+												tbtnCliente.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+												tbtnRotulo.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+												tbtnDireccion.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+												tbtnNuevaDireccion.label = "On";
+												//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+												tbtnNuevoRotulo.label = "On";
+												//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+												
+												tbtnCliente.selected = false;
+												tbtnRotulo.selected = false;
+												tbtnDireccion.selected = false;
+												tbtnNuevaDireccion.selected = false;
+												tbtnNuevoRotulo.selected = false;
+												
+												
+												
+												tbtnSeleccionarCalle.label = "Off";
+												map.addEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+												
+											} else{
+												
+												tbtnSeleccionarCalle.label = "On";
+												map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+											}
+											break;
+										}//8
+										case "txtNumeroDireccion":
+										{
+											//Apagar todos los  anteriores.
+											tbtnCliente.label = "On";
+											map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
+											tbtnRotulo.label = "On";
+											map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
+											tbtnDireccion.label = "On";
+											map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
+											tbtnSeleccionarCalle.label = "On";
+											map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+											tbtnNuevaDireccion.label = "On";
+											//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
+											tbtnNuevoRotulo.label = "On";
+											//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
+											
+											tbtnCliente.selected = false;
+											tbtnRotulo.selected = false;
+											tbtnDireccion.selected = false;
+											tbtnNuevaDireccion.selected = false;
+											tbtnNuevoRotulo.selected = false;
+											tbtnSeleccionarCalle.selected = false;
+											break;
+										}
+											
+											
+										default:
+										{
+											break;
+										}
 									}
 								}
 								
-								if((hayPoste==1) && (hayDireccion==1)){
+								public function selectUbicacionNuevaDireccion(event:MapMouseEvent):void{
+									map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
+									myGraphicsLayer.remove(graphicNuevaDireccion);
+									direccion.geom_ubicacionNuevaDireccion = event.mapPoint;
+									graphicNuevaDireccion = new Graphic (event.mapPoint,sms);
+									myGraphicsLayer.add(graphicNuevaDireccion);
+									map.addLayer(myGraphicsLayer);
 									
-									//calcular distancias dir-clie-poste:
-									//variables a usar en formula
-									var x2:Number = mapPointPoste.x;
-									var  y2:Number = mapPointPoste.y;
+								}
+								
+								public function selectUbicacionNuevoPoste(event:MapMouseEvent):void{
+									myGraphicsLayer.clear();
+									map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
+									myGraphicsLayer.remove(graphicNuevoPoste);
+									poste.geom_ubicacionNuevoPoste = event.mapPoint;
+									graphicNuevoPoste = new Graphic (event.mapPoint,sms);
+									myGraphicsLayer.add(graphicNuevoPoste);
+									map.addLayer(myGraphicsLayer);
 									
-									var  x1:Number = mapPointCliente.x;
-									var  y1:Number = mapPointCliente.y;
+								}
+								
+								public function selectCalle(event:MapMouseEvent):void{
+									map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
+									//guarda la calle seleccionada para la nueva dirección
 									
-									var  x3:Number = mapPointDireccion.x;
-									var  y3:Number = mapPointDireccion.y;
+									//busqueda espacial
+									var query:Query = new Query();
+									query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+									var rectangulo:Polygon=new Polygon;
+									rectangulo.addRing(crearRectangulo(event.mapPoint,1));
+									query.geometry = rectangulo;
+									var parametros:ArrayList=new ArrayList;
+									parametros.addItem("id_segmento");
+									parametros.addItem("nombre");
 									
-									//rotulo conexión y medidor (ubicación)
-									var res:Number = Math.sqrt(Math.pow((x2-x1),2) + Math.pow((y2-y1),2));
-									//medidor (ubicación) y direccion
-									var res2:Number = Math.sqrt(Math.pow((x3-x1),2) + Math.pow((y3-y1),2));
-									//asignando valores para ambas distancias
+									query.outFields=parametros.toArray();			
+									query.returnGeometry = true;
+									query.where ="1=1"; 
 									
-									//si distancia rotulo cliente mayor 30mt y menor a 60mt
-									if( (Math.round(res)>=30) && (Math.round(res)<=60) ){
-										//Alert.show("Distancia entre 30 y 60 mt en poste"+ "poste: " + Math.round(res).toString() + "dir: " + Math.round(res2).toString());
+									var queryTask:QueryTask =  new QueryTask;
+									queryTask.url = urls.URL_CALLES;
+									queryTask.token = cargarCombos.token as String;
+									queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+									
+									function onResult(featureSet:FeatureSet, token:Object = null):void
+									{
 										
-										Alert.show("¿El registro a insertar se encuentra entre 30 y 60 de su poste , ¿Seguro desea guardar?", 
-											"Ingreso Denuncios",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler4);
+										CalleEncontrada=new ArrayList;
 										
-										function alertClickHandler4(evt:CloseEvent):void 
+										if (featureSet.features.length > 0)
 										{
-											if (evt.detail == Alert.YES)
-											{	
-												addCustomer();	
+											for each (var encontrado:Graphic in featureSet.features)
+											{							
+												CalleEncontrada.addItem(encontrado);
 												
-											}else{
-												hayPoste = 0
-												hayDireccion = 0;
-												hayCliente = 0;
-												map.removeLayer(myGraphicsLayer);
-												customer.myCustomer.refresh();
-												limpiarIngresoCliente();
 											}
-										}
-									// distancia direccion cliente entre 30 y 60 mt	
-									}else if((Math.round(res2)>=30) && (Math.round(res2)<=60) ){
-										//Alert.show("Distancia entre 30 y 60 mt en direccion"+ "poste: " + Math.round(res).toString() + "dir: " + Math.round(res2).toString());
-										
-										Alert.show("¿El registro a insertar se encuentra entre 30 y 60 de su dirección , ¿Seguro desea guardar?", 
-											"Ingreso Denuncios",mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertClickHandler5);
-										
-										function alertClickHandler5(evt:CloseEvent):void 
-										{
-											if (evt.detail == Alert.YES)
-											{	
-												addCustomer();	
-												
-											}else{
-												hayPoste = 0
-												hayDireccion = 0;
-												hayCliente = 0;
-												map.removeLayer(myGraphicsLayer);
-												customer.myCustomer.refresh();
-												limpiarIngresoCliente();
+										}else{
+											
+											Alert.show("Calle no encontrada. ¿Desea indicar el nombre de la calle? ","Agregar Direccion",mx.controls.Alert.YES | mx.controls.Alert.NO,null,alertClickHandler);
+											
+											function alertClickHandler(evt:CloseEvent):void 
+											{
+												if (evt.detail == Alert.YES)
+												{      
+													txtCalle.enabled = true;
+													tbtnSeleccionarCalle.label = "On";
+													map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
+												}else{
+													txtCalle.enabled = false;
+												}
 											}
+											
 										}
-						
-									//si distancia rotulo o direccion supera los 60		
-									}else if ((Math.round(res)>60) || (Math.round(res2)>60)){
-										Alert.show("Una de las distancias supera los 60 metros. No se puede agregar denuncio.");
-									}else{
-										//Alert.show(Math.round(res).toString() + " rotulo cliente " + Math.round(res2).toString() + "dir cliente");
-										addCustomer();	
+										
+										if (CalleEncontrada.length>0){
+											var calle:String= encontrado.attributes["nombre"];
+											
+											txtCalle.text = calle;
+											direccion.calleSelected = encontrado.attributes["nombre"];
+											
+											direccion.segmentoid =encontrado.attributes["id_segmento"]; 
+											
+											
+											
+										}
+										else{
+											txtCalle.text = "";
+										}
+										
+									}
+									function onFault(info:Object, token:Object = null):void
+									{
+										
+										Alert.show("No ha seleccionado la calle " + info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+									}
+									
+									
+								}
+								
+								
+								public var hayCliente:int = 0;
+								public var hayDireccion:int = 0;
+								public var hayPoste:int = 0;
+								
+								
+								//Agrega ubicacion de cliente 
+								protected function selectUbicacionCliente(event:MapMouseEvent):void{
+									map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
+									myGraphicsLayer.clear();
+									//borra todas las lineas guardadas.
+									
+									
+									//guarda geometria cliente
+									cliente.geom_ubicacionCliente = event.mapPoint;
+									hayCliente = 1;
+									
+									//guarda el punto de la ubicacion del cliente en el mapa
+									graphicCliente = new Graphic(event.mapPoint, sms);
+									mapPointCliente = event.mapPoint;
+									buscarComunaCliente(event.mapPoint);
+									
+									if (hayDireccion){
+										/*myGraphicsLayer.add(graphicCliente);
+										var pLineClienteDireccion:Polyline = new Polyline([[cliente.geom_ubicacionCliente,cliente.geom_ubicacionDireccion]],new SpatialReference(102100));
+										graphicDireccion = new Graphic(pLineClienteDireccion,slsDireccion);
+										myGraphicsLayer.add(graphicDireccion);
+										map.addLayer(myGraphicsLayer);
+										*/
+									}
+									else {
+										myGraphicsLayer.add(graphicCliente);
+										map.addLayer(myGraphicsLayer);
 									}
 									
 								}
+								
+								public function buscarComunaCliente(mapPoint):void{
+									var query:Query = new Query();
+									query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+									
+									var rectangulo:Polygon=new Polygon;
+									
+									rectangulo.addRing(crearRectangulo(mapPoint,5));
+									query.geometry = rectangulo;
+									var parametros:ArrayList=new ArrayList;
+									
+									parametros.addItem("nombre");			
+									query.outFields=parametros.toArray();			
+									query.returnGeometry = true;
+									query.where ="1=1"; 
+									
+									var queryTask:QueryTask =  new QueryTask;
+									queryTask.url = widgets.IngresoDenuncios.utilidad.urls.URL_COMUNAS;
+									
+									queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+									
+									function onResult(featureSet:FeatureSet, token:Object = null):void {
 										
-							
+										CalleEncontrada2=new ArrayList;
+										
+										if (featureSet.features.length > 0)
+										{
+											for each (var encontrado:Graphic in featureSet.features)
+											{							
+												CalleEncontrada2.addItem(encontrado);
+												
+											}
+										}else{
+											Alert.show("Comuna no encontrada");
+											
+										}
+										
+										if (CalleEncontrada2.length>0){
+											
+											nombreComuna = encontrado.attributes["nombre"];
+											
+										}
+										else{
+											nombreComuna = "";
+										}
+										
+									}
+									function onFault(info:Object, token:Object = null):void
+									{					
+										Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+									}
+								}
 								
-							}
-							
-						}else
-						{                          
-							Alert.show('Por favor complete los campos requeridos.','Revise los campos requeridos.');                                       
-						}
-						
-						
-						break;
-					}
-						/*
-					case "btnAgregarNuevaDireccion":
-					{
-						
-						var errors2:Array = new Array();
-						errors2 = Validator.validateAll(validatorsAgregarDireccion);
-						if (errors2.length == 0)
-						{
-							address.crearNuevaDireccion(
-								String(txtCalle.text),
-								String(txtNumeroDireccion.text),
-								String(txtAnexo1.text),
-								String(txtAnexo2.text),
-								String(ddlTipoEdificacion.selectedItem.descripcion), 
-								graphicNuevaDireccion);
-							
-							
-							//desabilitar boton y foco
-							tbtnNuevaDireccion.label = "On";
-							//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
-							
-							map.removeLayer(myGraphicsLayer);
-							direccion.myDireccion.refresh();
-							hayCliente = 0;
-							tbtnNuevaDireccion.selected = false;
-							currentState ="bkmIngresoClientes";
-							wTemplate.width = 500;
-							wTemplate.height = 600;
-						}else
-						{                          
-							Alert.show('Por favor complete los campos requeridos.','Revise los campos requeridos.');                                       
-						}
-						break;
-					}
-					case "btnAgregarNuevoRotulo":
-					{
-						var errors3:Array = new Array();
-						errors3 = Validator.validateAll(validatorsAgregarPoste);
-						if (errors3.length == 0)
-						{
-							pipe.crearNuevoPoste(txtNuevoRotulo.text,ddlTipoPoste.selectedItem.descripcion,ddlTension.selectedItem.descripcion,graphicNuevoPoste);
-							
-							
-							//desabilitar boton y foco
-							tbtnNuevoRotulo.label = "On";
-							tbtnNuevoRotulo.selected = false;
-							//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
-							
-							map.removeLayer(myGraphicsLayer);
-							poste.myPoste.refresh();
-							
-							hayCliente = 0;
-							hayDireccion = 0;
-							currentState ="bkmIngresoClientes";
-							wTemplate.width = 500;
-							wTemplate.height = 600;
-						}else
-						{                          
-							Alert.show('Por favor complete los campos requeridos.','Revise los campos requeridos.');                                       
-						}
-						break;
-					}
-						
-						*/
-					
-					case "btnVolverRotulo":
-					{
-						wTemplate.width = 500;
-						wTemplate.height = 600;
-						currentState ="bkmIngresoClientes";
-						//desabilitar boton y focos
-						tbtnNuevaDireccion.label = "On";
-						//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
-						tbtnCliente.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
-						tbtnRotulo.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
-						tbtnDireccion.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
-						tbtnNuevoRotulo.label = "On";
-						//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
-						break;
-					}
-					case "btnVolverDireccion":
-					{
-						hayCliente = 0;
-						wTemplate.width = 500;
-						wTemplate.height = 600;
-						currentState ="bkmIngresoClientes";
-						//desabilitar boton y focos
-						tbtnNuevaDireccion.label = "On";
-						//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
-						tbtnCliente.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
-						tbtnRotulo.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
-						tbtnDireccion.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
-						tbtnNuevoRotulo.label = "On";
-						//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
-						
-						break;
-					}
-						
-						
-					default:
-					{
-						break;
-					}
-				}
-				
-			}
-			
-			/*	//graba cliente en servicio
-			public function validaAddCliente():int {
-			var validacion:int = 0;
-			
-			
-			return validacion;
-			}
-			*/	
-			//carga todos los combos 
-			
-			public function addCustomer():void{
-				
-				try
-				{
-				//si se agrega el cliente, hacer las dos lineas
-				var dir:String = '0';
-				if(lblIDDireccion.text==""){
-				dir = '0';
-				} else{
-				dir = lblIDDireccion.text;
-				}
-				
-				customer.addCliente(
-				int(txtNIS.text)>0 ? int(txtNIS.text): 0, //nis
-				int(txtNumeroMedidor.text)>0 ? int(txtNumeroMedidor.text) : 0,  //numero medidor
-				txtMarcaModelo.text=="" ? null : txtMarcaModelo.text , //marca modelo
-				lblDireccion.text=="" ? null : lblDireccion.text , //direccion completa (selected - not selected)
-				ddlObsMedidor.selectedItem.item, //tipo denuncio
-				nombreComuna,
-				"006",
-				lblRotulo.text == "" ? null : lblRotulo.text ,
-				dir,
-				txtComentario.text=="" ? null : txtComentario.text,
-				mapPointCliente)
-				
-				hayPoste = 0
-				hayDireccion = 0;
-				hayCliente = 0;
-				
-				map.removeLayer(myGraphicsLayer);
-				customer.myCustomer.refresh();
-				
-					limpiarIngresoCliente();
-					openLayer();
-				
-				
-				} 
-				catch(error:Error) 
-				{
-				Alert.show("No se pudo ingresar el cliente o la union del cliente. Por favor contáctese con el Administrador de GISRED.");
-				}
-				
-			}
-			
-			public function openLayer():void{
-				lecturasLayer.name = "DENUNCIOS_WEB";
-				map.addLayer(lecturasLayer);				
-				lecturasLayer.visible = true;
-			}
-			
-			protected function bkmIngresoClientes_initializeHandler(event:FlexEvent):void
-			{
-				
-				// TODO Auto-generated method stub
-				//ddlTipoMedidor.dataProvider = cargaCombo.cargaTipoMedidor();
-				//ddlTecnologiaMedidor.dataProvider = cargaCombo.cargaTecnologiaMedidor();
-				//ddlTipoEmpalme1.dataProvider = cargaCombo.cargaTipoEmpalme();
-				
-				
-			}
-			
-			
-			
-			
-			protected function bkmAddPoste_initializeHandler(event:FlexEvent):void
-			{
-				// TODO Auto-generated method stub
-				ddlTipoPoste.dataProvider = cargaCombo.cargaTipoPoste();
-				ddlTension.dataProvider = cargaCombo.cargaTipoTension();
-			}
-			
-			protected function bkmAddDireccion_initializeHandler(event:FlexEvent):void
-			{
-				// TODO Auto-generated method stub
-				ddlTipoEdificacion.dataProvider = cargaCombo.cargaTipoEdificacion();
-				
-			}
-			
-			
-			//TOGGLE BUTTONS
-			
-			
-			protected function tbFunction(event:MouseEvent):void
-			{
-				
-				// TODO Auto-generated method stub
-				switch(event.currentTarget.id)
-				{
-					//1
-					case "tbtnCliente":
-					{
-						
-						if (event.target.selected){		
-							//Apagar los dos anteriores.
-							
-							tbtnDireccion.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
-							tbtnNuevaDireccion.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
-							tbtnSeleccionarCalle.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
-							tbtnRotulo.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
-							tbtnNuevoRotulo.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
-							
-							
-							tbtnDireccion.selected = false;
-							tbtnNuevaDireccion.selected = false;
-							tbtnSeleccionarCalle.selected = false;
-							tbtnRotulo.selected = false;
-							tbtnNuevoRotulo.selected = false;
-							
-							
-							//elegir ubicacion cliente
-							tbtnCliente.label = "Off";
-							map.addEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
-						} else{
-							
-							tbtnCliente.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
-						}
-						break;
-					} //2
-					case "tbtnDireccion":
-					{
-						if (event.target.selected){	
-							
-							//Apagar los dos anteriores.
-							tbtnCliente.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
-							tbtnRotulo.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
-							tbtnNuevoRotulo.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
-							tbtnNuevaDireccion.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
-							tbtnSeleccionarCalle.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
-							
-							tbtnCliente.selected = false;
-							tbtnRotulo.selected = false;
-							tbtnNuevaDireccion.selected = false;
-							tbtnNuevoRotulo.selected = false;
-							tbtnSeleccionarCalle.selected = false;
-							
-							//elegir direccion
-							tbtnDireccion.label = "Off";
-							map.addEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
-						} else{
-							
-							tbtnDireccion.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
-						}
-						break;
-					}//3
-					case "tbtnRotulo":
-					{
-						if (event.target.selected){	
-							//Apagar los dos anteriores.
-							tbtnCliente.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
-							tbtnNuevoRotulo.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
-							tbtnDireccion.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
-							tbtnNuevaDireccion.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
-							tbtnSeleccionarCalle.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
-							
-							
-							tbtnCliente.selected = false;
-							tbtnDireccion.selected = false;
-							tbtnNuevaDireccion.selected = false;
-							tbtnNuevoRotulo.selected = false;
-							tbtnSeleccionarCalle.selected = false;
-							
-							//elegir rotulo
-							tbtnRotulo.label = "Off";
-							map.addEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
-						} else{
-							
-							tbtnRotulo.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
-						}
-						break;
-						
-					}//4
-					case "ddlTipoEmpalme1":
-					{
-						//Apagar todos los  anteriores.
-						tbtnCliente.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
-						tbtnRotulo.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
-						tbtnDireccion.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
-						tbtnSeleccionarCalle.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
-						tbtnNuevaDireccion.label = "On";
-						//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
-						tbtnNuevoRotulo.label = "On";
-						//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
-						
-						tbtnCliente.selected = false;
-						tbtnRotulo.selected = false;
-						tbtnDireccion.selected = false;
-						tbtnNuevaDireccion.selected = false;
-						tbtnNuevoRotulo.selected = false;
-						tbtnSeleccionarCalle.selected = false;
-						break;
-					}//5
-						
-					/*case "tbtnNuevaDireccion":
-					{
-						myGraphicsLayer.clear();
-						if (event.target.selected){	
-							
-							//apagar los demas botones.
-							tbtnCliente.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
-							tbtnRotulo.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
-							tbtnDireccion.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
-							tbtnNuevoRotulo.label = "On";
-							//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
-							tbtnSeleccionarCalle.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
-							
-							
-							tbtnCliente.selected = false;
-							tbtnRotulo.selected = false;
-							tbtnDireccion.selected = false;
-							tbtnNuevoRotulo.selected = false;
-							tbtnSeleccionarCalle.selected = false;
-							
-							tbtnNuevaDireccion.label = "Off";
-							address.setSMS(sms);
-							//map.addEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
-						} else{
-							
-							tbtnNuevaDireccion.label = "On";
-							//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
-						}
-						break;
-					}
-						*/
-						//6
-					case "tbtnNuevoRotulo":
-					{
-						
-						if (event.target.selected){	
-							
-							//apagar los demas botones.
-							tbtnCliente.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
-							tbtnRotulo.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
-							tbtnDireccion.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
-							tbtnNuevaDireccion.label = "On";
-							//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
-							tbtnSeleccionarCalle.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
-							
-							
-							tbtnCliente.selected = false;
-							tbtnRotulo.selected = false;
-							tbtnDireccion.selected = false;
-							tbtnNuevaDireccion.selected = false;
-							tbtnSeleccionarCalle.selected = false;
-							
-							tbtnNuevoRotulo.label = "Off";
-							//map.addEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
-						} else{
-							
-							tbtnNuevoRotulo.label = "On";
-							//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
-						}
-						break;
-					}//7
-						
-					case "tbtnSeleccionarCalle":
-					{
-						
-						if (event.target.selected){	
-							//apagar los demas botones.
-							tbtnCliente.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
-							tbtnRotulo.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
-							tbtnDireccion.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
-							tbtnNuevaDireccion.label = "On";
-							//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
-							tbtnNuevoRotulo.label = "On";
-							//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
-							
-							tbtnCliente.selected = false;
-							tbtnRotulo.selected = false;
-							tbtnDireccion.selected = false;
-							tbtnNuevaDireccion.selected = false;
-							tbtnNuevoRotulo.selected = false;
-							
-							
-							
-							tbtnSeleccionarCalle.label = "Off";
-							map.addEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
-							
-						} else{
-							
-							tbtnSeleccionarCalle.label = "On";
-							map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
-						}
-						break;
-					}//8
-					case "txtNumeroDireccion":
-					{
-						//Apagar todos los  anteriores.
-						tbtnCliente.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionCliente);
-						tbtnRotulo.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectRotulo);
-						tbtnDireccion.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectDireccion);
-						tbtnSeleccionarCalle.label = "On";
-						map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
-						tbtnNuevaDireccion.label = "On";
-						//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevaDireccion);
-						tbtnNuevoRotulo.label = "On";
-						//map.removeEventListener(MapMouseEvent.MAP_CLICK,selectUbicacionNuevoPoste);
-						
-						tbtnCliente.selected = false;
-						tbtnRotulo.selected = false;
-						tbtnDireccion.selected = false;
-						tbtnNuevaDireccion.selected = false;
-						tbtnNuevoRotulo.selected = false;
-						tbtnSeleccionarCalle.selected = false;
-						break;
-					}
-						
-						
-					default:
-					{
-						break;
-					}
-				}
-			}
-			
-			public function selectUbicacionNuevaDireccion(event:MapMouseEvent):void{
-				map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
-				myGraphicsLayer.remove(graphicNuevaDireccion);
-				direccion.geom_ubicacionNuevaDireccion = event.mapPoint;
-				graphicNuevaDireccion = new Graphic (event.mapPoint,sms);
-				myGraphicsLayer.add(graphicNuevaDireccion);
-				map.addLayer(myGraphicsLayer);
-				
-			}
-			
-			public function selectUbicacionNuevoPoste(event:MapMouseEvent):void{
-				myGraphicsLayer.clear();
-				map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
-				myGraphicsLayer.remove(graphicNuevoPoste);
-				poste.geom_ubicacionNuevoPoste = event.mapPoint;
-				graphicNuevoPoste = new Graphic (event.mapPoint,sms);
-				myGraphicsLayer.add(graphicNuevoPoste);
-				map.addLayer(myGraphicsLayer);
-				
-			}
-			
-			public function selectCalle(event:MapMouseEvent):void{
-				map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
-				//guarda la calle seleccionada para la nueva dirección
-				
-				//busqueda espacial
-				var query:Query = new Query();
-				query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
-				var rectangulo:Polygon=new Polygon;
-				rectangulo.addRing(crearRectangulo(event.mapPoint,1));
-				query.geometry = rectangulo;
-				var parametros:ArrayList=new ArrayList;
-				parametros.addItem("id_segmento");
-				parametros.addItem("nombre");
-				
-				query.outFields=parametros.toArray();			
-				query.returnGeometry = true;
-				query.where ="1=1"; 
-				
-				var queryTask:QueryTask =  new QueryTask;
-				queryTask.url = urls.URL_CALLES;
-				queryTask.token = cargarCombos.token as String;
-				queryTask.execute(query, new AsyncResponder(onResult, onFault));			
-				
-				function onResult(featureSet:FeatureSet, token:Object = null):void
-				{
-					
-					CalleEncontrada=new ArrayList;
-					
-					if (featureSet.features.length > 0)
-					{
-						for each (var encontrado:Graphic in featureSet.features)
-						{							
-							CalleEncontrada.addItem(encontrado);
-							
-						}
-					}else{
-						
-						Alert.show("Calle no encontrada. ¿Desea indicar el nombre de la calle? ","Agregar Direccion",mx.controls.Alert.YES | mx.controls.Alert.NO,null,alertClickHandler);
-						
-						function alertClickHandler(evt:CloseEvent):void 
-						{
-							if (evt.detail == Alert.YES)
-							{      
-								txtCalle.enabled = true;
-								tbtnSeleccionarCalle.label = "On";
-								map.removeEventListener(MapMouseEvent.MAP_CLICK,selectCalle);
-							}else{
-								txtCalle.enabled = false;
-							}
-						}
-						
-					}
-					
-					if (CalleEncontrada.length>0){
-						var calle:String= encontrado.attributes["nombre"];
-						
-						txtCalle.text = calle;
-						direccion.calleSelected = encontrado.attributes["nombre"];
-						
-						direccion.segmentoid =encontrado.attributes["id_segmento"]; 
-						
-						
-						
-					}
-					else{
-						txtCalle.text = "";
-					}
-					
-				}
-				function onFault(info:Object, token:Object = null):void
-				{
-					
-					Alert.show("No ha seleccionado la calle " + info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
-				}
-				
-				
-			}
-			
-			
-			public var hayCliente:int = 0;
-			public var hayDireccion:int = 0;
-			public var hayPoste:int = 0;
-			
-			
-			//Agrega ubicacion de cliente 
-			protected function selectUbicacionCliente(event:MapMouseEvent):void{
-				map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
-				myGraphicsLayer.clear();
-				//borra todas las lineas guardadas.
-				
-				
-				//guarda geometria cliente
-				cliente.geom_ubicacionCliente = event.mapPoint;
-				hayCliente = 1;
-				
-				//guarda el punto de la ubicacion del cliente en el mapa
-				graphicCliente = new Graphic(event.mapPoint, sms);
-				mapPointCliente = event.mapPoint;
-				buscarComunaCliente(event.mapPoint);
-				
-				if (hayDireccion){
-					/*myGraphicsLayer.add(graphicCliente);
-					var pLineClienteDireccion:Polyline = new Polyline([[cliente.geom_ubicacionCliente,cliente.geom_ubicacionDireccion]],new SpatialReference(102100));
-					graphicDireccion = new Graphic(pLineClienteDireccion,slsDireccion);
-					myGraphicsLayer.add(graphicDireccion);
-					map.addLayer(myGraphicsLayer);
-					*/
-				}
-				else {
-					myGraphicsLayer.add(graphicCliente);
-					map.addLayer(myGraphicsLayer);
-				}
-				
-			}
-			
-			public function buscarComunaCliente(mapPoint):void{
-				var query:Query = new Query();
-				query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
-				
-				var rectangulo:Polygon=new Polygon;
-				
-				rectangulo.addRing(crearRectangulo(mapPoint,5));
-				query.geometry = rectangulo;
-				var parametros:ArrayList=new ArrayList;
-				
-				parametros.addItem("nombre");			
-				query.outFields=parametros.toArray();			
-				query.returnGeometry = true;
-				query.where ="1=1"; 
-				
-				var queryTask:QueryTask =  new QueryTask;
-				queryTask.url = widgets.IngresoDenuncios.utilidad.urls.URL_COMUNAS;
-				
-				queryTask.execute(query, new AsyncResponder(onResult, onFault));			
-				
-				function onResult(featureSet:FeatureSet, token:Object = null):void {
-					
-					CalleEncontrada2=new ArrayList;
-					
-					if (featureSet.features.length > 0)
-					{
-						for each (var encontrado:Graphic in featureSet.features)
-						{							
-							CalleEncontrada2.addItem(encontrado);
-							
-						}
-					}else{
-						Alert.show("Comuna no encontrada");
-						
-					}
-					
-					if (CalleEncontrada2.length>0){
-						
-						nombreComuna = encontrado.attributes["nombre"];
-						
-					}
-					else{
-						nombreComuna = "";
-					}
-					
-				}
-				function onFault(info:Object, token:Object = null):void
-				{					
-					Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
-				}
-			}
-			
-			public function selectDireccion(event:MapMouseEvent):void{
-				cliente.id_direccionCliente= 0;
-				cliente.nombre_direccionCliente ='';
-				cliente.numero_direccionCliente =  0;
-				cliente.tipo_direccionCliente =  '';
-				lblIDDireccion.text = "";
-				lblDireccion.text = "";
-				estadoDireccion.text = "";
-				
-				map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
-				//guarda geometria direccion
-				//valida que la ubicacion del cliente esté
-				if (hayCliente){
-					cliente.geom_ubicacionDireccion =event.mapPoint;	
-					hayDireccion = 1;	
-					//limpia geometria anterior
-					myGraphicsLayer.remove(graphicDireccion);
-					var pLineClienteDireccion:Polyline = new Polyline([[cliente.geom_ubicacionCliente,cliente.geom_ubicacionDireccion]],new SpatialReference(102100));
-					mapPointDireccion = event.mapPoint;
-					//guarda la linea que une al cliente con la direccion
-					graphicDireccion = new Graphic(pLineClienteDireccion,slsDireccion);
-					myGraphicsLayer.add(graphicDireccion);
-					map.addLayer(myGraphicsLayer);
-					
-					//busqueda espacial
-					var query:Query = new Query();
-					query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
-					var rectangulo:Polygon=new Polygon;
-					rectangulo.addRing(crearRectangulo(event.mapPoint,5));
-					query.geometry = rectangulo;
-					var parametros:ArrayList=new ArrayList;
-					
-					parametros.addItem("id_direccion");
-					parametros.addItem("nombre_calle");	
-					parametros.addItem("numero");
-					parametros.addItem("tipo_edificacion");	
-					query.outFields=parametros.toArray();			
-					query.returnGeometry = true;
-					query.where ="1=1"; 
-					
-					var queryTask:QueryTask =  new QueryTask;
-					queryTask.url = urls.URL_DIRECCIONES;
-					queryTask.token = cargarCombos.token as String;
-					queryTask.execute(query, new AsyncResponder(onResult, onFault));			
-					
-					function onResult(featureSet:FeatureSet, token:Object = null):void
-					{
-						
-						CalleEncontrada=new ArrayList;
-						if (featureSet.features.length > 0)
-						{
-							for each (var encontrado:Graphic in featureSet.features)
-							{							
-								CalleEncontrada.addItem(encontrado);
+								public function selectDireccion(event:MapMouseEvent):void{
+									cliente.id_direccionCliente= 0;
+									cliente.nombre_direccionCliente ='';
+									cliente.numero_direccionCliente =  0;
+									cliente.tipo_direccionCliente =  '';
+									lblIDDireccion.text = "";
+									lblDireccion.text = "";
+									estadoDireccion.text = "";
+									
+									map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
+									//guarda geometria direccion
+									//valida que la ubicacion del cliente esté
+									if (hayCliente){
+										cliente.geom_ubicacionDireccion =event.mapPoint;	
+										hayDireccion = 1;	
+										//limpia geometria anterior
+										myGraphicsLayer.remove(graphicDireccion);
+										var pLineClienteDireccion:Polyline = new Polyline([[cliente.geom_ubicacionCliente,cliente.geom_ubicacionDireccion]],new SpatialReference(102100));
+										mapPointDireccion = event.mapPoint;
+										//guarda la linea que une al cliente con la direccion
+										graphicDireccion = new Graphic(pLineClienteDireccion,slsDireccion);
+										myGraphicsLayer.add(graphicDireccion);
+										map.addLayer(myGraphicsLayer);
+										
+										//busqueda espacial
+										var query:Query = new Query();
+										query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+										var rectangulo:Polygon=new Polygon;
+										rectangulo.addRing(crearRectangulo(event.mapPoint,5));
+										query.geometry = rectangulo;
+										var parametros:ArrayList=new ArrayList;
+										
+										parametros.addItem("id_direccion");
+										parametros.addItem("nombre_calle");	
+										parametros.addItem("numero");
+										parametros.addItem("tipo_edificacion");	
+										query.outFields=parametros.toArray();			
+										query.returnGeometry = true;
+										query.where ="1=1"; 
+										
+										var queryTask:QueryTask =  new QueryTask;
+										queryTask.url = urls.URL_DIRECCIONES;
+										queryTask.token = cargarCombos.token as String;
+										queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+										
+										function onResult(featureSet:FeatureSet, token:Object = null):void
+										{
+											
+											CalleEncontrada=new ArrayList;
+											if (featureSet.features.length > 0)
+											{
+												for each (var encontrado:Graphic in featureSet.features)
+												{							
+													CalleEncontrada.addItem(encontrado);
+													
+												}
+											}else{
+												
+												//Buscar en las direcciones nuevas.
+												//buscarEnDireccionNueva(event.mapPoint);
+												
+											}
+											
+											if (CalleEncontrada.length>0){
+												cliente.id_direccionCliente= encontrado.attributes["id_direccion"];
+												cliente.nombre_direccionCliente = encontrado.attributes["nombre_calle"];
+												cliente.numero_direccionCliente =  encontrado.attributes["numero"];
+												cliente.tipo_direccionCliente =  encontrado.attributes["tipo_edificacion"];
+												lblIDDireccion.text = String(cliente.id_direccionCliente);
+												lblDireccion.text = String(cliente.nombre_direccionCliente) + " " +String(cliente.numero_direccionCliente);
+												estadoDireccion.text = "existente";
+											}
+											else{
+												lblIDDireccion.text = "";
+												lblDireccion.text = "";
+												estadoDireccion.text = "";
+											}
+											
+										}
+										function onFault(info:Object, token:Object = null):void
+										{					
+											Alert.show("No se pudo encontrar la dirección. Selecciónela nuevamente");
+										}
+										
+									}else{
+										Alert.show("Seleccione la ubicacion del cliente");
+									}
+								}
 								
-							}
-						}else{
-							
-							//Buscar en las direcciones nuevas.
-							//buscarEnDireccionNueva(event.mapPoint);
-							
-						}
-						
-						if (CalleEncontrada.length>0){
-							cliente.id_direccionCliente= encontrado.attributes["id_direccion"];
-							cliente.nombre_direccionCliente = encontrado.attributes["nombre_calle"];
-							cliente.numero_direccionCliente =  encontrado.attributes["numero"];
-							cliente.tipo_direccionCliente =  encontrado.attributes["tipo_edificacion"];
-							lblIDDireccion.text = String(cliente.id_direccionCliente);
-							lblDireccion.text = String(cliente.nombre_direccionCliente) + " " +String(cliente.numero_direccionCliente);
-							estadoDireccion.text = "existente";
-						}
-						else{
-							lblIDDireccion.text = "";
-							lblDireccion.text = "";
-							estadoDireccion.text = "";
-						}
-						
-					}
-					function onFault(info:Object, token:Object = null):void
-					{					
-						Alert.show("No se pudo encontrar la dirección. Selecciónela nuevamente");
-					}
-					
-				}else{
-					Alert.show("Seleccione la ubicacion del cliente");
-				}
-			}
-			
-			/*public function buscarEnDireccionNueva(event:MapPoint):void {
-			//busqueda espacial
-			var query:Query = new Query();
-			query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
-			var rectangulo:Polygon=new Polygon;
-			rectangulo.addRing(crearRectangulo(event,1));
-			query.geometry = rectangulo;
-			var parametros:ArrayList=new ArrayList;
-			
-			parametros.addItem("CALLE");
-			parametros.addItem("NUMERO");	
-			parametros.addItem("TIPO_EDIFICACION");
-			parametros.addItem("OBJECTID");	
-			query.outFields=parametros.toArray();			
-			query.returnGeometry = true;
-			query.where ="1=1"; 
-			
-			var queryTask:QueryTask =  new QueryTask;
-			queryTask.url = urls.URL_CREAR_DIRECCION;
-			queryTask.token = cargarCombos.token as String;
-			queryTask.execute(query, new AsyncResponder(onResult, onFault));			
-			
-			function onResult(featureSet:FeatureSet, token:Object = null):void
-			{
-			//16/01/2017: Login of getting results changed. (Eve)	
-			if(!featureSet.features.length){
-			Alert.show("Direccion nueva o existente no encontrada");
-			lblIDDireccion.text = "";
-			lblDireccion.text = "";
-			estadoDireccion.text = "nueva/existente";
-			return;
-			}
-			
-			cliente.id_direccionCliente= featureSet.features[0].attributes["OBJECTID"];
-			cliente.nombre_direccionCliente = featureSet.features[0].attributes["CALLE"];
-			cliente.numero_direccionCliente =  featureSet.features[0].attributes["NUMERO"];
-			cliente.tipo_direccionCliente =  featureSet.features[0].attributes["TIPO_EDIFICACION"];
-			lblIDDireccion.text = String(cliente.id_direccionCliente);
-			lblDireccion.text = String(featureSet.features[0].attributes["CALLE"] + " " +featureSet.features[0].attributes["NUMERO"]);
-			estadoDireccion.text = "nueva";
-			
-			/*CalleNuevaEncontrada=new ArrayList;
-			if (featureSet.features.length > 0)
-			{
-			for each (var encontrado:Graphic in featureSet.features)
-			{							
-			CalleNuevaEncontrada.addItem(encontrado);
-			}
-			}else{
-			Alert.show("Direccion nueva o existente no encontrada");
-			
-			
-			
-			}
-			
-			if (CalleNuevaEncontrada.length>0){
-			cliente.id_direccionCliente= encontrado.attributes["OBJECTID"];
-			cliente.nombre_direccionCliente = encontrado.attributes["CALLE"];
-			cliente.numero_direccionCliente =  encontrado.attributes["NUMERO"];
-			cliente.tipo_direccionCliente =  encontrado.attributes["TIPO_EDIFICACION"];
-			lblIDDireccion.text = String(cliente.id_direccionCliente);
-			lblDireccion.text = String(cliente.nombre_direccionCliente) + " " +String(cliente.numero_direccionCliente);
-			estadoDireccion.text = "nueva";
-			}
-			else{
-			lblIDDireccion.text = "";
-			lblDireccion.text = "";
-			estadoDireccion.text = "nueva/existente";
-			}
-			*/
-			/*}
-			function onFault(info:Object, token:Object = null):void
-			{					
-			Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
-			}
-			
-			}
-			*/
-			public function selectRotulo(event:MapMouseEvent):void{
-				
-				map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
-				//guarda geometria rotulo
-				if (hayCliente){
-					cliente.geom_ubicacionPoste =event.mapPoint;
-					hayPoste = 1;
-					//borra la anterior para crear una  nueva
-					myGraphicsLayer.remove(graphicPoste);
-					var pLinePosteCliente:Polyline = new Polyline([[cliente.geom_ubicacionCliente,cliente.geom_ubicacionPoste]],new SpatialReference(102100));
-					//guarda la linea que une al cliente con la direccion
-					graphicPoste = new Graphic(pLinePosteCliente,slsPoste);
-					myGraphicsLayer.add(graphicPoste);
-					map.addLayer(myGraphicsLayer);
-					mapPointPoste = event.mapPoint;
-					var query:Query = new Query();
-					query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
-					var rectangulo:Polygon=new Polygon;
-					rectangulo.addRing(crearRectangulo(event.mapPoint,10));
-					query.geometry = rectangulo;
-					
-					var parametros:ArrayList=new ArrayList;
-					
-					parametros.addItem("id_nodo");
-					parametros.addItem("rotulo");	
-					
-					query.outFields=parametros.toArray();			
-					query.returnGeometry = true;
-					//query.where ="1=1"; 
-					//Evelyn Hernández - 5-07-2017 : Arreglado problema cuando existe más de un objeto nodo dentro del rectángulo.
-					query.where ="tipo_nodo = 'ele!camara' or tipo_nodo='ele!poste'"
-					var queryTask:QueryTask =  new QueryTask;
-					queryTask.url = urls.URL_ROTULOS;
-					queryTask.token = cargarCombos.token as String;
-					queryTask.execute(query, new AsyncResponder(onResult, onFault));			
-					
-					function onResult(featureSet:FeatureSet, token:Object = null):void
-					{
-						
-						RotuloEncontrado=new ArrayList;
-						if (featureSet.features.length > 0)
-						{
-							for each (var encontrado:Graphic in featureSet.features)
-							{		
+								/*public function buscarEnDireccionNueva(event:MapPoint):void {
+								//busqueda espacial
+								var query:Query = new Query();
+								query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+								var rectangulo:Polygon=new Polygon;
+								rectangulo.addRing(crearRectangulo(event,1));
+								query.geometry = rectangulo;
+								var parametros:ArrayList=new ArrayList;
 								
-								RotuloEncontrado.addItem(encontrado);
-							}
-							
-							
-						}else{
-							
-							//buscarEnRotuloNuevo(cliente.geom_ubicacionPoste);
-						}
-						
-						if (RotuloEncontrado.length>0){
-							cliente.id_rotulo= encontrado.attributes["id_nodo"];
-							cliente.numero_rotulo = encontrado.attributes["rotulo"];
-							
-							lblIDRotulo.text = String(cliente.id_rotulo);
-							lblRotulo.text = String(cliente.numero_rotulo);
-							estadoPoste.text = "existente";
-						}
-						else{
-							//Alert.show("Rotulo no ha sido encontrado");
-							lblIDRotulo.text = "";
-							lblRotulo.text = "";
-							estadoPoste.text = "";
-							cliente.id_rotulo= 0;
-							cliente.numero_rotulo = "";
-						}
-						
-					}
-					function onFault(info:Object, token:Object = null):void
-					{					
-						Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
-					}
-				}else{
-					Alert.show("Seleccione la ubicacion del cliente");
-				}
-			}
-			
-			//busca en los rotulos nuevos.
-			/*public function buscarEnRotuloNuevo(event:MapPoint):void{
-			//busqueda espacial
-			var query:Query = new Query();
-			query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
-			var rectangulo:Polygon=new Polygon;
-			rectangulo.addRing(crearRectangulo(event,5));
-			query.geometry = rectangulo;
-			var parametros:ArrayList=new ArrayList;
-			parametros.addItem("OBJECTID");
-			parametros.addItem("ROTULO");
-			parametros.addItem("TIPO_POSTE");	
-			parametros.addItem("TIPO_TENSION");
-			parametros.addItem("X");
-			parametros.addItem("Y");
-			query.outFields=parametros.toArray();			
-			query.returnGeometry = true;
-			query.where ="1=1"; 
-			
-			var queryTask:QueryTask =  new QueryTask;
-			queryTask.url = urls.URL_CREAR_POSTES;
-			queryTask.token = cargarCombos.token as String;
-			queryTask.execute(query, new AsyncResponder(onResult, onFault));			
-			
-			function onResult(featureSet:FeatureSet, token:Object = null):void
-			{
-			RotuloNuevoEncontrado=new ArrayList;
-			if (featureSet.features.length > 0)
-			{
-			for each (var encontrado:Graphic in featureSet.features)
-			{							
-			RotuloNuevoEncontrado.addItem(encontrado);
-			}
-			}else{
-			Alert.show("Rotulo nuevo no encontrado");
-			}
-			
-			if (RotuloNuevoEncontrado.length>0){
-			poste.rotulo = encontrado.attributes["ROTULO"];
-			poste.tipo_poste = encontrado.attributes["TIPO_POSTE"];
-			poste.tipo_tension =  encontrado.attributes["TIPO_TENSION"];
-			poste.x_poste =  encontrado.attributes["X"];
-			poste.y_poste =  encontrado.attributes["Y"];
-			
-			lblRotulo.text = poste.rotulo;
-			lblIDRotulo.text = encontrado.attributes["OBJECTID"];
-			estadoPoste.text = "nueva";
-			}
-			else{
-			lblIDRotulo.text = "";
-			lblRotulo.text = "";
-			estadoPoste.text =  "nueva/existente";
-			poste.rotulo = "";
-			poste.tipo_poste = "";
-			poste.tipo_tension =  "";
-			poste.x_poste =  0;
-			poste.y_poste =  0;
-			}
-			}
-			function onFault(info:Object, token:Object = null):void
-			{					
-			Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
-			}
-			}
-			*/
-			//Crea poligono para la busqueda en el mapa
-			private function crearRectangulo(mapPoint:MapPoint,delta:Number):Array 
-			{ 
-				var arrayOfPoints:Array = new Array();
-				
-				arrayOfPoints[0] = new MapPoint(mapPoint.x-delta,mapPoint.y-delta,mapPoint.spatialReference);            	        
-				arrayOfPoints[1] = new MapPoint(mapPoint.x-delta,mapPoint.y+delta,mapPoint.spatialReference);
-				arrayOfPoints[2] = new MapPoint(mapPoint.x+delta,mapPoint.y+delta,mapPoint.spatialReference);
-				arrayOfPoints[3] = new MapPoint(mapPoint.x+delta,mapPoint.y-delta,mapPoint.spatialReference);
-				arrayOfPoints[4] = new MapPoint(mapPoint.x-delta,mapPoint.y-delta,mapPoint.spatialReference);
-				
-				return arrayOfPoints;
-			}
-			
-			public function limpiarIngresoCliente():void{
-				graphicCliente= new Graphic;
-				graphicDireccion= new Graphic;
-				graphicPoste= new Graphic;	
-				
-				txtNIS.text  = "";
-				txtNumeroMedidor.text  = "";
-				/*ddlTipoMedidor.selectedIndex = -1;
-				ddlTecnologiaMedidor.selectedIndex = -1;
-				*/
-				lblIDDireccion.text  = "";
-				
-				lblRotulo.text  = "";
-				lblIDRotulo.text  = "";
-				//ddlTipoEmpalme1.selectedIndex = -1;
-				//				txtOS.text  = "";
-				lblDireccion.text  = "";
-				estadoPoste.text =  "nueva/existente"
-				estadoDireccion.text =  "nueva/existente"
-				mapPointCliente= null;
-				mapPointDireccion= null;
-				mapPointPoste = null;
-			}
-			
-			protected function wTemplate_closedHandler(event:Event):void
-			{
-				graphicCliente= new Graphic;
-				graphicDireccion= new Graphic;
-				graphicPoste= new Graphic;				
-				myGraphicsLayer.clear();
-				txtNIS.text  = "";
-				txtNumeroMedidor.text  = "";
-				/*ddlTipoMedidor.selectedIndex = -1;
-				ddlTecnologiaMedidor.selectedIndex = -1;
-				*/
-				lblIDDireccion.text  = "";
-				
-				lblRotulo.text  = "";
-				lblIDRotulo.text  = "";
-				//ddlTipoEmpalme1.selectedIndex = -1;
-				//txtOS.text  = "";
-				lblDireccion.text  = "";
-				
-				map.removeLayer(lecturasLayer);
-			}
-			
-			public function limpiarCampos(op:int):void{
-				
-				switch(op)
-				{
-					//limpia form nueva direccion
-					case 1:
-					{
-						txtCalle.text = "";
-						txtNumeroDireccion.text = "";
-						ddlTipoEdificacion.selectedIndex = -1;
-						txtAnexo1.text = "";
-						txtAnexo2.text = "";
-						
-						break;
-					}
-						//limpia form nuevo poste
-					case 2:
-					{
-						
-						txtNuevoRotulo.text = "";
-						ddlTipoPoste.selectedIndex =-1;
-						ddlTension.selectedIndex =-1;
-						
-						
-						break;
-					}
-						
-					default:
-					{
-						break;
-					}
-				}
-			}
-			
-			protected function wTemplate_openHandler(event:Event):void
-			{
-				// TODO Auto-generated method stub
-				//openLayer();
-			}
-			
-			protected function basewidget1_initializeHandler(event:FlexEvent):void
-			{
-				// TODO Auto-generated method stub
-				CargaDDlObsMedidor();
-			}
-			
-			
-			
+								parametros.addItem("CALLE");
+								parametros.addItem("NUMERO");	
+								parametros.addItem("TIPO_EDIFICACION");
+								parametros.addItem("OBJECTID");	
+								query.outFields=parametros.toArray();			
+								query.returnGeometry = true;
+								query.where ="1=1"; 
+								
+								var queryTask:QueryTask =  new QueryTask;
+								queryTask.url = urls.URL_CREAR_DIRECCION;
+								queryTask.token = cargarCombos.token as String;
+								queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+								
+								function onResult(featureSet:FeatureSet, token:Object = null):void
+								{
+								//16/01/2017: Login of getting results changed. (Eve)	
+								if(!featureSet.features.length){
+								Alert.show("Direccion nueva o existente no encontrada");
+								lblIDDireccion.text = "";
+								lblDireccion.text = "";
+								estadoDireccion.text = "nueva/existente";
+								return;
+								}
+								
+								cliente.id_direccionCliente= featureSet.features[0].attributes["OBJECTID"];
+								cliente.nombre_direccionCliente = featureSet.features[0].attributes["CALLE"];
+								cliente.numero_direccionCliente =  featureSet.features[0].attributes["NUMERO"];
+								cliente.tipo_direccionCliente =  featureSet.features[0].attributes["TIPO_EDIFICACION"];
+								lblIDDireccion.text = String(cliente.id_direccionCliente);
+								lblDireccion.text = String(featureSet.features[0].attributes["CALLE"] + " " +featureSet.features[0].attributes["NUMERO"]);
+								estadoDireccion.text = "nueva";
+								
+								/*CalleNuevaEncontrada=new ArrayList;
+								if (featureSet.features.length > 0)
+								{
+								for each (var encontrado:Graphic in featureSet.features)
+								{							
+								CalleNuevaEncontrada.addItem(encontrado);
+								}
+								}else{
+								Alert.show("Direccion nueva o existente no encontrada");
+								
+								
+								
+								}
+								
+								if (CalleNuevaEncontrada.length>0){
+								cliente.id_direccionCliente= encontrado.attributes["OBJECTID"];
+								cliente.nombre_direccionCliente = encontrado.attributes["CALLE"];
+								cliente.numero_direccionCliente =  encontrado.attributes["NUMERO"];
+								cliente.tipo_direccionCliente =  encontrado.attributes["TIPO_EDIFICACION"];
+								lblIDDireccion.text = String(cliente.id_direccionCliente);
+								lblDireccion.text = String(cliente.nombre_direccionCliente) + " " +String(cliente.numero_direccionCliente);
+								estadoDireccion.text = "nueva";
+								}
+								else{
+								lblIDDireccion.text = "";
+								lblDireccion.text = "";
+								estadoDireccion.text = "nueva/existente";
+								}
+								*/
+								/*}
+								function onFault(info:Object, token:Object = null):void
+								{					
+								Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+								}
+								
+								}
+								*/
+								public function selectRotulo(event:MapMouseEvent):void{
+									
+									map.removeEventListener(MapMouseEvent.MAP_CLICK,tbFunction);
+									//guarda geometria rotulo
+									if (hayCliente){
+										cliente.geom_ubicacionPoste =event.mapPoint;
+										hayPoste = 1;
+										//borra la anterior para crear una  nueva
+										myGraphicsLayer.remove(graphicPoste);
+										var pLinePosteCliente:Polyline = new Polyline([[cliente.geom_ubicacionCliente,cliente.geom_ubicacionPoste]],new SpatialReference(102100));
+										//guarda la linea que une al cliente con la direccion
+										graphicPoste = new Graphic(pLinePosteCliente,slsPoste);
+										myGraphicsLayer.add(graphicPoste);
+										map.addLayer(myGraphicsLayer);
+										mapPointPoste = event.mapPoint;
+										var query:Query = new Query();
+										query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+										var rectangulo:Polygon=new Polygon;
+										rectangulo.addRing(crearRectangulo(event.mapPoint,10));
+										query.geometry = rectangulo;
+										
+										var parametros:ArrayList=new ArrayList;
+										
+										parametros.addItem("id_nodo");
+										parametros.addItem("rotulo");	
+										
+										query.outFields=parametros.toArray();			
+										query.returnGeometry = true;
+										//query.where ="1=1"; 
+										//Evelyn Hernández - 5-07-2017 : Arreglado problema cuando existe más de un objeto nodo dentro del rectángulo.
+										query.where ="tipo_nodo = 'ele!camara' or tipo_nodo='ele!poste'"
+										var queryTask:QueryTask =  new QueryTask;
+										queryTask.url = urls.URL_ROTULOS;
+										queryTask.token = cargarCombos.token as String;
+										queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+										
+										function onResult(featureSet:FeatureSet, token:Object = null):void
+										{
+											
+											RotuloEncontrado=new ArrayList;
+											if (featureSet.features.length > 0)
+											{
+												for each (var encontrado:Graphic in featureSet.features)
+												{		
+													
+													RotuloEncontrado.addItem(encontrado);
+												}
+												
+												
+											}else{
+												
+												//buscarEnRotuloNuevo(cliente.geom_ubicacionPoste);
+											}
+											
+											if (RotuloEncontrado.length>0){
+												cliente.id_rotulo= encontrado.attributes["id_nodo"];
+												cliente.numero_rotulo = encontrado.attributes["rotulo"];
+												
+												lblIDRotulo.text = String(cliente.id_rotulo);
+												lblRotulo.text = String(cliente.numero_rotulo);
+												estadoPoste.text = "existente";
+											}
+											else{
+												//Alert.show("Rotulo no ha sido encontrado");
+												lblIDRotulo.text = "";
+												lblRotulo.text = "";
+												estadoPoste.text = "";
+												cliente.id_rotulo= 0;
+												cliente.numero_rotulo = "";
+											}
+											
+										}
+										function onFault(info:Object, token:Object = null):void
+										{					
+											Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+										}
+									}else{
+										Alert.show("Seleccione la ubicacion del cliente");
+									}
+								}
+								
+								//busca en los rotulos nuevos.
+								/*public function buscarEnRotuloNuevo(event:MapPoint):void{
+								//busqueda espacial
+								var query:Query = new Query();
+								query.spatialRelationship=Query.SPATIAL_REL_INTERSECTS;
+								var rectangulo:Polygon=new Polygon;
+								rectangulo.addRing(crearRectangulo(event,5));
+								query.geometry = rectangulo;
+								var parametros:ArrayList=new ArrayList;
+								parametros.addItem("OBJECTID");
+								parametros.addItem("ROTULO");
+								parametros.addItem("TIPO_POSTE");	
+								parametros.addItem("TIPO_TENSION");
+								parametros.addItem("X");
+								parametros.addItem("Y");
+								query.outFields=parametros.toArray();			
+								query.returnGeometry = true;
+								query.where ="1=1"; 
+								
+								var queryTask:QueryTask =  new QueryTask;
+								queryTask.url = urls.URL_CREAR_POSTES;
+								queryTask.token = cargarCombos.token as String;
+								queryTask.execute(query, new AsyncResponder(onResult, onFault));			
+								
+								function onResult(featureSet:FeatureSet, token:Object = null):void
+								{
+								RotuloNuevoEncontrado=new ArrayList;
+								if (featureSet.features.length > 0)
+								{
+								for each (var encontrado:Graphic in featureSet.features)
+								{							
+								RotuloNuevoEncontrado.addItem(encontrado);
+								}
+								}else{
+								Alert.show("Rotulo nuevo no encontrado");
+								}
+								
+								if (RotuloNuevoEncontrado.length>0){
+								poste.rotulo = encontrado.attributes["ROTULO"];
+								poste.tipo_poste = encontrado.attributes["TIPO_POSTE"];
+								poste.tipo_tension =  encontrado.attributes["TIPO_TENSION"];
+								poste.x_poste =  encontrado.attributes["X"];
+								poste.y_poste =  encontrado.attributes["Y"];
+								
+								lblRotulo.text = poste.rotulo;
+								lblIDRotulo.text = encontrado.attributes["OBJECTID"];
+								estadoPoste.text = "nueva";
+								}
+								else{
+								lblIDRotulo.text = "";
+								lblRotulo.text = "";
+								estadoPoste.text =  "nueva/existente";
+								poste.rotulo = "";
+								poste.tipo_poste = "";
+								poste.tipo_tension =  "";
+								poste.x_poste =  0;
+								poste.y_poste =  0;
+								}
+								}
+								function onFault(info:Object, token:Object = null):void
+								{					
+								Alert.show(info.faultString + "\n\n" + info.faultDetail, "queryTask fault " + info.faultCode);
+								}
+								}
+								*/
+								//Crea poligono para la busqueda en el mapa
+								private function crearRectangulo(mapPoint:MapPoint,delta:Number):Array 
+								{ 
+									var arrayOfPoints:Array = new Array();
+									
+									arrayOfPoints[0] = new MapPoint(mapPoint.x-delta,mapPoint.y-delta,mapPoint.spatialReference);            	        
+									arrayOfPoints[1] = new MapPoint(mapPoint.x-delta,mapPoint.y+delta,mapPoint.spatialReference);
+									arrayOfPoints[2] = new MapPoint(mapPoint.x+delta,mapPoint.y+delta,mapPoint.spatialReference);
+									arrayOfPoints[3] = new MapPoint(mapPoint.x+delta,mapPoint.y-delta,mapPoint.spatialReference);
+									arrayOfPoints[4] = new MapPoint(mapPoint.x-delta,mapPoint.y-delta,mapPoint.spatialReference);
+									
+									return arrayOfPoints;
+								}
+								
+								public function limpiarIngresoCliente():void{
+									graphicCliente= new Graphic;
+									graphicDireccion= new Graphic;
+									graphicPoste= new Graphic;	
+									
+									txtNIS.text  = "";
+									txtNumeroMedidor.text  = "";
+									/*ddlTipoMedidor.selectedIndex = -1;
+									ddlTecnologiaMedidor.selectedIndex = -1;
+									*/
+									lblIDDireccion.text  = "";
+									
+									lblRotulo.text  = "";
+									lblIDRotulo.text  = "";
+									//ddlTipoEmpalme1.selectedIndex = -1;
+									//				txtOS.text  = "";
+									lblDireccion.text  = "";
+									estadoPoste.text =  "nueva/existente"
+									estadoDireccion.text =  "nueva/existente"
+									mapPointCliente= null;
+									mapPointDireccion= null;
+									mapPointPoste = null;
+								}
+								
+								protected function wTemplate_closedHandler(event:Event):void
+								{
+									graphicCliente= new Graphic;
+									graphicDireccion= new Graphic;
+									graphicPoste= new Graphic;				
+									myGraphicsLayer.clear();
+									txtNIS.text  = "";
+									txtNumeroMedidor.text  = "";
+									/*ddlTipoMedidor.selectedIndex = -1;
+									ddlTecnologiaMedidor.selectedIndex = -1;
+									*/
+									lblIDDireccion.text  = "";
+									
+									lblRotulo.text  = "";
+									lblIDRotulo.text  = "";
+									//ddlTipoEmpalme1.selectedIndex = -1;
+									//txtOS.text  = "";
+									lblDireccion.text  = "";
+									
+									map.removeLayer(lecturasLayer);
+								}
+								
+								public function limpiarCampos(op:int):void{
+									
+									switch(op)
+									{
+										//limpia form nueva direccion
+										case 1:
+										{
+											txtCalle.text = "";
+											txtNumeroDireccion.text = "";
+											ddlTipoEdificacion.selectedIndex = -1;
+											txtAnexo1.text = "";
+											txtAnexo2.text = "";
+											
+											break;
+										}
+											//limpia form nuevo poste
+										case 2:
+										{
+											
+											txtNuevoRotulo.text = "";
+											ddlTipoPoste.selectedIndex =-1;
+											ddlTension.selectedIndex =-1;
+											
+											
+											break;
+										}
+											
+										default:
+										{
+											break;
+										}
+									}
+								}
+								
+								protected function wTemplate_openHandler(event:Event):void
+								{
+									// TODO Auto-generated method stub
+									//openLayer();
+								}
+								
+								protected function basewidget1_initializeHandler(event:FlexEvent):void
+								{
+									// TODO Auto-generated method stub
+									CargaDDlObsMedidor();
+								}
+								
+								
+								
 		]]>
 	</fx:Script>
 	<viewer:WidgetTemplate id="wTemplate"                      
