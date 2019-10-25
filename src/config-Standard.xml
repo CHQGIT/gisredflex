@@ -49,6 +49,7 @@
      			visible="false">
      				<sublayer id="0" label="Micromedicion" popupconfig="popups/PopUp_Micromedicion.xml"/>
      		</layer>   
+			  <!-- Desabilitado temporalmente
      		<layer type="dynamic"
      			label="GE_VOLT"
      			imageformat="png32"
@@ -56,6 +57,7 @@
      			visible="false">
      				<sublayer id="0" label="GE Volt" popupconfig="popups/PopUp_ge_volt.xml"/>
      		</layer>   
+			 -->
      		<layer type="dynamic"
      			label="Clientes No Leidos"
      			imageformat="png32"
@@ -79,6 +81,7 @@
      			<sublayer id="0" label="Encuestado" definitionexpression="ano=2018" visible="false"/>
      			<sublayer id="1" label="Reemplazo" definitionexpression="ano=2018" visible="false"/>
      		</layer>  
+			  <!-- Desabilitado temporalmente
      		<layer type="dynamic"
      			label="Cobertura Antena"
      			imageformat="png32"
@@ -92,6 +95,7 @@
      			          <sublayer id="5" popupconfig="popups/PopUp_AccessPoint2.xml"/>   
      			           <sublayer id="6" popupconfig="popups/PopUp_AccessPoint2.xml"/>     
      		</layer>    
+			 -->
      		<layer type="dynamic"
      			label="Vialidad"
      			imageformat="png32"
@@ -134,10 +138,15 @@
             	<sublayer id="0" popupconfig="popups/PopUp_Clientes.xml"/></layer>
             <layer type="dynamic"  imageformat="png32" label="Direcciones" url="https://gisredint.chilquinta.cl/arcgis/rest/services/Cartografia/DMPS/MapServer" mode="onDemand" visible="true">
              	<sublayer id="0" label="Direcciones" popupconfig="popups/PopUp_Direcciones.xml"/></layer>
-            <layer type="dynamic" label="Concesiones" imageformat="png32" url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Concesiones006/MapServer" alpha="0.4" visible="true">
+            
+           
+           
+           
+             <layer type="dynamic" label="Concesiones" imageformat="png32" url="https://gisredint.chilquinta.cl/arcgis/rest/services/Chilquinta_006/Concesiones006/MapServer" alpha="0.4" visible="true">
             	<sublayer id="0" label="Distribución" popupconfig="popups/PopUp_Concesion_Distribucion.xml"/>
                 <sublayer id="1" label="Transmisión" popupconfig="popups/PopUp_Concesion_Transmision.xml"/>
             </layer>
+            
              <layer type="dynamic"
      			label="Nodos"
      			imageformat="png32"
@@ -191,7 +200,7 @@
 		                   <sublayer id="8" label="Camaras" popupconfig="popups/PopUp_Camaras.xml"/>
 		                   <sublayer id="9" label="Equipos_Sub" popupconfig="popups/PopUp_Equipos.xml"/>
 		    </layer> -->
-		    
+		     <!-- Desabilitado temporalmente
 		    <layer type="dynamic"
      			label="Imágenes SSEE"
      			imageformat="png32"
@@ -199,7 +208,7 @@
      			visible="false">
      			
      		</layer>
-     		
+     		-->
 		     <layer type="dynamic" label="STx" imageformat="png32" url="https://gisredint.chilquinta.cl/arcgis/rest/services/STx/STx/MapServer" visible="true"/>
 		    <layer type="dynamic"
 			           label="Vistas" 
@@ -218,12 +227,14 @@
      			url="https://gisredint.chilquinta.cl/arcgis/rest/services/Planificacion/topologia_capacidad_conductores/MapServer"
      			visible="false">
      		</layer> -->
+			  <!-- Desabilitado temporalmente
      			<layer type="dynamic"
      			label="Postes sin apoyos mutuos"
      			imageformat="png32"
      			url="https://gisredint.chilquinta.cl/arcgis/rest/services/Varios/POSTES_SIN_APOYOS/MapServer"
      			visible="false">
      		</layer>
+			 -->
      		<!-- GISRED INT 
      		<layer type="dynamic"
      			label="Nivel Criticidad"
@@ -263,6 +274,7 @@
      				<!--  <sublayer id="0" label="Reparto" popupconfig="popups/PopUp_Reparto.xml" definitionexpression="empresa='chilquinta'"/> -->
      			
      		</layer>
+			 <!-- Desabilitado temporalmente
      		<layer type="dynamic"
      			label="STX/CBR"
      			imageformat="png32"
@@ -271,6 +283,7 @@
      				<sublayer id="1" label="Agua Santa Lote CBR" popupconfig="popups/PopUp_AguaSantaLoteCBR.xml"/> 
      			
      		</layer>
+			-->
 			 <layer type="dynamic"
      			label="Denuncios Web"
      			imageformat="png32"

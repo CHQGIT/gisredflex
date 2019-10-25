@@ -219,7 +219,7 @@
 						}
 						
 						
-						cargarListaClientesNuevos();
+						//cargarListaClientesNuevos();
 						//txtFilterClientes.addEventListener(Event.CHANGE,filterGridClientes);
 						
 						currentState ="bkmConsulta";
@@ -303,7 +303,7 @@
 				//tiene fecha inicial
 				if ((dateDesde.text.length > 0) && (dateHasta.text.length > 0) ){
 					if ((dateDesde.text != "Desde") || (dateHasta.text != "Hasta")){
-						fecha = "created_date >= '" + dateDesde.text + "' and created_date <='" + dateHasta.text + "'";
+						fecha = "created_date >= '" + dateDesde.text + " 00:00:00' and created_date <='" + dateHasta.text + " 23:59:59'";
 						arrWhere.push(fecha);
 					}else{
 						fecha = "";
@@ -359,8 +359,7 @@
 				function onResultQuery(featureSet:FeatureSet, token:Object = null):void
 				{
 					var k:int;
-					
-					
+				
 					for(k=0;k<featureSet.features.length;k++)
 					{
 						
@@ -687,7 +686,7 @@
 							-->
 							<s:Button id="btnRangoFecha" label="Consultar" click="btnRangoFecha_clickHandler(event)"/> 
 							<s:Button id="btnExportarDatosClientes" label="Exportar Listado" click="btnExportarDatosClientes_clickHandler(event)"/>
-							<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/refresh_1.png" click="image1_clickHandler(event)"/>
+							<mx:Image x="504" y="10" width="35" height="33"  source="assets/images/refresh_1.png" click="image1_clickHandler(event)" visible="false"/>
 						</s:HGroup>
 						
 					</s:HGroup>

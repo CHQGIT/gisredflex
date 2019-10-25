@@ -10,12 +10,19 @@ package widgets.IngresoDenuncios.utilidad
 	import com.esri.ags.layers.supportClasses.FeatureEditResult;
 	import com.esri.ags.layers.supportClasses.FeatureEditResults;
 	
+	import flash.events.Event;
+	import flash.net.URLLoader;
+	import flash.net.URLLoaderDataFormat;
+	import flash.net.URLRequest;
+	import flash.net.URLRequestMethod;
+	import flash.net.URLVariables;
+	
 	import mx.controls.Alert;
 	import mx.core.INavigatorContent;
+	import mx.events.FlexEvent;
 	import mx.rpc.AsyncResponder;
 	
 	import widgets.IngresoDenuncios.utilidad.cargarCombos;
-	
 	
 	public class cliente
 	{
@@ -77,19 +84,65 @@ package widgets.IngresoDenuncios.utilidad
 			var graficoEditadoActual:Graphic=new Graphic(geom_ubicacionCliente,null,nuevaPoligono);
 			adds[0]=graficoEditadoActual; 
 			
-			myCustomer.applyEdits(adds,null,null, false,new AsyncResponder(onResult, onFault));
-			function onResult(result:FeatureEditResults, token:Object = null):void
+			var request:URLRequest = new URLRequest( "http://wsosf.chilquinta:85/chilquinta.ordenes/api/empresa/99/orden/gisred" ); 
+			var variables:URLVariables = new URLVariables();
+			variables.direccion = "GISWEB - 99 - PRUEBA EVE";
+			variables.comentario = comentario;
+			variables.id_actividad = 999999;
+			request.data = variables;
+			request.method = URLRequestMethod.POST;
+			var urlLoader:URLLoader = new URLLoader();
+			urlLoader = new URLLoader();
+			urlLoader.addEventListener(Event.COMPLETE, loaderCompleteHandler, false, 0, true);
+			try {
+				urlLoader.load(request);
+			} catch (e:Error) {
+				Alert.show("Error"+e);
+			}
+			
+			function loaderCompleteHandler(e:Event):void {
+				Alert.show("completo" + e.target.data.toString());
+				var responseVars:* = URLVariables( e.target.data );
+				
+				
+			}
+			
+			//myCustomer.applyEdits(adds,null,null, false,new AsyncResponder(onResult, onFault));
+			/*function onResult(result:FeatureEditResults, token:Object = null):void
 			{
+				
 				Alert.show("Denuncio agregado, OID: " + result.addResults[0].objectId.toString() );
 				 //agregar lineas 
 				//agregarLineas(nis,idDireccion,rotulo,idPoste);
-			}
+				/*var request:URLRequest = new URLRequest( "http://wsosf.chilquinta:85/chilquinta.ordenes/api/empresa/99/orden/gisred" ); 
+				var variables:URLVariables = new URLVariables();
+				variables.direccion = "GISWEB "+ result.addResults[0].objectId.toString();
+				variables.comentario = comentario;
+				variables.id_actividad = 999999;
+				request.data = variables;
+				request.method = URLRequestMethod.POST;
+				var urlLoader:URLLoader = new URLLoader();
+				urlLoader = new URLLoader();
+				urlLoader.addEventListener(Event.COMPLETE, loaderCompleteHandler, false, 0, true);
+				try {
+					urlLoader.load(request);
+				} catch (e:Error) {
+					Alert.show("Error"+e);
+				}
+				
+				function loaderCompleteHandler(e:Event):void {
+					var responseVars = URLVariables( e.target.data );
+					
+					
+				}
+				*/
+			//}
 			
-			function onFault(info:Object, token:Object = null):void
+		/*	function onFault(info:Object, token:Object = null):void
 			{
 				Alert.show("Error al agregar denuncio "+info.toString());
 			}
-			
+			*/
 			
 		}//add cliente close
 		

@@ -50,7 +50,8 @@ package widgets.IngresoClientes.utilidad
 			existenciaDireccion:String,
 			geoCliente:Graphic,
 			geoLineaDireccion:Graphic,
-			geoLineaRotulo:Graphic):void {
+			geoLineaRotulo:Graphic,
+			fase:String):void {
 			
 			
 			var adds:Array=new Array;
@@ -66,7 +67,8 @@ package widgets.IngresoClientes.utilidad
 			nuevaPoligono["TIPO_POSTE_CAMARA"]=existenciaPosteCamara;
 			nuevaPoligono["OS"]= os;
 			nuevaPoligono["ID_POSTE_CAMARA"]= idPosteCamara;
-			nuevaPoligono["empresa"]='Chilquinta'
+			nuevaPoligono["empresa"]='Chilquinta';
+			nuevaPoligono["FASE_CONEXION"]= fase;
 			
 			
 			//se agrega el punto del cliente con sus datos.

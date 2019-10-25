@@ -177,7 +177,8 @@
 										estadoDireccion.text, //validar en caso de existir id direccion o no
 										graphicCliente, //envia el punto de ubicacion del cliente
 										graphicDireccion, //envia la linea cliente- direccion
-										graphicPoste) // envia la linea cliente - poste y abre if
+										graphicPoste,
+										txtFase.text.toUpperCase()) // envia la linea cliente - poste y abre if
 									
 										
 									
@@ -1277,7 +1278,7 @@
 					</mx:FormItem>
 					<mx:FormItem label="FASE">
 						<s:HGroup width="100%">
-							<mx:TextInput id="txtFase" width="200" maxChars="50"/>  
+							<mx:TextInput id="txtFase" width="200" maxChars="50" />  
 						</s:HGroup>
 					</mx:FormItem>
 					<mx:HRule width="100%">
